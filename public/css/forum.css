@@ -10240,13 +10240,6 @@ u {
   color: var(--color5) !important;
 }
 
-body.topic-t45 .contenu-post,
-body.topic-t464 .contenu-post {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .contenu-post strong {
   color: var(--color9);
 }
@@ -10269,4 +10262,737 @@ body.topic-t464 .contenu-post {
 
 span.page-page>a[href^="javascript:Pagination"] {
   display: none !important;
+}
+
+/* =========================================================================
+ * Section ajoutée après coup : contenu du champ "CSS global Forumactif"
+ * (panneau d'administration), distinct de pumpkins.css (hébergé sur
+ * Dropbox) et jamais confié à l'agent de répartition CSS lors du premier
+ * découpage du travail — source : "css/css global sur forumactif_.docx".
+ * Couvre notamment Notiffi et Switcheroo (§22), l'éditeur SCEditor, les
+ * pages de recherche et la page de connexion. Migré tel quel, aucune
+ * fusion ni suppression de doublon (ex. #fa_toolbar apparaît deux fois
+ * avec un display:none identique dans la source d'origine, inoffensif,
+ * laissé tel quel).
+ * ========================================================================= */
+
+/* on cache la toolbar FA mais on garde ses données pour les plugins */
+#fa_toolbar {
+  display: none;
+}
+
+.wrap-nav {
+  position: relative;
+}
+a {color: var(--color9);}
+/* =========================
+   BOUTONS NOTIFS / SWITCHEROO
+   ========================= */
+
+#notiffi_button {
+  cursor: pointer;
+}
+
+#notiffi_button i {
+  font-size: 16px;
+}
+
+#open-switch2 {
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+}
+
+#open-switch2 .fa_avatar,
+#open-switch2 .fa_avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.unread_count {
+  position: absolute;
+  top: -5px;    
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;    
+  background: var(--color4);
+  color: var(--blanc);
+  font-family: Calibri;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  z-index: 5;
+}
+
+.unread_count:empty {
+  display: none;
+}
+
+/* =========================
+   PANNEAU NOTIFFI
+   ========================= */
+
+#notiffi_panel {
+  width: 360px;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;    
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--color1);
+  gap: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: 0.25s ease;
+}
+
+#notiffi_panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.all_notifications {
+  width: 100%;
+  max-height: 420px;
+  overflow: auto;
+  display: flex;
+  color: var(--color5);
+  background: var(--color13)!important;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: rgba(184, 162, 233, 0.15);
+  border-radius: 10px;
+  font: 14px Calibri;
+}
+
+.all_notifications::-webkit-scrollbar {
+  display: none;
+}
+
+.no_notification {
+  text-align: center;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.notiffi_manage {
+  width: 100%;
+  min-height: 30px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.notiffi_see_all {
+  font: bold 15px Calibri;
+}
+
+.notiffi_actions {
+  display: flex;
+  gap: 6px;
+}
+
+.notiffi_actions button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 5px;    
+  background-color: var(--violet1);
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#notiffi_mark_as_read {
+  background-image: url(https://2img.net/i.imgur.com/3BG2gJg.png);
+  background-size: 18px;
+}
+
+#notiffi_delete_all {
+  background-image: url(https://2img.net/i.imgur.com/ESIH8oC.png);
+  background-size: 16px;
+}
+
+.notification {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 5px;
+  background: var(--color6);
+  transition: 0.2s ease;
+  color: var(--color5);
+}
+.notification a:not([href^="/u"]) {color: var(--color5);}
+.notification:hover {
+background: var(--color9);
+    color: var(--blanc) !important;
+}
+
+.notification.unread {
+background: var(--color9);
+    color: var(--color1) !important;
+}
+html[data-color-scheme="dark"] .notification.unread a {
+    color: var(--color1) !important;
+}
+
+.notif_details {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+}
+
+.notif_avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.notif_avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.notif_icon {
+  position: absolute;
+  right: -4px;    
+  bottom: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--violet1);
+  font-size: 10px;
+}
+
+.notif_content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif_text {
+    font: 15px Calibri;
+    line-height: 17px;
+      font-weight: 400;
+}
+
+.notif_text a {
+  font-weight: 700;
+}
+
+.notif_time {
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.notif_close {
+    border: none;
+    background: #fff0;
+    display: flex;
+    opacity: 0;
+    transition: 0.2s ease;
+    cursor: pointer;
+    align-items: flex-start;
+}
+
+.notification:hover .notif_close {
+  opacity: 1;
+}
+
+.notification.alert {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 360px;
+  color: var(--blanc);
+  z-index: 999;
+  background: var(--color3);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--glass);
+  transform: translateY(120%);
+  opacity: 0;
+  transition: 0.35s ease;
+}
+.notification.alert a {color: var(--blanc)!important;}
+
+.notification.alert.up {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.alert_close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color9);
+}
+
+/* =========================
+   SWITCHEROO MODALE
+   ========================= */
+
+.switcheroo-opened {
+  position: absolute;
+  z-index: 999;
+  margin-top: 160px;
+  margin-left: -83px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: 0.25s ease;
+  pointer-events: none;
+}
+
+.switcheroo-opened.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.switcheroo-box {
+    width: 325px;
+    max-width: calc(100vw - 40px);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color1);
+    color: var(--color5);
+    box-shadow: var(--glass);
+}
+
+.switcheroo-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1px;
+}
+
+.switcheroo-head h2 {
+    margin: 0;
+    font: 18px Glow Night;
+    padding: 0;
+    margin-left: 15px;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
+.close-switch {
+    width: 36px;
+    height: 36px;
+    border: none;
+    color: var(--color5);
+    background: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.switcheroo-panel {
+    padding: 5px 15px 15px 15px;
+}
+
+/* grille du plugin */
+.switcheroo__squircles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.switcheroo__squircles .switcheroo__divider {display: none;}
+.switcheroo__squircle {
+    width: 34px;
+    height: 34px;
+    position: relative;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--violet1);
+    transition: 0.2s ease;
+    cursor: pointer;
+    flex-direction: column;
+}
+
+.switcheroo__squircle:hover {
+  transform: translateY(-2px);
+}
+
+.switcheroo__squircle.active {
+    outline: 2px solid var(--violet3);
+    border-radius: 50%;
+}
+.switcheroo__squircle.active .switcheroo__avatar img {
+    border-radius: 100%;
+}
+
+.switcheroo__avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.switcheroo__avatar img {
+    width: 34px;
+    height: 34px;
+      margin-top: -2px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.switcheroo__squircle--button i {
+    font-size: 16px;
+}
+
+.switcheroo__popper {
+  display: none;
+}
+
+.switcheroo__delete {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ff4d6d;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0);
+  transition: 0.2s ease;
+}
+
+.switcheroo__squircle:hover .switcheroo__delete {
+  transform: scale(1);
+}
+
+.switcheroo__logo,
+.switcheroo__divider {
+  display: none;
+}
+
+/* fenêtre de login du plugin */
+.monomer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  opacity: 0;
+  background: rgba(0,0,0,0.5);
+  transition: 0.2s ease;
+}
+
+.monomer-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 999;
+    width: 460px;
+    max-width: calc(100vw - 40px);
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: var(--glass);
+    background: var(--color1);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: 0.2s ease;
+}
+
+.monomer-modal.monomer-open,
+.monomer-overlay.monomer-open {
+  opacity: 1;
+}
+.monomer-overlay.monomer-open {
+  display: none;
+}
+.monomer-overlay{
+  display: none;
+}
+.monomer-open {
+    min-width: 280px;
+    max-width: 400px;
+    min-height: 175px;
+}
+.monomer-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: var(--violet1);
+    border-radius: 10px;
+    cursor: pointer;
+}
+.switcheroo__form {
+    display: flex;
+    gap: 15px;
+}
+.switcheroo__form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.switcheroo__form-label {
+    font: 16px Glow Night;
+    text-transform: uppercase;
+    color: var(--color5);
+}
+.switcheroo__form-button {
+    position: absolute;
+    margin-left: -353px;
+    width: 339px;
+    margin-top: 82px;
+    font: 16px Glow Night;
+    color: var(--blanc);
+    background: var(--color2);
+}
+.switcheroo__form input {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.06);
+}
+
+.switcheroo__form-button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.monomer-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+
+
+/* BLANKTHEME */
+.main_forum {
+  width: 1154px;    
+  margin: 40px auto;
+}
+
+/* Editeur de texte */
+.sceditor-container {
+  border: var(--border) !important;
+  background-color: var(--neutral) !important;
+}
+
+/* Barre d'outils de l'éditeur de texte*/
+div.sceditor-toolbar {
+  background: var(--neutral) !important;
+  border-bottom: var(--border) !important;
+}
+
+/* Conteneur des groupes d'outils */
+div.sceditor-group {
+  background: var(--neutralDark) !important;
+  border-bottom: var(--border) !important;
+}
+
+/* Bouton d'un outil */
+a.sceditor-button {
+  height: 26px !important;
+  /*ne pas retirer*/
+  width: 26px !important;
+  /*ne pas retirer*/
+}
+
+/* Bouton d'un outil au survol ou actif*/
+.sceditor-button.active,
+.sceditor-button:active,
+.sceditor-button:hover,
+.sceditor-button.hover {
+  background: var(--neutral) !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: 1px solid var(--neutralDarker);
+}
+
+/* Conteneur de la zone de texte */
+.sceditor-container iframe,
+.sceditor-container textarea {
+  background-color: var(--neutral) !important;
+  /*ne pas supprimer*/
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 5px !important;
+  /*ne pas supprimer*/
+  min-height: 250px !important;
+}
+
+.sceditor-container textarea:focus {
+  outline: none
+}
+
+/*Boîte Smiley*/
+html#sceditor_smilies,
+body#sce_smilies_body {
+  background: transparent !important;
+}
+
+hr {
+  border: none;
+  border-top: var(--border);
+}
+
+/* Barre de gestion 
+ * Contient des boutons ou des liens spéciaux */
+
+/* supprime si vide */
+.links_bar:empty {
+  display: none;
+}
+/* Suppression des liens vides */
+.specials_links a:empty,
+a.specials_links:empty {
+  display: none;
+}
+/* Cache la toolbar défaut */
+#fa_toolbar {
+  display: none
+}
+
+/* REPONSE RAPIDE --- */
+/*supression de la mention "réponse rapide" */
+.quickreply div.h3 {
+  display: none;
+}
+
+/* Retire le cadre de la réponse rapide pour les invités */
+#quickreply_content:empty {
+  display: none;
+}
+
+/* BALISES DE MESSAGE : spoiler, code, quote... */
+
+/* Balise code, spoiler et hide*/
+.codebox {
+  display: block;
+  width: 90%;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Contenu code, spoiler et hide*/
+.codebox dd {
+  background: var(--neutralDark);
+  border-radius: 5px;
+  padding: 5px;
+}
+
+/* Nom de balise "code, spoiler" */
+.codebox dt {
+  font-weight: 700;
+  font-size: var(--little-size);
+}
+
+/*retire la mention "code" du bloc*/
+#codeBox dt {
+  height: 0;
+  font-size: 0;
+}
+
+/* bouton "copier" */
+.copyCode {
+  font-size: 12px;
+  font-weight: normal;
+  position: absolute;
+  top: 5px;
+  right: 13px;
+  font-family: monospace;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+div.cont_code {
+  clear: right;
+}
+
+
+
+/*** ------------------------------- ***/
+/*** PAGES DE RECHERCHES ----------- ***/
+
+/* RECHERCHE DE MESSAGE -----*/
+
+/* Conteneur d'un message*/
+.post_search {
+  display: grid;
+  grid-template-columns: 200px auto;
+  border-radius: 5px;
+  margin: 10px 0;
+  background: var(--neutral);
+}
+
+.post_search>div {
+  padding: 10px;
+}
+
+/* Colonne d'information du message */
+.postsearch_infos {
+  border-right: var(--border);
+  font-size: var(--little-size);
+}
+
+/* RECHERCHE DE SUJET -----*/
+/* Même CSS que la liste des sujets dans un forum */
+
+/*** ------------------------------- ***/
+/*** PAGE DE CONNEXION ------------- ***/
+
+/* Centrer les pages de connexion */
+form[name="form_login"],
+form[name="form_login"]~.panel {
+  text-align: center;
+}
+
+form[name="form_login"] .content {
+  display: grid;
+  justify-content: center;
+  justify-items: center;
+}
+
+/* .infos-lastmsg .lastpost-user — depuis "CSS global Forumactif", non dupliqué (vérifié absent avant ajout) */
+.infos-lastmsg .lastpost-user {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-bottom: -4px;
+    width: 85px;
 }

@@ -68,3 +68,137 @@ html[data-color-scheme="dark"] .btn-cb {
 #chatbox .cb-avatar>img {
   object-fit: cover;
 }
+
+/* =========================================================================
+ * Section ajoutée après coup : styles chatbox du champ "CSS global
+ * Forumactif" (voir note équivalente dans forum.css), non capturés lors
+ * du premier routage de pumpkins.css car absents de ce fichier.
+ * ========================================================================= */
+
+html[data-color-scheme="light"] #chatbox_header,
+html[data-color-scheme="light"] #chatbox_header.main-head, html[data-color-scheme="light"] .btn-cb, html[data-color-scheme="light"] #chatbox_footer{
+  background: var(--color3)!important;
+}
+html[data-color-scheme="light"] #submit, html[data-color-scheme="light"] .chatbox-options a, html[data-color-scheme="light"] .format-message+label, html[data-color-scheme="light"] #divsmilies, html[data-color-scheme="light"] #divcolor {
+   background: var(--color9) !important;
+}
+
+html[data-color-scheme="winter"] #chatbox_footer {
+    background: var(--color2) !important;
+}
+
+html[data-color-scheme="winter"] #chatbox_header, html[data-color-scheme="winter"] #chatbox_header.main-head {
+  background: var(--color3) !important;
+}
+
+html[data-color-scheme="winter"] #chatboxclose {
+  background: var(--color2) !important;
+}
+#chatbox .cb-avatar,
+.user-msg .cb-avatar {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  float: left !important;
+  height: 46px !important;
+  margin-right: 8px !important;
+  object-fit: cover!important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+  width: 46px !important;
+  overflow: hidden !important;
+}
+
+#chatbox .cb-avatar img,
+.user-msg .cb-avatar img {
+  width: 46px !important;
+  height: 46px !important;
+  max-width: 46px !important;
+  object-fit: cover!important;
+  max-height: 46px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  display: block !important;
+}
+.msg span[style="color:green"] strong {
+  color: var(--rel) !important;
+  margin-left: -54px!important;
+}
+
+.msg span[style="color:red"] strong {
+  color: var(--fam)!important;
+  margin-left: -54px!important;
+}
+
+.msg span[style="color:undefined"] {
+  color: var(--color5) !important;
+  margin-left: -54px!important;
+}
+.msg span[style="color:undefined"] strong {
+  white-space: nowrap;
+}
+
+p:not(:has(.user-msg)) .date-and-time {
+  margin-top: 4px !important;
+  margin-right: 0!important;
+}
+p:has(span[style="color:undefined"]) .date-and-time {
+  margin-right: 0 !important;
+}
+
+#chatbox .msg {
+    display: block;
+    line-height: 18px!important;
+    margin-top: 4px;
+    padding-left: 58px;
+    color: var(--color5)!important;
+}
+.user-msg .user {
+      margin-bottom: -4px;
+}
+#chatbox .cb-avatar,
+#chatbox .cb-avatar img,
+.user-msg .cb-avatar,
+.user-msg .cb-avatar img {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  object-fit: cover!important;
+}
+
+#chatbox .cb-avatar,
+.user-msg .cb-avatar {
+  padding: 0 !important;
+}
+#chatbox .cb-avatar { background: transparent !important; box-shadow: none !important; }
+body #chatbox .cb-avatar { border: none !important; /*retirer la bordure*/ }
+
+#chatbox > p > .cb_delete_msg {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  float: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 48px !important;
+  width: 48px !important;
+  border: 1px solid var(--color9) !important;
+  position: absolute !important;
+  border-radius: 100% !important;
+  background: var(--blanc) !important;
+  left: 0 !important;
+  margin: -22px 0 0 13px !important;
+  transition: opacity 300ms ease !important;
+}
+
+#chatbox > p:hover > .cb_delete_msg {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+#chatbox .cb-avatar > img {object-fit: cover!important;}

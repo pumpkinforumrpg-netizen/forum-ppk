@@ -1,3 +1,14 @@
+/* Relocalisé depuis forum.css : routage initial erroné de l'agent CSS
+ * (sélecteur générique html[data-color-scheme=...] faisant écran), repéré
+ * par recoupement avec perles.js qui pose ces classes sur <body> pour le
+ * sujet "perles-de-pluie" (t45) et sa page de redirection (t464). */
+body.topic-t45 .contenu-post,
+body.topic-t464 .contenu-post {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .pluie-collection {
   width: 100%;
   padding: 24px;
