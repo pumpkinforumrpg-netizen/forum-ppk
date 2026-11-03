@@ -1,0 +1,115 @@
+<!----------------------------------------------->
+<!-- LISTE DES SUJETS -------------->
+<!-- BEGIN topics_list_box -->
+
+<!-- BEGIN row -->
+
+<!-- BEGIN topic -->
+
+<!-- BEGIN line_sticky -->
+<div class="topic_separator"></div>
+<!-- END line_sticky -->
+
+<div class="topicslist_row {topics_list_box.row.FOLDER_CLASSNAME} {topics_list_box.row.TOPIC_READ_STATUS}">
+  <div class="titre-auteur">
+    <a class="titresj" href="{topics_list_box.row.U_VIEW_TOPIC}">{topics_list_box.row.TOPIC_TITLE}</a><br />
+    <span class="auteursj">par {topics_list_box.row.TOPIC_AUTHOR}</span>
+      <!-- BEGIN nav_tree -->
+      	{topics_list_box.row.TOPIC_NAV_TREE_NEW}
+      <!-- END nav_tree -->
+      {topics_list_box.row.GOTO_PAGE_NEW}
+  </div>
+
+
+
+  <div class="wrap-stats-dm">
+    <div class="reponses-vues">
+      <span>{topics_list_box.row.REPLIES}</span>
+      <span>{topics_list_box.row.VIEWS}</span>
+    </div>
+
+    <div class="dernier-msg-liste-sj">
+      <div class="topicslist-avatar-lastpost lastpostavatar">
+        <!-- BEGIN avatar -->
+        {topics_list_box.row.topic.avatar.LAST_POST_AVATAR}
+        <!-- END avatar -->
+      </div>
+
+      <div class="topicslist-lastpost lastpost">
+        <span>
+          <span class="jedetestelecode">{topics_list_box.row.LAST_POST_AUTHOR}<span id="pot-img">{topics_list_box.row.LAST_POST_IMG}</span></span>
+          {topics_list_box.row.LAST_POST_TIME}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END topic -->
+
+<!-- BEGIN no_topics -->
+<center><strong>{topics_list_box.row.L_NO_TOPICS}</strong></center>
+<!-- END no_topics -->
+
+<!-- END row -->
+<!-- END topics_list_box -->
+<!-- Fin de la liste des sujets -->
+
+
+
+
+
+<!-- BEGIN multi_selection -->
+<script type="text/javascript">
+    function check_uncheck_main_ {
+        topics_list_box.row.header_table.BOX_ID
+    }() {
+        alert('MAIN');
+
+        var all_checked = true;
+
+        for (i = 0;
+            (i < document. {
+                topics_list_box.FORMNAME
+            }.elements.length) && all_checked; i++) {
+            if (document. {
+                    topics_list_box.FORMNAME
+                }.elements[i].name == '{topics_list_box.FIELDNAME}[]{topics_list_box.row.header_table.BOX_ID}') {
+                all_checked = document. {
+                    topics_list_box.FORMNAME
+                }.elements[i].checked;
+            }
+        }
+
+        document. {
+            topics_list_box.FORMNAME
+        }.all_mark_ {
+            topics_list_box.row.header_table.BOX_ID
+        }.checked = all_checked;
+    }
+
+    function check_uncheck_all_ {
+        topics_list_box.row.header_table.BOX_ID
+    }() {
+        alert('ALL');
+
+        for (i = 0; i < document. {
+                topics_list_box.FORMNAME
+            }.length; i++) {
+            if (document. {
+                    topics_list_box.FORMNAME
+                }.elements[i].name == '{topics_list_box.FIELDNAME}[]{topics_list_box.row.header_table.BOX_ID}') {
+                document. {
+                    topics_list_box.FORMNAME
+                }.elements[i].checked = document. {
+                    topics_list_box.FORMNAME
+                }.all_mark_ {
+                    topics_list_box.row.header_table.BOX_ID
+                }.checked;
+            }
+        }
+    }
+
+</script>
+<!-- END multi_selection -->
+            

@@ -1,0 +1,101 @@
+<div class="ppk-mp-page">
+
+  <div class="ppk-nav-sujet f1 ppk-mp-header">
+    <h1 class="f2 glass no-glyph-replace">MESSAGERIE</h1>
+
+    <div class="nav-wrap-sjt f2 glass">
+      <div class="nav-sjt ppk-mp-nav">
+        <span class="nav ppk-mp-menu-item" data-folder="inbox">{INBOX}</span>
+        <span class="nav ppk-mp-menu-item" data-folder="sentbox">{SENTBOX}</span>
+        <span class="nav ppk-mp-menu-item" data-folder="outbox">{OUTBOX}</span>
+        <span class="nav ppk-mp-menu-item" data-folder="savebox">{SAVEBOX}</span>
+      </div>
+
+      <div class="boutons-sujet ppk-mp-top-btns">
+        <a href="/privmsg?mode=post">nouveau message</a>
+      </div>
+    </div>
+  </div>
+
+  <form action="{S_PRIVMSGS_ACTION}" method="post" name="privmsg_list" class="ppk-mp-main f1">
+  <div class="ppk-mp-actions f2 glass">
+    <div class="ppk-mp-action ppk-mp-select fa-tip" data-tip="Sélectionner / désélectionner">
+      <a id="ppk-mp-selection" href="javascript:select_switch_privmsg(false);">
+        <img width="34" src="https://i.ibb.co/cXgC8KRb/image.png" alt="" />
+      </a>
+    </div>
+  
+    <div id="ppk-mp-archive" class="ppk-mp-action fa-tip" data-tip="Archiver la sélection">
+      <!-- BEGIN switch_save -->
+      <input type="submit" name="save" />
+      <!-- END switch_save -->
+    </div>
+  
+    <div id="ppk-mp-read" class="ppk-mp-action fa-tip" data-tip="Marquer comme lu">
+      <!-- BEGIN switch_mark_as_read -->
+      <input type="submit" name="mark_as_read" />
+      <!-- END switch_mark_as_read -->
+    </div>
+  
+    <div id="ppk-mp-unread" class="ppk-mp-action fa-tip" data-tip="Marquer comme non lu">
+      <!-- BEGIN switch_mark_as_read -->
+      <input type="submit" name="mark_as_unread" />
+      <!-- END switch_mark_as_read -->
+    </div>
+  
+    <div id="ppk-mp-trash" class="ppk-mp-action fa-tip" data-tip="Supprimer la sélection">
+      <input type="submit" name="delete" />
+    </div>
+  </div>
+
+    <!-- BEGIN listrow -->
+    <div class="ppk-mp-item f2 glass">
+      <div class="ppk-mp-item-left">
+        <input class="ppk-mp-checkbox" type="checkbox" name="mark[]2" value="{listrow.S_MARK_ID}" />
+        <span class="ppk-mp-author">{listrow.FROM}</span>
+        <a href="{listrow.U_READ}" class="ppk-mp-subject {listrow.MSG_UNANSWERED} {listrow.MSG_UNREAD}">{listrow.SUBJECT}</a>
+      </div>
+      <span class="ppk-mp-date">{listrow.DATE}</span>
+    </div>
+    <!-- END listrow -->
+
+    <!-- BEGIN switch_no_messages -->
+    <div class="ppk-mp-empty f2 glass">{L_NO_MESSAGES}</div>
+    <!-- END switch_no_messages -->
+  </form>
+
+</div>
+
+<script>
+$(function() {
+  $('#ppk-mp-selection').on('click', function() {
+    var href = $(this).attr('href');
+    var isTrue = href.indexOf('true') !== -1;
+    var newHref = isTrue
+      ? 'javascript:select_switch_privmsg(false);'
+      : 'javascript:select_switch_privmsg(true);';
+    $(this).attr('href', newHref);
+
+    var newImgSrc = isTrue
+      ? 'https://i.ibb.co/cXgC8KRb/image.png'
+      : 'https://2img.net/i.imgur.com/aYfdGsp.png';
+
+    $(this).find('img').attr('src', newImgSrc);
+  });
+});
+
+$(function() {
+  $('a.unread').each(function() {
+    $(this).closest('.ppk-mp-item').addClass('is-unread');
+  });
+});
+
+$(function() {
+  const folder = new URLSearchParams(window.location.search).get('folder') || 'inbox';
+  $('.ppk-mp-menu-item').removeClass('active').filter(function() {
+    return $(this).data('folder') === folder;
+  }).addClass('active');
+});
+</script>
+
+<br style="clear:both" />

@@ -1,0 +1,4471 @@
+/*
+ * registre.js — Registre des personnages de Pumpkins (public/registre/index.html).
+ *
+ * Nettoyé depuis l'ancien script embarqué dans registre.html (et sa copie
+ * côté Forumactif, "Registre Frmbz") : comportement inchangé, code regroupé
+ * en sections nommées (données / UI / filtres / rendu), et moteur de thème
+ * dédupliqué au profit de public/js/core.js (PPK.theme). Avant ce nettoyage,
+ * le script dupliquait entièrement son propre moteur de thème (lecture/
+ * écriture du localStorage, détection système, application du thème) alors
+ * que ce moteur existe déjà globalement dans core.js. Le switch de thème
+ * (#themeSwitch) est créé dynamiquement par enhanceRegisterUI() plus bas ;
+ * core.js le détecte et le câble automatiquement via son MutationObserver
+ * (observeDynamicNodes), il n'y a donc rien de plus à faire ici pour le
+ * thème.
+ *
+ * NOTE — divergence de source constatée lors de la migration : le script
+ * Forumactif exporté ("JS/Registre Frmbz-....js") est une version plus
+ * ancienne et incomplète (il ne connaît ni les Multicomptes, ni les Noms
+ * réservés, ni getCharacterJobs, et sa liste de personnages est beaucoup
+ * plus courte). C'est donc le script embarqué dans registre.html — plus
+ * complet et à jour — qui a servi de base à ce fichier, afin de ne perdre
+ * aucune fonctionnalité actuellement en ligne. À VÉRIFIER côté staff/dev :
+ * confirmer que "Registre Frmbz" est bien obsolète et peut être ignoré.
+ *
+ * Dépend de : public/js/core.js, chargé avant ce fichier (PPK.theme).
+ */
+(function () {
+  "use strict";
+
+
+const ORIGIN_ORDER = ["humain", "eveille", "sorcier", "familier", "reliquaire"];
+
+const ORIGIN_LABELS = {
+  humain: "Humain",
+  eveille: "Eveillé",
+  sorcier: "Sorcier",
+  familier: "Familier",
+  reliquaire: "Reliquaire"
+};
+
+const AVATAR_FILTERS = [
+  { id: "all", label: "Tout" },
+  { id: "abc", label: "abc" },
+  { id: "def", label: "def" },
+  { id: "ghi", label: "ghi" },
+  { id: "jkl", label: "jkl" },
+  { id: "mno", label: "mno" },
+  { id: "pqr", label: "pqr" },
+  { id: "stuv", label: "stuv" },
+  { id: "wxyz", label: "wxyz" },
+  { id: "0123-#", label: "0123-#" }
+];
+
+const JOB_FILTERS = [
+  { id: "all", label: "Tout", match: "" },
+  { id: "embarcadere", label: "L'Embarcadère", match: "l'embarcadere" },
+  { id: "centre-ville", label: "Centre-ville", match: "centre-ville" },
+  { id: "hauts-bois", label: "Hauts-Bois", match: "hauts-bois" },
+  { id: "foret-ambre", label: "Forêt d'Ambre", match: "foret d'ambre" },
+  { id: "vesperune", label: "Vesperune", match: "vesperune" }
+];
+
+const POWER_DOMAINS = [
+  "all",
+  "Soins",
+  "Protection",
+  "Combat",
+  "Illusions",
+  "Détection",
+  "Mobilité",
+  "Influence",
+  "Malédictions"
+];
+
+const VALID_POWER_DOMAINS = POWER_DOMAINS.filter(function (item) {
+  return item !== "all";
+});
+
+const WORKPLACE_TYPES = {
+  "librairie des brumes": "Librairie",
+  "commissariat": "Commissariat"
+};
+
+const state = {
+  activeTab: "all",
+  search: "",
+  origin: "all",
+  avatarFilter: "all",
+  jobFilter: "all",
+  sortMode: "alpha",
+  pnjOnly: false,
+  powerOrigin: "all",
+  powerDomain: "all",
+  powerAnimalFilters: {},
+  powerRelicFilters: {}
+};
+
+/* ==========================================================================
+   DONNÉES — Lieux de travail, pouvoirs, avatars, personnages, noms réservés
+   Ces catalogues sont la source de vérité du Registre ; comportement et
+   contenu sont repris tels quels depuis la version précédente du script.
+   ========================================================================== */
+
+const workplacesCatalog = [
+  {
+    name: "Blackwell Private Investigations (BPI)",
+    type: "Cabinet de détectives privés",
+    district: "Centre-ville"
+  },
+  {
+    name: "Amberwoods Automobile",
+    type: "Garage",
+    district: "Centre-ville"
+  },
+  {
+    name: "Red Oak & Co",
+    type: "Entreprise de construction & exploitation forestière",
+    district: "Centre-ville"
+  },
+  {
+    name: "The Amber Post",
+    type: "Éditeur de journaux",
+    district: "Centre-ville"
+  },
+    {
+    name: "Lily's diner",
+    type: "Restaurant",
+    district: "Centre-ville"
+  },
+      {
+    name: "Rosewood Inn",
+    type: "Bed & Breakfast",
+    district: "Centre-ville"
+  },
+  {
+    name: "Scierie de Red Oak",
+    type: "Exploitation forestière",
+    district: "Forêt d'Ambre"
+  },
+    {
+    name: "Old Stone Orchards",
+    type: "Vergers de pommes",
+    district: "Forêt d'Ambre"
+  },
+    {
+    name: "Thornefield family farm",
+    type: "Ferme",
+    district: "Forêt d'Ambre"
+  },
+  {
+    name: "Maple & Pine",
+    type: "Café",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "Tiny Craft",
+    type: "Échoppe de faits-main",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "Amberbloom",
+    type: "Fleuriste",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "Timber Tools Supply",
+    type: "Magasin d'outillage",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "Ash Antiquités",
+    type: "Antiquaire",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "My'My",
+    type: "Institut de beauté & Coiffeur",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "Poppin'Pepper",
+    type: "Pizzeria",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "Farmer's Market",
+    type: "Magasin de productions locales",
+    district: "L'Embarcadère"
+  },
+    {
+    name: "Silk & Blue",
+    type: "Bar & Scène ouverte",
+    district: "L'Embarcadère"
+  },
+  {
+    name: "Château de Chantilly",
+    type: "Politique",
+    district: "Vesperune"
+  },
+  {
+    name: "Millefeuille",
+    type: "École (Opaline)",
+    district: "Vesperune"
+  },
+  {
+    name: "Réglisse",
+    type: "École (Amarena)",
+    district: "Vesperune"
+  },
+  {
+    name: "Clafoutis",
+    type: "Village",
+    district: "Vesperune"
+  }
+];
+
+const powersCatalog = [
+  {
+    name: "Hydrokinésie",
+    domain: "Combat",
+    description: "Matérialisation et contrôle de l'eau."
+  },
+  {
+    name: "Cryokinésie",
+    domain: "Combat",
+    description: "Matérialisation et contrôle de la glace."
+  },
+  {
+    name: "Aérokinésie",
+    domain: "Combat",
+    description: "Matérialisation et contrôle de l'air."
+  },
+  {
+    name: "Géokinésie",
+    domain: "Combat",
+    description: "Matérialisation et contrôle de la terre."
+  },
+  {
+    name: "Florakinésie",
+    domain: "Combat",
+    description: "Matérialisation et contrôle des fleurs (éclosion, fanage, etc.)."
+  },
+  {
+    name: "Photokinésie",
+    domain: "Combat",
+    description: "Matérialisation et contrôle de la lumière."
+  },
+  {
+    name: "Fumokinésie",
+    domain: "Combat",
+    description: "Matérialisation et contrôle de la fumée."
+  },
+  {
+    name: "Sonokinésie",
+    domain: "Combat",
+    description: "Contrôle du son."
+  },
+  {
+    name: "Thermokinésie",
+    domain: "Combat",
+    description: "Contrôle de la température."
+  },
+  {
+    name: "Barrière",
+    domain: "Protection",
+    description: "Crée une limite invisible autour d’une personne ou d’un espace restreint. La barrière ralentit ou repousse ce qui tente de la franchir."
+  },
+  {
+    name: "Sirène",
+    domain: "Influence",
+    description: "Voix envoûtante, chantée ou parlée, permettant d'influencer autrui à réaliser sa volonté, même partiellement."
+  },
+  {
+    name: "Camouflage",
+    domain: "Illusions",
+    description: "Dissimule une personne, un objet ou une petite zone aux yeux des autres. La cible n’est pas invisible, mais devient difficile à remarquer."
+  },
+  {
+    name: "Invisibilité",
+    domain: "Illusions",
+    description: "Devenir invisible. Cela ne s'applique pas à autrui ou aux objets, outre les vêtements que l'on porte."
+  },
+  {
+    name: "Métamorphose animale",
+    domain: "Illusions",
+    description: "Prendre l'apparence physique et les capacités de petits et moyens animaux. (Une maîtrise extrême est requise pour obtenir plus d'1 forme animale)."
+  },
+  {
+    name: "Réminescence",
+    domain: "Détection",
+    description: "Repère les résidus magiques laissés par l'utilisation de la magie ou d'un objet enchanté, et permet de s'octroyer une vision plus ou moins claire de la scène."
+  },
+  {
+    name: "Lévitation",
+    domain: "Mobilité",
+    description: "Lévite dans les airs pendant une durée indéterminée. (Peu utile pour les sorciers ayant fait leurs classes.)"
+  },
+  {
+    name: "Téléportation",
+    domain: "Mobilité",
+    description: "Déplacement instantané sur une distance visible ou connue. Le pouvoir devient risqué si la destination est invisible ou inconnue."
+  },
+  {
+    name: "Patinage",
+    domain: "Mobilité",
+    description: "Crée une fine couche de glace sous ses pieds afin de glisser sur le sol comme sur une patinoire, en permanence. (Désactivable)."
+  },
+  {
+    name: "Sixième sens",
+    domain: "Détection",
+    description: "Ressentir un coup de jus chaque fois qu'un danger, une présence ou une anomalie magique est sur le point de se produire ou de toucher le détenteur."
+  },
+  {
+    name: "Télépathie",
+    domain: "Influence",
+    description: "Entend les pensées d'une personne ciblée."
+  },
+  {
+    name: "Changepeau",
+    domain: "Illusions",
+    description: "Prendre l'apparence physique d'une personne connue ou non."
+  },
+  {
+    name: "Mirage",
+    domain: "Illusions",
+    description: "Crée une image illusoire dans un espace donné."
+  },
+  {
+    name: "Projectiles magiques",
+    domain: "Combat",
+    description: "Lance des projectiles magiques avec de l'énergie brute, non élémentaire."
+  },
+  {
+    name: "Chaînes",
+    domain: "Combat",
+    description: "Matérialise des chaînes magiques pour retenir, tirer ou immobiliser une cible. Les chaînes disparaissent si la concentration est rompue."
+  },
+  {
+    name: "Contresort",
+    domain: "Combat",
+    description: "Dévie un sort qui est lancé sur le détenteur. La nouvelle cible est déterminée par le détenteur, ou de façon aléatoire en cas de manque de concentration."
+  },
+  {
+    name: "Manipulation des souvenirs",
+    domain: "Influence",
+    description: "Rend un souvenir flou, difficile à saisir. Peut les effacer, en cas de maîtrise extrême du pouvoir."
+  },
+  {
+    name: "Sixième sens",
+    domain: "Détection",
+    description: "Ressentir un coup de jus chaque fois qu'un danger, une présence ou une anomalie magique est sur le point de se produire."
+  },
+  {
+    name: "Sommeil [Réservé]",
+    domain: "Influence",
+    description: "Pousse une cible vers l'endormissement."
+  },
+  {
+    name: "Sceaux",
+    domain: "Protection",
+    description: "Pose une marque de protection sur un lieu, un objet ou une personne. Une fois le sceau posé, nul ne peut entrer ou heurter l'intégrité de l'objet ou de la personne."
+  },
+  {
+    name: "Guérison",
+    domain: "Soins",
+    description: "Soigne les blessures. Plus la blessure est grave, plus le soin prend du temps. Ne peut pas recréer la matière."
+  },
+  {
+    name: "Régénération",
+    domain: "Soins",
+    description: "Recrée les cellules de son propre corps uniquement. Soigne les blessures et recrée la matière organique du détenteur."
+  },
+  {
+    name: "Force",
+    domain: "Combat",
+    description: "Possède une force surhumaine."
+  },
+  {
+    name: "Élasticité",
+    domain: "Combat",
+    description: "Rend sa peau et son corps élastiques."
+  },
+  {
+    name: "Contrôle de la taille",
+    domain: "Malédictions",
+    description: "Change la taille d'un objet ou d'une personne."
+  },
+  {
+    name: "Toxikinésie",
+    domain: "Combat",
+    description: "Matérialise et contrôle des substances toxiques, poisons."
+  },
+  {
+    name: "Intangibilité",
+    domain: "Mobilité",
+    description: "Se rend tangible ou intangible, afin de traverser des structures."
+  },
+  {
+    name: "Météokinésie",
+    domain: "Combat",
+    description: "Influence ou contrôle les phénomènes météorologiques dans une zone limitée."
+  },
+  {
+    name: "Hématokinésie",
+    domain: "Combat",
+    description: "Contrôle du sang."
+  },
+  {
+    name: "Communication animale",
+    domain: "Influence",
+    description: "Entend et comprend les pensées animales, peut communiquer avec eux."
+  },
+  {
+    name: "Communication animique",
+    domain: "Influence",
+    description: "Entend et comprend les pensées des âmes défuntes, peut communiquer avec elles."
+  },
+  {
+    name: "Amplification des sens",
+    domain: "Combat",
+    description: "Amplifie au choix l'un des sens du détenteur de façon temporaire : ouïe, vue, goût, vision, odorat."
+  },
+  {
+    name: "Zone de guérison",
+    domain: "Soins",
+    description: "Crée une zone de soins, utile pour les blessures légères à moyennes."
+  },
+  {
+    name: "Luciole",
+    domain: "Illusions",
+    description: "Brille dans le noir."
+  }
+];
+
+const avatarsCatalog = [
+  {
+    avatar: "https://2img.net/i.imgur.com/0ioNgmO.png",
+    faceclaimName: "Réservé",
+    faceclaimSource: "Jujutsu Kaisen",
+    faceclaimSourceType: "Manga",
+    status: "Suguru Geto (par Jasmin)"
+  },
+     {
+    avatar: "https://2img.net/i.imgur.com/msUSQNQ.png",
+    faceclaimName: "Réservé",
+    faceclaimSource: "Honkai: Star Rail",
+    faceclaimSourceType: "Jeu vidéo",
+    status: "Blade (par Mirage)"
+  },    
+       {
+    avatar: "https://i.pinimg.com/474x/c0/8b/46/c08b468347af6537efeaedcb6f7a2d54.jpg",
+    faceclaimName: "Réservé",
+    faceclaimSource: "Valkyrie Apocalypse",
+    faceclaimSourceType: "Manga",
+    status: "Bouddha (par Cassis)"
+  },   
+         {
+    avatar: "https://i.pinimg.com/736x/9f/d0/fb/9fd0fbf28db0c40cbf350fa84e2122c7.jpg",
+    faceclaimName: "Réservé",
+    faceclaimSource: "Marvel",
+    faceclaimSourceType: "Comics",
+    status: "Bucky Barnes (par Aconit)"
+  },   
+         {
+    avatar: "https://i.pinimg.com/1200x/dd/b0/80/ddb080f8d2fa261ee59a1178a3a4e047.jpg",
+    faceclaimName: "Réservé",
+    faceclaimSource: "Valorant",
+    faceclaimSourceType: "Jeu vidéo",
+    status: "Chamber (par Dragée)"
+  }, 
+       {
+    avatar: "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da846eacc862eea556f1ef4b5a63",
+    faceclaimName: "Réservé",
+    faceclaimSource: "Apex legend",
+    faceclaimSourceType: "Jeu vidéo",
+    status: "Elliott Mirage Witt (par Alistair)"
+  }, 
+];
+
+const characters = [
+  /*
+    FICHE PERSONNAGE VIERGE AVEC UN SEUL MÉTIER
+
+    {
+      id: "pseudo",
+      multiAccountId: "", // même valeur sur les comptes d'une même personne
+      pseudo: "Pseudo",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Intitulé du métier",
+      workplaceName: "Nom de l'établissement",
+      workplaceType: "Salon de thé",
+      workDistrict: "Centre-ville",
+      presentationLink: "#",
+      profileLink: "#",
+      avatar: "AVATAR_FORUMACTIF_OU_URL",
+      faceclaimName: "Nom du faceclaim",
+      faceclaimSource: "Source du faceclaim",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    }
+
+    FICHE PERSONNAGE AVEC PLUSIEURS MÉTIERS
+
+    {
+      id: "pseudo",
+      multiAccountId: "", // même valeur sur les comptes d'une même personne
+      pseudo: "Pseudo",
+      isPnj: false,
+      origin: "humain",
+      jobs: [
+        {
+          jobTitle: "Premier métier",
+          workplaceName: "Premier établissement",
+          workplaceType: "Type du premier établissement",
+          workDistrict: "Centre-ville"
+        },
+        {
+          jobTitle: "Deuxième métier",
+          workplaceName: "Deuxième établissement",
+          workplaceType: "Type du deuxième établissement",
+          workDistrict: "Vesperune"
+        }
+      ],
+      presentationLink: "#",
+      profileLink: "#",
+      avatar: "AVATAR_FORUMACTIF_OU_URL",
+      faceclaimName: "Nom du faceclaim",
+      faceclaimSource: "Source du faceclaim",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    }
+  */
+  {
+    id: "Jace",
+    multiAccountId: "jace",
+    pseudo: "Jace",
+    isPnj: false,
+    origin: "eveille",
+    jobTitle: "Acériculteur",
+    workplaceName: "Érablière familiale McKinley",
+    workplaceType: "Érablière",
+    workDistrict: "Forêt d'Ambre",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t54-memoire-dorage-jace#585",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u3",
+    avatar: "https://zupimages.net/up/26/16/t24m.png",
+    faceclaimName: "Carlos Sainz Jr.",
+    faceclaimSource: "Various Artists",
+    faceclaimSourceType: "Fanart",
+    powerName: "Électrokinésie",
+    powerDescription: "Matérialisation et contrôle de l'électricité.",
+    magicDomain: "Combat",
+    animalForm: "",
+    relicForm: ""
+  },
+      {
+    id: "Peter",
+    pseudo: "Peter",
+    isPnj: false,
+    origin: "eveille",
+    jobTitle: "Horticulteur",
+    workplaceName: "Folia",
+    workplaceType: "Serre horticole",
+    workDistrict: "Haut bois",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t381-disparaitre-sous-terre-peter",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u84",
+    avatar: "https://www.zupimages.net/up/26/28/u1zq.png",
+    faceclaimName: "OC",
+    faceclaimSource: "@Sajanggs",
+    faceclaimSourceType: "OC",
+    powerName: "Aucun pouvoir",
+    powerDescription: "",
+    magicDomain: "",
+    animalForm: "",
+    relicForm: ""
+  },
+    {
+      id: "Liam",
+      pseudo: "Liam",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Fondateur du BPI",
+      workplaceName: "Blackwell Private Investigations (BPI)",
+      workplaceType: "Cabinet de détectives privés",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t265-the-bitch-is-back-or-coming-liam",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u69",
+      avatar: "https://2img.net/i.imgur.com/qBivkfn.jpeg",
+      faceclaimName: "Beom Taeha",
+      faceclaimSource: "Pleure pour cette fleur",
+      faceclaimSourceType: "Webtoon",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },    
+      {
+      id: "Solen",
+      pseudo: "Solen",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Électricien",
+      workplaceName: "Morgan Electric & Co",
+      workplaceType: "Électricien",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t385-solen-on-the-line",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u96",
+      avatar: "https://i.ibb.co/99vQyjjW/solen-avat-4.png",
+      faceclaimName: "Oscar Spendrup",
+      faceclaimSource: "Various artists",
+      faceclaimSourceType: "Fanart",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },    
+          {
+      id: "Morgan",
+      pseudo: "Morgan",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Mécanicienne & propriétaire",
+      workplaceName: "Thompson Motorcycles",
+      workplaceType: "Garage",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t425-i-m-gonna-make-this-place-your-home-o-morgan-brooks",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u108",
+      avatar: "https://sig.grumpybumpers.com/host/AvatarMorgan.gif",
+      faceclaimName: "Yumi Lee",
+      faceclaimSource: "Windbreaker",
+      faceclaimSourceType: "Webtoon",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },    
+       {
+      id: "Adamant",
+      pseudo: "Adamant",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Thanatopracteur",
+      workplaceName: "Pompes funèbres",
+      workplaceType: "Pompes funèbres",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t297-ce-soir-au-bar-on-me-demandera-si-j-suis-un-mec-ou-bien-une-comete-adamant",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u76",
+      avatar: "https://2img.net/i.imgur.com/eyhB037.png",
+      faceclaimName: "Rosei Kantsubaki",
+      faceclaimSource: "Agents of the Four Seasons : la danse du Printemps",
+      faceclaimSourceType: "Manga",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },    
+           {
+      id: "Camille",
+      pseudo: "Camille",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Sculpteur sur bois - Menuisier",
+      workplaceName: "Tiny Craft",
+      workplaceType: "Échoppe de faits-main",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t352-find-someone-who-grows-flowers-in-the-darkest-parts-of-you-camille",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u91",
+      avatar: "https://sig.grumpybumpers.com/host/lalaladewdrop.gif",
+      faceclaimName: "Leon S. Kennedy",
+      faceclaimSource: "Resident Evil 4",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },   
+      {
+      id: "Isolde",
+      pseudo: "Isolde",
+      isPnj: false,
+      origin: "humain",
+      jobs: [
+        {
+          jobTitle: "Assistante Bibliothécaire",
+          workplaceName: "Bibliothèque publique",
+          workplaceType: "Bibliothèque d'Amberwoods",
+          workDistrict: "Centre-ville"
+        },
+        {
+          jobTitle: "Autrice",
+          workplaceName: "Indépendants",
+          workplaceType: "Aucun établissement fixe",
+          workDistrict: "Centre-ville"
+        }
+      ],
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t580-the-back-of-the-bus-where-we-used-to-sit",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u134",
+      avatar: "https://2img.net/i.imgur.com/D7A48tP.png",
+      faceclaimName: "Yor Forger",
+      faceclaimSource: "SPY×FAMILY",
+      faceclaimSourceType: "Manga",
+      powerName: "",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },
+           {
+      id: "Roan",
+      pseudo: "Roan",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Tatoueur",
+      workplaceName: "InkStar",
+      workplaceType: "Salon de tatouage",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t340-this-is-how-to-be-a-heartbreaker-roan",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u82",
+      avatar: "https://signavatar.com/81244_s.gif",
+      faceclaimName: "Noah",
+      faceclaimSource: "PLAVE",
+      faceclaimSourceType: "Kpop",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },   
+               {
+      id: "Hope",
+      pseudo: "Hope",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Pierceuse",
+      workplaceName: "InkStar",
+      workplaceType: "Salon de tatouage",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t341-lelegance-comme-arme-l-encre-comme-bouclier-en-cours#9973",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u81",
+      avatar: "https://2img.net/image.noelshack.com/fichiers/2026/27/3/1782938498-hope-morningstar.jpg",
+      faceclaimName: "Sarah Snook",
+      faceclaimSource: "Various artists",
+      faceclaimSourceType: "Fanart",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },     
+                 {
+      id: "Solas",
+      multiAccountId: "automne",
+      pseudo: "Solas",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Pompier",
+      workplaceName: "Caserne de Pompiers",
+      workplaceType: "Caserne de Pompiers",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t523-bring-back-the-colours-solas",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u125",
+      avatar: "https://i.servimg.com/u/f98/18/02/24/99/solas_11.png",
+      faceclaimName: "Will Graham",
+      faceclaimSource: "Hannibal",
+      faceclaimSourceType: "Various artists",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },
+                         {
+      id: "Elio",
+      pseudo: "Elio",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Fabriquant de bijoux et de décoration",
+      workplaceName: "Tiny Craft",
+      workplaceType: "Échoppe de faits-main",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t351-sunshine-comes-to-all-who-feel-rain-o-elio",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u36",
+      avatar: "https://sig.grumpybumpers.com/host/ElioPumpkin.gif",
+      faceclaimName: "Hythlodaeus",
+      faceclaimSource: "Final Fantasy XIV",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    }, 
+           {
+      id: "Denver",
+      pseudo: "Denver",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Propriétaire - Prêteur sur gage",
+      workplaceName: "Lost N Pawn",
+      workplaceType: "Pawn shop",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t262-where-s-your-head-at-denver",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u67",
+      avatar: "https://2img.net/i.imgur.com/dFIc2FM.png",
+      faceclaimName: "Bullseye - Wilson Bethel",
+      faceclaimSource: "Daredevil",
+      faceclaimSourceType: "Série",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },
+          {
+      id: "Saskia",
+      multiAccountId: "saskia",
+      pseudo: "Saskia",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Inspectrice junior",
+      workplaceName: "Commissariat",
+      workplaceType: "Commissariat",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t525-if-i-have-to-burn-ill-take-you-and-your-lies-with-me",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u126",
+      avatar: "https://i.postimg.cc/Kc7k9GhV/saskia1.jpg",
+      faceclaimName: "Viper",
+      faceclaimSource: "Valorant",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },
+               {
+      id: "Noah",
+      multiAccountId: "cassis",
+      pseudo: "Noah",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Adjoint du Marshall",
+      workplaceName: "Commissariat",
+      workplaceType: "Commissariat",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t453-vos-papiers-s-il-vous-plait",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u112",
+      avatar: "https://sig.grumpybumpers.com/host/NoahW.gif",
+      faceclaimName: "Choso Kamo",
+      faceclaimSource: "Jujutsu kaisen",
+      faceclaimSourceType: "Manga",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },
+                 {
+      id: "Jasper",
+      pseudo: "Jasper",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Manutentionnaire",
+      workplaceName: "Scierie de Red Oak",
+      workplaceType: "Exploitation forestière",
+      workDistrict: "Forêt d'Ambre",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t545-jasper-no-regrets",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u129",
+      avatar: "https://zupimages.net/up/26/40/4a2i.png",
+      faceclaimName: "Jason Todd",
+      faceclaimSource: "Batman - DC",
+      faceclaimSourceType: "Comic",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },
+    {
+      id: "Mello",
+      pseudo: "Mello",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Maroquinier",
+      workplaceName: "Tiny Craft",
+      workplaceType: "Échoppe de faits-main",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t231-mello",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u59",
+      avatar: "https://2img.net/u/4916/78/51/33/avatars/59-69.jpg",
+      faceclaimName: "Nanami Kento",
+      faceclaimSource: "Jujutsu Kaisen",
+      faceclaimSourceType: "Manga",
+      powerName: "Barrière",
+      powerDescription: "Crée une limite invisible autour d’une personne ou d’un espace restreint. La barrière ralentit ou repousse ce qui tente de la franchir.",
+      magicDomain: "Protection",
+      animalForm: "Furet",
+      relicForm: ""
+    },
+      {
+      id: "Emi",
+      multiAccountId: "anselme",
+      pseudo: "Emi",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Infirmière",
+      workplaceName: "Hôpital d'Hazelgrove",
+      workplaceType: "Centre hospitalier",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t520-emi-l-ame-agit",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u124",
+      avatar: "https://zupimages.net/up/26/38/8qxz.jpg",
+      faceclaimName: "Meigo Arisa",
+      faceclaimSource: "Toaru Majutsu no Index",
+      faceclaimSourceType: "Manga",
+      powerName: "Onde de choc",
+      powerDescription: "Produit une déflagration d'air comprimé générée par son propre corps.",
+      magicDomain: "Combat",
+      animalForm: "Ours",
+      relicForm: ""
+    },
+        {
+      id: "Brandy",
+      multiAccountId: "jace",
+      pseudo: "Brandy",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Pompiste & employé polyvalent",
+      workplaceName: "Shell",
+      workplaceType: "Station-service",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t412-i-ve-been-biting-my-tongue-now-i-got-a-taste-for-blood-brandy#11768",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u101",
+      avatar: "https://2img.net/i.imgur.com/zG9w47B.png",
+      faceclaimName: "Simon 'ghost' Riley",
+      faceclaimSource: "Call of Duty",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Fureur cinétique",
+      powerDescription: "Peut canaliser l’énergie cinétique ambiante et la rediriger vers son propre corps, amplifiant ainsi sa force, sa vitesse et sa résistance. ",
+      magicDomain: "Combat",
+      animalForm: "Cauchemar (chien)",
+      relicForm: ""
+    },
+        {
+      id: "Pavlova",
+      pseudo: "Pavlova",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Couturière",
+      workplaceName: "L'Etoffe Enchantée",
+      workplaceType: "Boutique d'artisanat",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t388-pavlova#11150",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u97",
+      avatar: "https://www.zupimages.net/up/26/29/m6vp.jpg",
+      faceclaimName: "OC",
+      faceclaimSource: "@nowri",
+      faceclaimSourceType: "Manga",
+      powerName: "Rêve",
+      powerDescription: "En s'endormant dans un espace, peut rêver de ce qu'il s'y est passé.",
+      magicDomain: "Détection",
+      animalForm: "Hermine",
+      relicForm: ""
+    },
+          {
+      id: "Absinthe",
+      multiAccountId: "cannelle",
+      pseudo: "Absinthe",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Cuisinier",
+      workplaceName: "Un bon moment",
+      workplaceType: "Restaurant",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t495-absinthe-jusqu-a-la-derniere-goute-en-cours",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u119",
+      avatar: "https://sig.grumpybumpers.com/host/Absintherpg.gif",
+      faceclaimName: "Dabi/Toya",
+      faceclaimSource: "My Hero Academia",
+      faceclaimSourceType: "Manga",
+      powerName: "Analyse",
+      powerDescription: " Repère en surbrillance les points faibles physique des gens.",
+      magicDomain: "Combat",
+      animalForm: "Martre",
+      relicForm: ""
+    },
+          {
+      id: "Luna",
+      pseudo: "Luna",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Sans emploi",
+      workplaceName: "Établissement inconnu",
+      workplaceType: "Type inconnu",
+      workDistrict: "Quartier inconnu",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t494-searching-for-something-luna",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u120",
+      avatar: "https://2img.net/i.imgur.com/lQdYWyd.jpeg",
+      faceclaimName: "Felix H. Fraldarius",
+      faceclaimSource: "Fire Emblem: Three Houses",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Illusions",
+      powerDescription: "Tout ce qui est issu de son imagination prend vie.",
+      magicDomain: "Illusions",
+      animalForm: "Chat",
+      relicForm: ""
+    },  
+            {
+      id: "Hybris",
+      pseudo: "Hybris",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Libraire",
+      workplaceName: "Maple Grove Books",
+      workplaceType: "Librairie",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t498-hybris-parfaite-imperfection",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u121",
+      avatar: "https://zupimages.net/up/26/37/d1um.jpg",
+      faceclaimName: "Maomao",
+      faceclaimSource: "Les Carnets de l'Apothicaire",
+      faceclaimSourceType: "Manga",
+      powerName: "Rêves Éveillés",
+      powerDescription: "Capte les espoirs et les volontés enfouies dans les esprits pour se saisir des rêves jusqu'à les façonner et leur donner forme au regard de tous.",
+      magicDomain: "Illusions",
+      animalForm: "Ophioptère Huppé",
+      relicForm: ""
+    },
+  {
+      id: "Génoise",
+      pseudo: "Génoise",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Jardinière",
+      workplaceName: "Mairie d'Amberwoods",
+      workplaceType: "Mairie",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t508-genoise-sortie-de-route-pour-une-vie-bien-rangee",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u118",
+      avatar: "https://zupimages.net/up/26/37/ipwt.jpg",
+      faceclaimName: "Lizzi Young",
+      faceclaimSource: "Boys of tommen",
+      faceclaimSourceType: "Livre",
+      powerName: "Métronome",
+      powerDescription: "Modifie le rythme de ce qui l'entoure (ralentissement, accélération ou synchronisation de vitesse).",
+      magicDomain: "Mobilité",
+      animalForm: "",
+      relicForm: ""
+    },
+        {
+      id: "Cannelle",
+      multiAccountId: "cannelle",
+      pseudo: "Cannelle",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Gérante",
+      workplaceName: "Spiritual Growth",
+      workplaceType: "Boutique ésotérique",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t264-cannelle-c-est-excellent-sur-une-pomme-au-four",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u61",
+      avatar: "https://2img.net/u/4916/78/51/33/avatars/61-26.jpg",
+      faceclaimName: "Kyouko Hori",
+      faceclaimSource: "Horimiya",
+      faceclaimSourceType: "Manga",
+      powerName: "Sorcellerie narrative",
+      powerDescription: "A l'écrit et parfois à l'orale, influence ce qui l'entoure.",
+      magicDomain: "Influence",
+      animalForm: "Chat",
+      relicForm: ""
+    },
+  {
+    id: "Alistair",
+    multiAccountId: "alistair",
+    pseudo: "Alistair",
+    isPnj: false,
+    origin: "eveille",
+    jobTitle: "Détective privé",
+    workplaceName: "Redgrave Investigations",
+    workplaceType: "Cabinet de détectives privés",
+    workDistrict: "Hauts-Bois",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t60-alistair-heavy-is-the-crown",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u6",
+    avatar: "https://2img.net/u/4916/78/51/33/avatars/6-0.jpg",
+    faceclaimName: "Caleb Widogast",
+    faceclaimSource: "Critical Role : The Mighty Nein",
+    faceclaimSourceType: "Roleplay",
+    powerName: "Pyrokinésie",
+    powerDescription: "Matérialisation et contrôle de flammes.",
+    magicDomain: "Combat",
+    animalForm: "",
+    relicForm: ""
+  },
+    {
+    id: "Roy",
+    pseudo: "Roy",
+    isPnj: false,
+    origin: "eveille",
+    jobTitle: "Surveillant",
+    workplaceName: "Lycée public d'Amberwoods",
+    workplaceType: "École",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t505-roy-ca-se-prononce-un-peu-comme-la-rouille",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u122",
+    avatar: "https://www.zupimages.net/up/26/37/44bh.png",
+    faceclaimName: "Percy Jackson",
+    faceclaimSource: "Percy Jackson et les Olympiens",
+    faceclaimSourceType: "Livre",
+    powerName: "Sirène",
+    powerDescription: "Voix envoûtante, chantée ou parlée, permettant d'influencer autrui à réaliser sa volonté, même partiellement.",
+    magicDomain: "Influence",
+    animalForm: "",
+    relicForm: ""
+  },
+          {
+      id: "Leander",
+      multiAccountId: "alistair",
+      pseudo: "Leander",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Bûcheron",
+      workplaceName: "Scierie de Red Oak",
+      workplaceType: "Exploitation forestière",
+      workDistrict: "Forêt d'Ambre",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t414-leander-heart-of-a-lion",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u100",
+      avatar: "https://signavatar.com/81765_v.gif",
+      faceclaimName: "Geralt de Riv - Henry Cavill",
+      faceclaimSource: "The Witcher",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Régénération",
+      powerDescription: "Recrée les cellules de son propre corps uniquement. Soigne les blessures et recrée la matière organique du détenteur.",
+      magicDomain: "Soins",
+      animalForm: "Puma",
+      relicForm: ""
+    },
+              {
+      id: "Automne",
+      multiAccountId: "automne",
+      pseudo: "Automne",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Agent d'entretien",
+      workplaceName: "L'Arabesque",
+      workplaceType: "Studio de danse",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t440-a-great-big-tragedy-automne",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u110",
+      avatar: "https://sig.grumpybumpers.com/host/Automne.gif",
+      faceclaimName: "Regulus Black",
+      faceclaimSource: "Harry Potter",
+      faceclaimSourceType: "Livre",
+      powerName: "Faiseur de Songe",
+      powerDescription: "Crée une illusion et t'emmène à travers une histoire au contact de sa main.",
+      magicDomain: "Illusions",
+      animalForm: "Renard",
+      relicForm: ""
+    },
+  {
+    id: "Melba",
+    multiAccountId: "melba",
+    pseudo: "Melba",
+    isPnj: false,
+    origin: "sorcier",
+    jobTitle: "Théiste & Barista",
+    workplaceName: "L'Astre & la Tasse",
+    workplaceType: "Salon de thé",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t93-la-sorciere-des-thes-stellaires",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u23",
+    avatar: "https://2img.net/u/4916/78/51/33/avatars/23-99.jpg",
+    faceclaimName: "Seraphine",
+    faceclaimSource: "League Of Legends",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "Souffle de Nébuleuse",
+    powerDescription: "Crée une brume apaisante qui soigne en zone.",
+    magicDomain: "Soins",
+    animalForm: "",
+    relicForm: ""
+  },
+    {
+      id: "Céleste",
+      multiAccountId: "melba",
+      pseudo: "Céleste",
+      isPnj: false,
+      origin: "reliquaire",
+      jobs: [
+        {
+          jobTitle: "Couturière",
+          workplaceName: "Tiny Craft",
+          workplaceType: "Échoppe de faits-main",
+          workDistrict: "L'embarcadère"
+        },
+        {
+          jobTitle: "Chorégraphe",
+          workplaceName: "Centre Culturel d'Amberwoods",
+          workplaceType: "Centre Culturel",
+          workDistrict: "Centre-ville"
+        }
+      ],
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t349-le-ballet-des-coutures-invisibles",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u85",
+      avatar: "https://sig.grumpybumpers.com/host/CelestePumpkins.gif",
+      faceclaimName: "Serena Serenity",
+      faceclaimSource: "Serena",
+      faceclaimSourceType: "Manga",
+      powerName: "Trame du Mouvement",
+      powerDescription: "Chaque déplacement, chaque attaque, chaque chute, appartient à une trame invisible. Céleste est capable de percevoir cette trame et d'y intervenir brièvement.",
+      magicDomain: "Influence",
+      animalForm: "",
+      relicForm: "Sceptre rubané de sentence"
+    },
+      {
+      id: "Malt",
+      pseudo: "Malt",
+      isPnj: false,
+      origin: "familier",
+      jobs: [
+        {
+          jobTitle: "Masseur",
+          workplaceName: "Indépendants",
+          workplaceType: "Aucun établissement fixe",
+          workDistrict: "Centre-ville"
+        },
+        {
+          jobTitle: "Modèle vivant",
+          workplaceName: "Indépendants",
+          workplaceType: "Aucun établissement fixe",
+          workDistrict: "Centre-ville"
+        }
+      ],
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t572-malt#18200",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u132",
+      avatar: "https://i.postimg.cc/rpFySdCn/jack-avatar-2-2.png",
+      faceclaimName: "Blackbeard",
+      faceclaimSource: "Our Flag Means Death",
+      faceclaimSourceType: "Série",
+      powerName: "Floraison d’organes",
+      powerDescription: "Fait pousser des parties de son corps supplémentaires, sur lui-même, sur autrui ou sur une surface.",
+      magicDomain: "Combat",
+      animalForm: "Ours",
+      relicForm: ""
+    },
+        {
+      id: "Brownie",
+      pseudo: "Brownie",
+      isPnj: false,
+      origin: "sorcier",
+      jobs: [
+        {
+          jobTitle: "Pâtissier",
+          workplaceName: "Au café",
+          workplaceType: "Café",
+          workDistrict: "Centre-ville"
+        },
+        {
+          jobTitle: "Créateur de reliques",
+          workplaceName: "Indépendants",
+          workplaceType: "Aucun établissement fixe",
+          workDistrict: "Centre-ville"
+        }
+      ],
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t424-hooo-mais-c-est-drolement-bon-ca",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u106",
+      avatar: "https://sig.grumpybumpers.com/host/Chomps.gif",
+      faceclaimName: "Niki Shiina",
+      faceclaimSource: "Ensemble Stars",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Sceaux",
+      powerDescription: "Pose une marque de protection sur un lieu, un objet ou une personne. Une fois le sceau posé, nul ne peut entrer ou heurter l'intégrité de l'objet ou de la personne.",
+      magicDomain: "Protection",
+      animalForm: "",
+      relicForm: ""
+    },
+     {
+      id: "Solonne",
+      pseudo: "Solonne",
+      isPnj: false,
+      origin: "reliquaire",
+      jobTitle: "Agent d'accueil - Guide",
+      workplaceName: "Office du Tourisme",
+      workplaceType: "Office du Tourisme",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t230-les-crocs-de-givres-solonne#7554",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u57",
+      avatar: "https://i.servimg.com/u/f93/19/61/31/02/sol1110.png",
+      faceclaimName: "Kaeya",
+      faceclaimSource: "Genshin Impact",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Cryokinésie",
+      powerDescription: "Matérialisation et contrôle de la glace.",
+      magicDomain: "Combat",
+      animalForm: "",
+      relicForm: "Duo de dagues"
+    },
+         {
+      id: "Litchi",
+      pseudo: "Litchi",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Ecrivaine",
+      workplaceName: "Indépendants",
+      workplaceType: "Aucun établissement fixe",
+      workDistrict: "Haut-bois",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t475-raconte-moi-une-histoire-litchi",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u117",
+      avatar: "https://i.servimg.com/u/f12/20/00/53/33/aronia10.png",
+      faceclaimName: "Columbina Hyposelenia",
+      faceclaimSource: "Genshin Impact",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Lévitation",
+      powerDescription: "Lévite dans les airs pendant une durée indéterminée. (Peu utile pour les sorciers ayant fait leurs classes.)",
+      magicDomain: "Mobilité",
+      animalForm: "",
+      relicForm: ""
+    },
+           {
+      id: "Fraisier",
+      pseudo: "Fraisier",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Pâtissière & serveuse",
+      workplaceName: "Au café",
+      workplaceType: "Café",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t577-don-t-look-for-what-you-re-scared-to-find-fraisier",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u133",
+      avatar: "https://zupimages.net/up/26/43/kn2w.png",
+      faceclaimName: "Lemuen",
+      faceclaimSource: "Arknights",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Guérison",
+      powerDescription: "Soigne les blessures. Plus la blessure est grave, plus le soin prend du temps. Ne peut pas recréer la matière.",
+      magicDomain: "Soins",
+      animalForm: "",
+      relicForm: ""
+    },
+    {
+      id: "Anselme",
+      multiAccountId: "anselme",
+      pseudo: "Anselme",
+      isPnj: false,
+      origin: "reliquaire",
+      jobTitle: "Maître de conférence",
+      workplaceName: "Université d'Hazelgrove",
+      workplaceType: "Université d'Hazelgrove",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t258-anselme-son-corps-etait-l-epee-mais-lui-est-desormais-la-plume",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u66",
+      avatar: "https://zupimages.net/up/26/23/653m.jpg",
+      faceclaimName: "Anaxa",
+      faceclaimSource: "Honkai: Star Rail",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Privation",
+      powerDescription: "Prive d'un sens ou d'une émotion.",
+      magicDomain: "Illusions",
+      animalForm: "",
+      relicForm: "Poignard"
+    },
+    {
+      id: "Sureau",
+      pseudo: "Sureau",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Médecin",
+      workplaceName: "Cabinet médical",
+      workplaceType: "Cabinet médical",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t194-sureau#4592",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u47",
+      avatar: "https://i.servimg.com/u/f53/17/19/85/81/mini14.jpg",
+      faceclaimName: "Law Trafalgar",
+      faceclaimSource: "One Piece",
+      faceclaimSourceType: "Manga",
+      powerName: "Static",
+      powerDescription: "Analyse les statistiques physiques et biologiques d’êtres vivants.",
+      magicDomain: "Détection",
+      animalForm: "",
+      relicForm: ""
+    },
+        {
+      id: "Aconit",
+      pseudo: "Aconit",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Emissaire (Brise-lune)",
+      workplaceName: "Château de Chantilly",
+      workplaceType: "Politique",
+      workDistrict: "Vesperune",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t442-avec-le-canon-d-un-flingue-dans-la-bouche-tu-ne-peux-prononcer-que-les-voyelles",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u111",
+      avatar: "https://imgur.com/dfHBF2h.png",
+      faceclaimName: "Galbrena",
+      faceclaimSource: "Wuthering Waves",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Excalibur",
+      powerDescription: "Peut trancher tout ce qui existe.",
+      magicDomain: "Combat",
+      animalForm: "",
+      relicForm: ""
+    },
+        {
+      id: "Madeleine",
+      pseudo: "Madelaine",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Sans emploi",
+      workplaceName: "Établissement inconnu",
+      workplaceType: "Type inconnu",
+      workDistrict: "Quartier inconnu",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t407-comment-je-m-appelle-euh-ah-oui-madeleine",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u99",
+      avatar: "https://i.postimg.cc/6qQdWvzH/hgh.png",
+      faceclaimName: "Robin",
+      faceclaimSource: "Honkai: Star Rail",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aérokinésie",
+      powerDescription: "Matérialisation et contrôle de l'air.",
+      magicDomain: "Combat",
+      animalForm: "",
+      relicForm: ""
+    },
+  {
+    id: "Cordiale",
+    multiAccountId: "cordiale",
+    pseudo: "Cordiale",
+    isPnj: false,
+    origin: "reliquaire",
+    jobTitle: "Psychothérapeute",
+    workplaceName: "Cabinet de Gestion Psychologique et Thérapeutique (CGPT)",
+    workplaceType: "Centre de soins",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t105-laissez-moi-traiter-votre-requete-o-cordiale",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u21",
+    avatar: "https://i.servimg.com/u/f37/11/77/34/81/cordia11.jpg",
+    faceclaimName: "Testament",
+    faceclaimSource: "Guilty Gear",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "Arcanes",
+    powerDescription: "Ne possède pas d'apparence fixe au regard d'autrui.",
+    magicDomain: "Influence",
+    animalForm: "",
+    relicForm: "Tarot"
+  },
+          {
+      id: "Souci",
+      multiAccountId: "cordiale",
+      pseudo: "Souci",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Vendeuse d’armes de chasse",
+      workplaceName: "La Peau de L'Ourse",
+      workplaceType: "Boutique d'armes",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t400-l-arsenal-de-la-roncenoire-souci",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u98",
+      avatar: "https://i.servimg.com/u/f37/11/77/34/81/souci-10.jpg",
+      faceclaimName: "Ana",
+      faceclaimSource: "Overwatch",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "L’Arène de cœur",
+      powerDescription: "Isole une cible de son choix et elle-même des perceptions d’autrui",
+      magicDomain: "Combat",
+      animalForm: "",
+      relicForm: ""
+    },         {
+      id: "Matcha",
+      pseudo: "Matcha",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Employé de bowling",
+      workplaceName: "Centre de loisir d'Amberwoods",
+      workplaceType: "Centre de loisirs",
+      workDistrict: "Center-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t455-bittersweet-matcha",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u113",
+      avatar: "https://sig.grumpybumpers.com/host/bbmatcha.gif",
+      faceclaimName: "Midoriya izuku",
+      faceclaimSource: "My Hero Academia",
+      faceclaimSourceType: "Manga",
+      powerName: "Mauvaise augure",
+      powerDescription: "Génère de la malchance.",
+      magicDomain: "Malédiction",
+      animalForm: "",
+      relicForm: ""
+    },
+        {
+      id: "Kulfi",
+      pseudo: "Kulfi",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Parfumeur",
+      workplaceName: "Hidden scents",
+      workplaceType: "Boutique de parfums",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t384-il-faut-savoir-etre-au-parfum",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u95",
+      avatar: "https://2img.net/u/4916/78/51/33/avatars/95-42.jpg",
+      faceclaimName: "Arjuna",
+      faceclaimSource: "Fate/Grand Order",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Nasika",
+      powerDescription: "Les émotions sont perçues par Kulfi comme des odeurs.",
+      magicDomain: "Détection",
+      animalForm: "",
+      relicForm: ""
+    },
+    {
+      id: "Ronce",
+      multiAccountId: "ronce",
+      pseudo: "Ronce",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Vendeur",
+      workplaceName: "Paper & Pitch",
+      workplaceType: "Librairie disquaire",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t426-thorns-grown-from-stardust-o-ronce",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u107",
+      avatar: "https://sig.grumpybumpers.com/host/Ronce.gif",
+      faceclaimName: "Julien",
+      faceclaimSource: "@gem1ny",
+      faceclaimSourceType: "OC",
+      powerName: "Mange-Lumière",
+      powerDescription: "Absorbe la lumière et la remodèle pour lui insuffler diverses propriétés capables de tromper les sens.",
+      magicDomain: "Illusions",
+      animalForm: "",
+      relicForm: ""
+    },
+        {
+      id: "Dragée",
+      multiAccountId: "saskia",
+      pseudo: "Dragée",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Pasteur",
+      workplaceName: "Presbytère d'Amberwoods",
+      workplaceType: "Religion",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t293-le-voyageur-funeraire",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u77",
+      avatar: "https://i.postimg.cc/nrkX92ck/Whats-App-Image-2026-06-12-at-11-39-15.jpg",
+      faceclaimName: "Mizuki",
+      faceclaimSource: "Overwatch 2",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Linceul Hivernal",
+      powerDescription: "Enveloppe la personne d’un froid doux, apaise douleurs et émotions, et l’accompagne vers une fin consciente et sereine.",
+      magicDomain: "Influence",
+      animalForm: "",
+      relicForm: ""
+    },
+            {
+      id: "Hypocras",
+      pseudo: "Hypocras",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Professeur des écoles",
+      workplaceName: "Lycée d'Amberwoods",
+      workplaceType: "École",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t353-hypocras-shadows-can-t-exist-without-light",
+      profileLink: "pumpkinsrpg.forumactif.com/u88",
+      avatar: "https://i.goopics.net/p37t9i.png",
+      faceclaimName: "Emet-Selch",
+      faceclaimSource: "Final Fantasy XIV",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Skiakinésie",
+      powerDescription: "Contrôle des ombres.",
+      magicDomain: "Combat",
+      animalForm: "",
+      relicForm: ""
+    },
+    {
+      id: "Paprika",
+      pseudo: "Paprika",
+      isPnj: false,
+      origin: "sorcier",
+      jobs: [
+        {
+          jobTitle: "Barista",
+          workplaceName: "Maple & Pine",
+          workplaceType: "Café",
+          workDistrict: "L'embarcadère"
+        },
+        {
+          jobTitle: "Pompière",
+          workplaceName: "Caserne de pompiers",
+          workplaceType: "Caserne de pompiers",
+          workDistrict: "Centre-ville"
+        }
+      ],
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t257-warning-may-contain-paprika",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u63",
+      avatar: "https://www.zupimages.net/up/26/26/y1g2.jpg",
+      faceclaimName: "Lorena",
+      faceclaimSource: "Witch Bunny de Fernanda Dias",
+      faceclaimSourceType: "Anime",
+      powerName: "Mnémomorphie",
+      powerDescription: "Extraire un souvenir précis de l'esprit d'une personne consentante et lui donne une forme physique unique.",
+      magicDomain: "Illusions",
+      animalForm: "",
+      relicForm: ""
+    },
+      {
+      id: "Safran",
+      pseudo: "Safran",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Journaliste",
+      workplaceName: "The Amber Post",
+      workplaceType: "Éditeur de journaux",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t284-un-coeur-aphasique-ecoute-l-ame-en-cours#7565",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u70",
+      avatar: "https://zupimages.net/up/26/24/vvi0.png",
+      faceclaimName: "Alhaitham",
+      faceclaimSource: "Genshin Impact",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Sixième Sens",
+      powerDescription: "Ressentir un coup de jus chaque fois qu'un danger, une présence ou une anomalie magique est sur le point de se produire ou de toucher le détenteur.",
+      magicDomain: "Détection",
+      animalForm: "",
+      relicForm: ""
+    },
+      {
+      id: "Cassis",
+      multiAccountId: "cassis",
+      pseudo: "Cassis",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Tatoueur",
+      workplaceName: "Sweet Ink",
+      workplaceType: "Salon de tatouage",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t270-petit-cassis-deviendra-grand",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u62",
+      avatar: "https://sig.grumpybumpers.com/host/Cassis.gif",
+      faceclaimName: "Taiju Shiba",
+      faceclaimSource: "Tokyo Revengers",
+      faceclaimSourceType: "Manga",
+      powerName: "Enchanteur tatoueur",
+      powerDescription: "Insuffle au tatouage de son client des enchantements spécifiques.",
+      magicDomain: "Enchantement",
+      animalForm: "",
+      relicForm: ""
+    },
+  {
+    id: "Marvin",
+    multiAccountId: "marvin",
+    pseudo: "Marvin",
+    isPnj: false,
+    origin: "reliquaire",
+    jobs: [
+      {
+        jobTitle: "Professeur",
+        workplaceName: "Association des Reliquaires",
+        workplaceType: "Institution Pédagogique",
+        workDistrict: "Vesperune"
+      },
+      {
+        jobTitle: "Agent de réparation",
+        workplaceName: "Timber Tools Supply",
+        workplaceType: "Magasin d'Outillage",
+        workDistrict: "L'Embarcadère"
+      }
+    ],
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t77-la-porte-ouverte-sur-un-autre-monde-marvin",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u19",
+    avatar: "https://2img.net/i.imgur.com/kweJrF3.jpeg",
+    faceclaimName: "Kim Kitsuragi",
+    faceclaimSource: "Disco Elysium",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "Connaissance du monde magique",
+    powerDescription: "Encyclopédie universelle évolutive.",
+    magicDomain: "Détection",
+    animalForm: "",
+    relicForm: "Grimoire"
+  },
+         {
+      id: "Citron",
+      multiAccountId: "marvin",
+      pseudo: "Citron",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Urgentiste",
+      workplaceName: "Hôpital d'Hazelgrove",
+      workplaceType: "Centre hospitalier",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t283-citron-faire-vivre-les-morts#7737",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u72",
+      avatar: "https://signavatar.com/81686_v.gif",
+      faceclaimName: "Millia Rage",
+      faceclaimSource: "Guilty Gear",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Mémoire des âmes",
+      powerDescription: "Peut avoir des échos des âmes de leur vivant.",
+      magicDomain: "Illusions",
+      animalForm: "",
+      relicForm: ""
+    },
+             {
+      id: "Vanille",
+      pseudo: "Vanille",
+      isPnj: false,
+      origin: "sorcier",
+      jobTitle: "Gérant d'une petite galerie d'art - Photographe amateur",
+      workplaceName: "Threshold Gallery",
+      workplaceType: "Galerie d'art",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t342-intimacy-colours-my-voice",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u80",
+      avatar: "https://i.postimg.cc/XvHB0qwQ/avatar-Vanille.png",
+      faceclaimName: "OC",
+      faceclaimSource: "@Sajanggs",
+      faceclaimSourceType: "OC",
+      powerName: "Malédiction de paranoïa",
+      powerDescription: "La victime est déstabilisée par une impression constante qu'elle est la cible de cachoteries, qu'on lui en veut, qu'elle est prise pour cible.",
+      magicDomain: "Malédictions",
+      animalForm: "",
+      relicForm: ""
+    },
+    {
+      id: "Aella",
+      pseudo: "Aella",
+      isPnj: false,
+      origin: "familier",
+    jobTitle: "Propriétaire / Antiquaire",
+      workplaceName: "Ash Antiquités",
+      workplaceType: "Antiquaire",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t206-aella-cause-i-don-t-love-you-like-that-i-m-a-careful-driver#4007",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u56",
+      avatar: "https://www.zupimages.net/up/26/21/lq37.png",
+      faceclaimName: "Toothiana",
+      faceclaimSource: "Rise of the Guardians",
+      faceclaimSourceType: "Film",
+      powerName: "Plumage",
+      powerDescription: "Fait apparaître des ailes et un plumage protecteur.",
+      magicDomain: "Mobilité",
+      animalForm: "Lynx roux",
+      relicForm: ""
+    },
+    {
+      id: "Craqueline",
+      pseudo: "Craqueline",
+      isPnj: false,
+      origin: "familier",
+    jobTitle: "Botaniste - Fleuriste",
+      workplaceName: "Amberbloom",
+      workplaceType: "Fleuriste",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t223-craqueline-un-amourier-c-est-un-arbre-qui-fait-pousser-des-fruits-en-forme-de-coeur",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u51",
+      avatar: "https://sig.grumpybumpers.com/host/Craqueline.gif",
+      faceclaimName: "Yuuka Kazami",
+      faceclaimSource: "Touhou project",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Colors Eyes",
+      powerDescription: "Capable de changer la couleur de ses yeux.",
+      magicDomain: "Illusions",
+      animalForm: "Perruche",
+      relicForm: ""
+    },
+    {
+      id: "Thym",
+      pseudo: "Thym",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Coiffeur",
+      workplaceName: "My'My",
+      workplaceType: "Salon de beauté/coiffure",
+      workDistrict: "L'embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t204-thym-cause-i-love-you-like-that-i-m-a-reckless-driver",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u43",
+      avatar: "https://2img.net/u/4916/78/51/33/avatars/43-37.jpg",
+      faceclaimName: "Peterson",
+      faceclaimSource: "Pokémon",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Perroquet",
+      powerDescription: "Capacité d’imiter à la perfection la voix d’autrui.",
+      magicDomain: "Illusions",
+      animalForm: "Salamandre",
+      relicForm: ""
+    },
+    {
+    id: "Cherie",
+    pseudo: "Cherie",
+    isPnj: false,
+    origin: "eveille",
+    jobTitle: "Chocolatière - Confiseuse",
+    workplaceName: "Au bec sucré",
+    workplaceType: "Pâtisserie-Chocolaterie",
+    workDistrict: "L'Embarcadère",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t286-une-douceur-sucree",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u73",
+    avatar: "https://zupimages.net/up/26/24/a124.png",
+    faceclaimName: "Mokoto Kusanagi",
+    faceclaimSource: "Ghost In The Shell",
+    faceclaimSourceType: "Manga",
+    powerName: "",
+    powerDescription: "",
+    magicDomain: "",
+    animalForm: "",
+    relicForm: ""
+  },
+       {
+    id: "April",
+    pseudo: "April",
+    isPnj: false,
+    origin: "humain",
+    jobTitle: "Journaliste d'investigation",
+    workplaceName: "The Amber Post",
+    workplaceType: "Éditeur de journaux",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t489-april-oups-desolee-j-ai-encore-oublie-de-me-taire",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u44",
+    avatar: "https://zupimages.net/up/26/36/3bby.jpg",
+    faceclaimName: "Yamada",
+    faceclaimSource: "Smoking behind the supermarket with you",
+    faceclaimSourceType: "Manga",
+    powerName: "",
+    powerDescription: "",
+    magicDomain: "",
+    animalForm: "",
+    relicForm: ""
+  },
+        {
+      id: "Luo",
+      pseudo: "Luo",
+      isPnj: false,
+      origin: "eveille",
+      jobTitle: "Employé",
+      workplaceName: "Stranger Things",
+      workplaceType: "Vidéo Club",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t210-the-sun-will-rise-again#4097",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u45",
+      avatar: "https://2img.net/u/4916/78/51/33/avatars/45-68.jpg",
+      faceclaimName: "Yone - Heartsteel",
+      faceclaimSource: "League Of Legends",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Instinct félin",
+      powerDescription: "Développe des instincts félins, des sens accrus et des réactions de chat pouvant aller jusqu’à une transformation incontrôlée.",
+      magicDomain: "Mobilité",
+      animalForm: "",
+      relicForm: ""
+    },
+    {
+      id: "Tuesday",
+      multiAccountId: "tuesday",
+      pseudo: "Tuesday",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Secrétaire comptable",
+      workplaceName: "Blackwell Private Investigations (BPI)",
+      workplaceType: "Cabinet de détectives privés",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t199-homeward-bound-tuesday",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u50",
+      avatar: "https://2img.net/i.imgur.com/iTMUVRC.png",
+      faceclaimName: "Olivine",
+      faceclaimSource: "Nu:Carnival",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    }, 
+                       {
+      id: "Kelly",
+      multiAccountId: "tuesday",
+      pseudo: "Kelly",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Marshal d'Amberwoods",
+      workplaceName: "Commissariat",
+      workplaceType: "Commissariat",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t354-simple-man-kelly",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u90",
+      avatar: "https://2img.net/i.imgur.com/SsYHx1Q.png",
+      faceclaimName: "Varka",
+      faceclaimSource: "Genshin Impact",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },      
+    {
+      id: "Heliodore",
+      pseudo: "Heliodore",
+      isPnj: false,
+      origin: "humain",
+      jobTitle: "Barista",
+      workplaceName: "Au café",
+      workplaceType: "Café",
+      workDistrict: "Centre-ville",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t285-heliodore-he-would-give-you-everything-he-has",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u75",
+      avatar: "https://2img.net/i.imgur.com/bYzn8U2.png",
+      faceclaimName: "Thomas ",
+      faceclaimSource: "Genshin Impact",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Aucun pouvoir",
+      powerDescription: "",
+      magicDomain: "",
+      animalForm: "",
+      relicForm: ""
+    },
+  {
+    id: "Bretzel",
+    pseudo: "Bretzel",
+    isPnj: false,
+    origin: "familier",
+    jobTitle: "Livreur de repas",
+    workplaceName: "Indépendants",
+    workplaceType: "Aucun établissement fixe",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t68-les-casses-tetes-c-est-pas-pour-lui-bretzel",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u12",
+    avatar: "https://2img.net/u/4916/78/51/33/avatars/12-19.jpg",
+    faceclaimName: "Denji",
+    faceclaimSource: "Chainsaw Man",
+    faceclaimSourceType: "Manga",
+    powerName: "Transmission de douleur",
+    powerDescription: "Peut partager sa propre douleur avec sa cible.",
+    magicDomain: "Combat",
+    animalForm: "Carcajou",
+    relicForm: ""
+  },
+  {
+    id: "Roudoudou",
+    pseudo: "Roudoudou",
+    isPnj: false,
+    origin: "familier",
+    jobTitle: "Pâtissière",
+    workplaceName: "L'Astre & la Tasse",
+    workplaceType: "Salon de thé",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t113-roudoudou-ou-comment-forcer-du-bonheur-dans-votre-vie",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u27",
+    avatar: "https://2img.net/u/4916/78/51/33/avatars/27-53.jpg",
+    faceclaimName: "Chuatury Panlunch",
+    faceclaimSource: "Mobile Suit Gundam the Witch from Mercury",
+    faceclaimSourceType: "Manga",
+    powerName: "Gourmancie",
+    powerDescription: "Permet de cuisiner n’importe quoi et d’en infuser les propriétés dans un plat.",
+    magicDomain: "Influence",
+    animalForm: "Panda roux",
+    relicForm: ""
+  },
+  {
+    id: "Gabrielle",
+    pseudo: "Gabrielle",
+    isPnj: false,
+    origin: "eveille",
+    jobTitle: "Vendeuse & Voyante",
+    workplaceName: "L'Étoile du Berger",
+    workplaceType: "Cabinet de voyance",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t81-gabrielle-party-of-your-lifetime",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u20",
+    avatar: "https://i.postimg.cc/cHY6SZmP/100100.png",
+    faceclaimName: "Miku Hatsune",
+    faceclaimSource: "Vocaloids",
+    faceclaimSourceType: "Synthèse vocale",
+    powerName: "Aucun pouvoir",
+    powerDescription: "",
+    magicDomain: "",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "Muscade",
+    pseudo: "Muscade",
+    isPnj: true,
+    origin: "sorcier",
+    jobTitle: "Faiseur de Miracles & Alchimiste",
+    workplaceName: "Clafoutis",
+    workplaceType: "Vieux cabanon",
+    workDistrict: "Vesperune",
+    presentationLink: "",
+    profileLink: "",
+    avatar: "https://i.imgur.com/HsKW675.png",
+    faceclaimName: "Old Man",
+    faceclaimSource: "Various Artists",
+    faceclaimSourceType: "",
+    powerName: "Voyance",
+    powerDescription: "Obtiens des réponses de l'univers à l'aide de son esprit.",
+    magicDomain: "Détection",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "Chantilly",
+    pseudo: "Chantilly",
+    isPnj: true,
+    origin: "sorcier",
+    jobTitle: "Reine d'Opaline",
+    workplaceName: "Château de Chantilly",
+    workplaceType: "Politique",
+    workDistrict: "Vesperune",
+    presentationLink: "#",
+    profileLink: "#",
+    avatar: "https://2img.net/i.imgur.com/6P6NQcj.png",
+    faceclaimName: "Hydaelyn",
+    faceclaimSource: "Final Fantasy XIV",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "Inconnu",
+    powerDescription: "Il paraît qu'elle surpasse Cendre-Lune... et tous les émissaires réunis.",
+    magicDomain: "",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "CendreLune",
+    pseudo: "Amaretto",
+    isPnj: true,
+    origin: "sorcier",
+    jobTitle: "Émissaire (Cendre-Lune)",
+    workplaceName: "Château de Chantilly",
+    workplaceType: "Politique",
+    workDistrict: "Vesperune",
+    presentationLink: "#",
+    profileLink: "#",
+    avatar: "https://2img.net/i.imgur.com/fxiJD44.png",
+    faceclaimName: "Lycorice Cookie",
+    faceclaimSource: "Cookie Run: Kingdom",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "Contrôle de l'âme",
+    powerDescription: "Insuffle temporairement la vie aux âmes des défunts afin de pouvoir les contrôler et les façonner. Permet de manipuler l'âme des vivants à sa guise.",
+    magicDomain: "Malédictions",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "Praline",
+    pseudo: "Praline",
+    isPnj: true,
+    origin: "sorcier",
+    jobTitle: "Princesse d'Amarena",
+    workplaceName: "Château d'Amarena",
+    workplaceType: "Politique",
+    workDistrict: "Vesperune",
+    presentationLink: "#",
+    profileLink: "#",
+    avatar: "https://2img.net/i.imgur.com/t1MP3g4.png",
+    faceclaimName: "Himeko",
+    faceclaimSource: "Honkai: Star Rail",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "Sucre-amer",
+    powerDescription: "Ancre une émotion positive ou négative dans un petit objet ou un comestible.",
+    magicDomain: "Influence",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "Eglantine",
+    pseudo: "Églantine",
+    isPnj: true,
+    origin: "sorcier",
+    jobTitle: "Prêtresse du Chœur",
+    workplaceName: "L'Église de la Veille",
+    workplaceType: "Religion",
+    workDistrict: "Vesperune",
+    presentationLink: "#",
+    profileLink: "#",
+    avatar: "https://2img.net/i.imgur.com/G5USgQm.png",
+    faceclaimName: "Shorekeeper",
+    faceclaimSource: "Wuthering Waves",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "Ronces noires",
+    powerDescription: "Crée des ronces noires autour d'un lieu, d'une personne ou d'un objet, afin de protéger, ralentir ou étreindre une cible. Attention aux épines.",
+    magicDomain: "Combat",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "Marie",
+    pseudo: "Marie",
+    isPnj: true,
+    origin: "humain",
+    jobTitle: "Adjointe au Maire",
+    workplaceName: "Mairie d'Amberwoods",
+    workplaceType: "Mairie",
+    workDistrict: "Centre-ville",
+    presentationLink: "#",
+    profileLink: "#",
+    avatar: "https://2img.net/i.imgur.com/hWldf9D.png",
+    faceclaimName: "Grace Ashcroft",
+    faceclaimSource: "Resident Evil 9",
+    faceclaimSourceType: "Jeu vidéo",
+    powerName: "",
+    powerDescription: "",
+    magicDomain: "",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "Herman",
+    pseudo: "Herman & Brett",
+    isPnj: true,
+    origin: "humain",
+    jobTitle: "Investisseurs & Propriétaires de mines",
+    workplaceName: "Indépendants",
+    workplaceType: "",
+    workDistrict: "Centre-ville",
+    presentationLink: "#",
+    profileLink: "#",
+    avatar: "https://2img.net/i.imgur.com/Gch4PrW.png",
+    faceclaimName: "Rion Project",
+    faceclaimSource: "Gutenberg",
+    faceclaimSourceType: "Comic",
+    powerName: "",
+    powerDescription: "",
+    magicDomain: "",
+    animalForm: "",
+    relicForm: ""
+  },
+  {
+    id: "Jasmin",
+    pseudo: "Jasmin",
+    isPnj: false,
+    origin: "sorcier",
+    jobs: [
+      {
+        jobTitle: "Émissaire (Nouvelle-Lune)",
+        workplaceName: "Château de Chantilly",
+        workplaceType: "Politique",
+        workDistrict: "Vesperune"
+      },
+      {
+        jobTitle: "Barista",
+        workplaceName: "Maple & Pine",
+        workplaceType: "Café",
+        workDistrict: "L'Embarcadère"
+      }
+    ],
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t55-neverbloom-jasmin-nouvelle-lune",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u1",
+    avatar: "https://2img.net/i.imgur.com/qx5UPlV.png",
+    faceclaimName: "Hadrian",
+    faceclaimSource: "Forgotten Creatures",
+    faceclaimSourceType: "Webtoon",
+    powerName: "Milleformes",
+    powerDescription: "Permet à son détenteur de se métamorphoser en animaux et de multiplier la forme choisie en fragmentant son âme.",
+    magicDomain: "Illusions",
+    animalForm: "",
+    relicForm: ""
+  },
+    {
+    id: "Muffin",
+    pseudo: "Muffin",
+    isPnj: false,
+    origin: "sorcier",
+    jobs: [
+      {
+        jobTitle: "Espionne",
+        workplaceName: "Château de Chantilly",
+        workplaceType: "Politique",
+        workDistrict: "Vesperune"
+      },
+      {
+        jobTitle: "Sans emploi",
+        workplaceName: "Établissement inconnu",
+        workplaceType: "Type inconnu",
+        workDistrict: "Quartier inconnu"
+      }
+    ],
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t522-muffin-make-my-way",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u123",
+    avatar: "https://i.postimg.cc/T2zqJ5Rs/Design-sans-titre-2.png",
+    faceclaimName: "Nami",
+    faceclaimSource: "One piece",
+    faceclaimSourceType: "Manga",
+    powerName: "Intangibilité",
+    powerDescription: "Peut passer de l’état tangible à intangible en tout ou partie de son corps.",
+    magicDomain: "Mobilité",
+    animalForm: "",
+    relicForm: ""
+  },
+    {
+      id: "Azalée",
+      pseudo: "Azalée",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "Fleuriste / Herboriste",
+      workplaceName: "Amberbloom",
+      workplaceType: "Fleuriste",
+      workDistrict: "L'Embarcadère",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t85-azalee-comme-prise-au-piege",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u25",
+      avatar: "https://2img.net/u/4916/78/51/33/avatars/25-77.png",
+      faceclaimName: "Astra Yao",
+      faceclaimSource: "Zenless Zero Zone",
+      faceclaimSourceType: "Jeu vidéo",
+      powerName: "Porte Bouclier",
+      powerDescription: "Permet de créer un bouclier.",
+      magicDomain: "Protection",
+      animalForm: "Corbeau",
+      relicForm: ""
+    },    
+  {
+    id: "Chou",
+    pseudo: "Chou",
+    isPnj: false,
+    origin: "familier",
+    jobs: [
+      {
+        jobTitle: "Prof de sport",
+        workplaceName: "Lycée d'Amberwoods",
+        workplaceType: "École",
+        workDistrict: "Centre-ville"
+      },
+      {
+        jobTitle: "Coach sportif",
+        workplaceName: "Indépendants",
+        workplaceType: "Salle de sport",
+        workDistrict: "Centre-ville"
+      }
+    ],
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t551-chou-limitless",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u130",
+    avatar: "https://i.ibb.co/35YqsS56/CHOU-avatar.png",
+    faceclaimName: "Tengen Uzui",
+    faceclaimSource: "Demon Slayer",
+    faceclaimSourceType: "Manga",
+    powerName: "Permutation",
+    powerDescription: "Permet d’échanger instantanément la position de deux cibles, animées ou non.",
+    magicDomain: "Mobilité",
+    animalForm: "Lézard",
+    relicForm: ""
+  },
+    {
+      id: "Mirage",
+      pseudo: "Mirage",
+      isPnj: false,
+      origin: "familier",
+      jobTitle: "",
+      workplaceName: "",
+      workplaceType: "",
+      workDistrict: "",
+      presentationLink: "https://pumpkinsrpg.forumactif.com/t122-promenez-vous-dans-les-bois-tant-que-la-brume-ny-rit-pas",
+      profileLink: "https://pumpkinsrpg.forumactif.com/u5",
+      avatar: "https://2img.net/i.imgur.com/GCHpjeR.png",
+      faceclaimName: "Charlene",
+      faceclaimSource: "Forgotten Creatures",
+      faceclaimSourceType: "Webtoon",
+      powerName: "Brume Améthyste",
+      powerDescription: "Permet de contrôler une brume d'améthyste aux différents effets.",
+      magicDomain: "Influence",
+      animalForm: "Vespéral Dévorlune",
+      relicForm: ""
+    },
+       {
+    id: "Onyx",
+    multiAccountId: "ronce",
+    pseudo: "Onyx",
+    isPnj: false,
+    origin: "eveille",
+    jobTitle: "Paramedic",
+    workplaceName: "Hôpital d'Hazelgrove",
+    workplaceType: "Centre hospitalier",
+    workDistrict: "Centre-ville",
+    presentationLink: "https://pumpkinsrpg.forumactif.com/t538-of-nickel-and-cyanide-o-onyx",
+    profileLink: "https://pumpkinsrpg.forumactif.com/u127",
+    avatar: "https://sig.grumpybumpers.com/host/OnyxPumpkin.gif",
+    faceclaimName: "OC",
+    faceclaimSource: "@ryeomiii_art",
+    faceclaimSourceType: "OC",
+    powerName: "Rémanence Magnétique",
+    powerDescription: "Manipule les champs magnétiques, lui permettant notamment d’attirer, repousser, immobiliser ou dévier certains objets métalliques.",
+    magicDomain: "combat",
+    animalForm: "",
+    relicForm: ""
+  },
+];
+
+/*
+  NOMS RÉSERVÉS
+
+  - characterId récupère automatiquement le pseudo d'une card existante.
+    Si la référence n'existe pas encore, sa valeur reste affichée en blanc.
+  - name permet d'ajouter un nom qui n'existe pas dans characters.
+  - scenarioAvailable affiche la pastille « Scénario disponible ».
+  - scenarioLink rend cette pastille cliquable quand une URL est renseignée.
+
+  Exemples :
+
+  { characterId: "Cannelle", scenarioAvailable: false },
+  { characterId: "ID_DU_SCENARIO", scenarioAvailable: true, scenarioLink: "https://..." },
+  { name: "Nom manuel", scenarioAvailable: false },
+  { name: "Scénario manuel", scenarioAvailable: true, scenarioLink: "https://..." }
+*/
+const reservedNames = [
+  {
+    name: "Açaï",
+    scenarioAvailable: true,
+    scenarioLink: "https://pumpkinsrpg.forumactif.com/t38-scenarios-preliens"
+  },
+   {
+    characterId: "Absinthe",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Aconit",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Amaretto",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Azalée",
+    scenarioAvailable: false
+  },
+    {
+    characterId: "Brandy",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Bretzel",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Brownie",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Cannelle",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Cassis",
+    scenarioAvailable: false
+  },
+  {
+    name: "Cerise",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Chantilly",
+    scenarioAvailable: false
+  },
+    {
+    characterId: "Chou",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Citron",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Craqueline",
+    scenarioAvailable: false
+  },
+  {
+    name: "Crumble",
+    scenarioAvailable: false
+  },
+  {
+    name: "Curry",
+    scenarioAvailable: true,
+    scenarioLink: "https://pumpkinsrpg.forumactif.com/t38-scenarios-preliens"
+  },
+  {
+    characterId: "Dragée",
+    scenarioAvailable: false
+  },
+    {
+    characterId: "Fraisier",
+    scenarioAvailable: false
+  },
+  {
+    name: "Dulce",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Églantine",
+    scenarioAvailable: false
+  },
+  {
+    name: "Figue",
+    scenarioAvailable: false
+  },
+  {
+    name: "Flocon",
+    scenarioAvailable: false
+  },
+  {
+    name: "Framboise",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Hypocras",
+    scenarioAvailable: false
+  },
+    {
+    characterId: "Génoise",
+    scenarioAvailable: false
+  },
+      {
+    name: "Parfait",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Jasmin",
+    scenarioAvailable: false
+  },
+  {
+    name: "Kirsch",
+    scenarioAvailable: false
+  },
+    {
+    name: "Cupcake",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Kulfi",
+    scenarioAvailable: false
+  },
+  {
+    name: "Laurier",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Luna",
+    scenarioAvailable: false,
+  },
+  {
+    characterId: "Litchi",
+    scenarioAvailable: false
+  },
+    {
+    characterId: "Malt",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Madeleine",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Matcha",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Melba",
+    scenarioAvailable: false
+  },
+  {
+    name: "Menthe",
+    scenarioAvailable: false
+  },
+  {
+    name: "Mochi",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Muscade",
+    scenarioAvailable: false
+  },
+    {
+    characterId: "Muffin",
+    scenarioAvailable: false
+  },
+  {
+    name: "Myrtille",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Paprika",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Pavlova",
+    scenarioAvailable: false
+  },
+  {
+    name: "Pomme",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Praline",
+    scenarioAvailable: false
+  },
+  {
+    name: "Prune",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Ronce",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Roudoudou",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Safran",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Souci",
+    scenarioAvailable: false
+  },
+  {
+    name: "Sundae",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Sureau",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Thym",
+    scenarioAvailable: false
+  },
+  {
+    characterId: "Vanille",
+    scenarioAvailable: false
+  },
+   {
+    name: "Whisky",
+    scenarioAvailable: false
+  },
+];
+
+/* ==========================================================================
+   INITIALISATION DE L'INTERFACE
+   Complète le HTML statique avec les éléments injectés dynamiquement : lien
+   retour, onglet "Familiers & Reliquaires", switch de thème (#themeSwitch).
+   Le switch est ensuite détecté et câblé automatiquement par core.js
+   (observeDynamicNodes), qui gère aussi PPK.theme.get()/apply()/isValid().
+   ========================================================================== */
+
+function enhanceRegisterUI() {
+  const title = document.getElementById("register-title");
+
+  if (title && !document.getElementById("register-home-link")) {
+    title.style.position = "relative";
+
+    const backLink = document.createElement("a");
+    backLink.id = "register-home-link";
+    backLink.href = "https://pumpkinsrpg.forumactif.com/";
+    backLink.className = "fa-tip";
+    backLink.setAttribute("data-tip", "Retour à l'accueil");
+    backLink.setAttribute("aria-label", "Retour à l'accueil");
+    backLink.style.position = "absolute";
+    backLink.style.left = "14px";
+    backLink.style.top = "50%";
+    backLink.style.transform = "translateY(-50%)";
+    backLink.style.display = "flex";
+    backLink.style.alignItems = "center";
+    backLink.style.justifyContent = "center";
+    backLink.style.width = "28px";
+    backLink.style.height = "28px";
+    backLink.style.borderRadius = "7px";
+    backLink.style.color = "var(--color5)";
+    backLink.style.textDecoration = "none";
+
+    backLink.innerHTML = '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>';
+    title.appendChild(backLink);
+  }
+
+  const tabs = document.querySelector(".character-register__tabs");
+
+  if (tabs && !tabs.querySelector('[data-tab="familiars"]')) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "register-tab";
+    btn.dataset.tab = "familiars";
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-selected", "false");
+    btn.textContent = "Familiers & Reliquaires";
+    tabs.appendChild(btn);
+  }
+
+  if (tabs && !document.getElementById("themeSwitch")) {
+    const row = document.createElement("div");
+    row.className = "register-tabs-row";
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.justifyContent = "space-between";
+    row.style.gap = "16px";
+    row.style.width = "100%";
+
+    tabs.parentNode.insertBefore(row, tabs);
+    row.appendChild(tabs);
+
+    tabs.style.flex = "1 1 auto";
+
+    const switchEl = document.createElement("div");
+    switchEl.className = "theme-switch glass";
+    switchEl.id = "themeSwitch";
+
+    switchEl.innerHTML = `
+      <div class="theme-switch-clip">
+        <div class="theme-thumb"></div>
+      </div>
+
+      <button type="button" data-tip="Dark" class="theme-btn fa-tip" data-theme="dark" aria-label="Thème sombre" aria-pressed="false">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
+      </button>
+
+      <button type="button" data-tip="Light" class="theme-btn fa-tip" data-theme="light" aria-label="Thème clair" aria-pressed="false">
+        <i class="fa-solid fa-sun" aria-hidden="true"></i>
+      </button>
+
+      <button type="button" data-tip="Autumn" class="theme-btn fa-tip" data-theme="autumn" aria-label="Thème automne" aria-pressed="false">
+        <i class="fa-solid fa-leaf" aria-hidden="true"></i>
+      </button>
+    `;
+
+    row.appendChild(switchEl);
+  }
+}
+
+enhanceRegisterUI();
+
+/* ==========================================================================
+   RÉFÉRENCES DOM
+   ========================================================================== */
+
+const el = {
+  content: document.getElementById("register-content"),
+  tabs: Array.from(document.querySelectorAll(".register-tab")),
+  search: document.getElementById("register-search-input"),
+  origin: document.getElementById("register-origin-filter"),
+  sort: document.getElementById("register-sort-mode"),
+  pnj: document.getElementById("register-pnj-toggle"),
+  stdTools: document.getElementById("std-tools"),
+  avTools: document.getElementById("av-tools")
+};
+
+/* ==========================================================================
+   UTILITAIRES — texte, recherche, surlignage
+   ========================================================================== */
+
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function cleanText(value, fallback) {
+  const text = String(value || "").trim();
+  return text || fallback;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&")
+    .replace(/</g, "<")
+    .replace(/>/g, ">")
+    .replace(/"/g, "&quot;");
+}
+
+function buildNormMap(text) {
+  let normalized = "";
+  const map = [];
+
+  for (let i = 0; i < text.length; i += 1) {
+    const part = text[i]
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+
+    for (let j = 0; j < part.length; j += 1) {
+      normalized += part[j];
+      map.push(i);
+    }
+  }
+
+  return { normalized, map };
+}
+
+function getHighlightHtml(text, query) {
+  const raw = String(text || "");
+  const q = normalizeText(query);
+
+  if (!q) {
+    return escapeHtml(raw);
+  }
+
+  const built = buildNormMap(raw);
+  const start = built.normalized.indexOf(q);
+
+  if (start === -1) {
+    return escapeHtml(raw);
+  }
+
+  const endNorm = start + q.length;
+  const startRaw = built.map[start];
+  const endRaw = endNorm < built.map.length ? built.map[endNorm] : raw.length;
+
+  return (
+    escapeHtml(raw.slice(0, startRaw)) +
+    "<mark>" + escapeHtml(raw.slice(startRaw, endRaw)) + "</mark>" +
+    escapeHtml(raw.slice(endRaw))
+  );
+}
+
+function setHighlightedText(node, text, query) {
+  const safe = cleanText(text, "—");
+  if (query && normalizeText(safe).includes(normalizeText(query))) {
+    node.innerHTML = getHighlightHtml(safe, query);
+  } else {
+    node.textContent = safe;
+  }
+}
+
+/* ==========================================================================
+   HELPERS DE DONNÉES PERSONNAGE
+   Normalisation des champs (origine, source, métier, pouvoirs) utilisés par
+   les filtres et le rendu des cartes.
+   ========================================================================== */
+
+function buildPowerKey(name) {
+  return normalizeText(cleanText(name, "Pouvoir inconnu"));
+}
+
+function getCanonicalMagicDomain(value) {
+  const raw = cleanText(value, "");
+  const found = VALID_POWER_DOMAINS.find(function (domain) {
+    return normalizeText(domain) === normalizeText(raw);
+  });
+  return found || "";
+}
+
+function getSourceKey(character) {
+  return normalizeText(cleanText(character.faceclaimSource, "Source inconnue"));
+}
+
+function getSourceLabel(character) {
+  return cleanText(character.faceclaimSource, "Source inconnue");
+}
+
+function getSourceType(character) {
+  return cleanText(character.faceclaimSourceType, "Type inconnu");
+}
+
+function getAvatarBucket(source) {
+  const first = normalizeText(source).charAt(0);
+
+  if ("abc".includes(first)) return "abc";
+  if ("def".includes(first)) return "def";
+  if ("ghi".includes(first)) return "ghi";
+  if ("jkl".includes(first)) return "jkl";
+  if ("mno".includes(first)) return "mno";
+  if ("pqr".includes(first)) return "pqr";
+  if ("stuv".includes(first)) return "stuv";
+  if ("wxyz".includes(first)) return "wxyz";
+  return "0123-#";
+}
+
+function getWorkplaceKeyFromName(name) {
+  return normalizeText(cleanText(name, "Établissement inconnu"));
+}
+
+function getWorkplaceKey(character) {
+  return getWorkplaceKeyFromName(character.workplaceName);
+}
+
+function getWorkplaceLabel(character) {
+  return cleanText(character.workplaceName, "Établissement inconnu");
+}
+
+function getWorkplaceType(character) {
+  return cleanText(
+    character.workplaceType,
+    WORKPLACE_TYPES[getWorkplaceKey(character)] || "Type inconnu"
+  );
+}
+
+function getWorkplaceDistrict(character) {
+  return cleanText(character.workDistrict, "Quartier inconnu");
+}
+
+function getCharacterJobs(character) {
+  if (Array.isArray(character.jobs) && character.jobs.length) {
+    return character.jobs.map(function (job) {
+      return {
+        jobTitle: cleanText(job.jobTitle, "Sans métier"),
+        workplaceName: cleanText(job.workplaceName, "Établissement inconnu"),
+        workplaceType: cleanText(job.workplaceType, "Type inconnu"),
+        workDistrict: cleanText(job.workDistrict, "Quartier inconnu")
+      };
+    });
+  }
+
+  return [
+    {
+      jobTitle: cleanText(character.jobTitle, "Sans métier"),
+      workplaceName: cleanText(character.workplaceName, "Établissement inconnu"),
+      workplaceType: getWorkplaceType(character),
+      workDistrict: getWorkplaceDistrict(character)
+    }
+  ];
+}
+
+function getOriginPowerNameByOrigin(origin) {
+  if (origin === "familier") return "Châtiment";
+  if (origin === "reliquaire") return "Métamorphe";
+  return "";
+}
+
+function getOriginPowerName(character) {
+  return getOriginPowerNameByOrigin(character.origin);
+}
+
+function hasOriginPower(character) {
+  return !!getOriginPowerName(character);
+}
+
+function hasRegisteredPower(character) {
+  const powerName = cleanText(character.powerName, "");
+  const normalizedPower = normalizeText(powerName);
+
+  if (!normalizedPower || normalizedPower === "aucun pouvoir") {
+    return false;
+  }
+
+  if (character.origin === "familier" || character.origin === "reliquaire") {
+    return normalizedPower !== normalizeText(getOriginPowerName(character));
+  }
+
+  return true;
+}
+
+function hasAnyPower(character) {
+  return hasOriginPower(character) || hasRegisteredPower(character);
+}
+
+function getCountLabel(label, count) {
+  const text = String(label || "").trim().toLowerCase();
+  if (!text) return count + " entrée";
+  if (count > 1 && !/s$/i.test(text)) return count + " " + text + "s";
+  return count + " " + text;
+}
+
+function getSearchableText(character) {
+  return normalizeText([
+    character.pseudo,
+    getCharacterJobs(character).map(function (job) {
+      return [
+        job.jobTitle,
+        job.workplaceName,
+        job.workplaceType,
+        job.workDistrict
+      ].join(" ");
+    }).join(" "),
+    ORIGIN_LABELS[character.origin],
+    character.faceclaimName,
+    character.faceclaimSource,
+    character.faceclaimSourceType,
+    character.powerName,
+    character.powerDescription,
+    character.magicDomain,
+    getOriginPowerName(character),
+    character.animalForm,
+    character.relicForm,
+    character.isPnj ? "pnj" : "joueur"
+  ].join(" "));
+}
+
+function matchesSearch(character, term) {
+  if (!term) return true;
+  return getSearchableText(character).includes(term);
+}
+
+function matchesPowerFilters(character) {
+  const okOrigin =
+    state.powerOrigin === "all" || character.origin === state.powerOrigin;
+
+  const domain = getCanonicalMagicDomain(character.magicDomain);
+
+  const okDomain =
+    state.powerDomain === "all" ||
+    normalizeText(domain) === normalizeText(state.powerDomain);
+
+  const okSearch = matchesSearch(character, normalizeText(state.search));
+
+  return okOrigin && okDomain && okSearch;
+}
+
+function matchesFamRelFilters(character) {
+  return matchesSearch(character, normalizeText(state.search));
+}
+
+function compareAlpha(a, b) {
+  return normalizeText(a.pseudo).localeCompare(normalizeText(b.pseudo), "fr");
+}
+
+function compareOrigin(a, b) {
+  const oa = ORIGIN_ORDER.indexOf(a.origin);
+  const ob = ORIGIN_ORDER.indexOf(b.origin);
+  if (oa !== ob) return oa - ob;
+  return compareAlpha(a, b);
+}
+
+function getFilteredCharacters() {
+  const term = normalizeText(state.search);
+
+  return characters
+    .filter(function (character) {
+      const okOrigin = state.origin === "all" || character.origin === state.origin;
+      const okPnj = !state.pnjOnly || character.isPnj;
+      const okSearch = matchesSearch(character, term);
+      return okOrigin && okPnj && okSearch;
+    })
+    .sort(state.sortMode === "origin" ? compareOrigin : compareAlpha);
+}
+
+/* ==========================================================================
+   RENDU DES CARTES PERSONNAGE
+   ========================================================================== */
+
+function createIconLink(iconClass, href, tip) {
+  const a = document.createElement("a");
+  a.className = "il fa-tip";
+  a.href = href || "#";
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.setAttribute("aria-label", tip);
+  a.setAttribute("data-tip", tip);
+
+  const i = document.createElement("i");
+  i.className = iconClass;
+  i.setAttribute("aria-hidden", "true");
+
+  a.appendChild(i);
+  return a;
+}
+
+function createEllipsisWithTip(text, textClass, query) {
+  const wrap = document.createElement("span");
+  wrap.className = "tip-wrap";
+  wrap.dataset.fulltext = cleanText(text, "—");
+
+  const inner = document.createElement("span");
+  inner.className = textClass + " ov";
+
+  if (query && normalizeText(wrap.dataset.fulltext).includes(normalizeText(query))) {
+    inner.innerHTML = getHighlightHtml(wrap.dataset.fulltext, query);
+  } else {
+    inner.textContent = wrap.dataset.fulltext;
+  }
+
+  wrap.appendChild(inner);
+  return wrap;
+}
+
+function applyOverflowTips() {
+  const wraps = document.querySelectorAll(".tip-wrap");
+
+  wraps.forEach(function (wrap) {
+    const inner = wrap.querySelector(".ov");
+    if (!inner) return;
+
+    const full = (wrap.dataset.fulltext || inner.textContent || "").trim();
+
+    wrap.classList.remove("fa-tip");
+    wrap.removeAttribute("data-tip");
+
+    if (!full) return;
+
+    if (inner.scrollWidth > inner.clientWidth + 1) {
+      wrap.classList.add("fa-tip");
+      wrap.setAttribute("data-tip", full);
+    }
+  });
+}
+
+function createMainAll(character) {
+  const wrap = document.createElement("div");
+  wrap.className = "main";
+
+  const name = document.createElement("h2");
+  name.className = "nm";
+  name.textContent = character.pseudo || "Sans pseudo";
+
+  const fcText =
+    (character.faceclaimName || "Avatar") +
+    " ✦ " +
+    (character.faceclaimSource || "Source inconnue");
+
+  const fcWrap = document.createElement("span");
+  fcWrap.className = "tip-wrap";
+  fcWrap.dataset.fulltext = fcText;
+
+  const fc = document.createElement("p");
+  fc.className = "fc ov";
+
+  const fcName = document.createElement("span");
+  fcName.className = "fc-n";
+  fcName.textContent = character.faceclaimName || "Avatar";
+
+  const fcSep = document.createElement("span");
+  fcSep.className = "fc-x";
+  fcSep.textContent = " ✦ ";
+
+  const fcSource = document.createElement("span");
+  fcSource.className = "fc-s";
+  fcSource.textContent = character.faceclaimSource || "Source inconnue";
+
+  fc.appendChild(fcName);
+  fc.appendChild(fcSep);
+  fc.appendChild(fcSource);
+  fcWrap.appendChild(fc);
+
+  const job = createEllipsisWithTip(
+    getCharacterJobs(character).map(function (item) {
+      return item.jobTitle;
+    }).join(" · "),
+    "job"
+  );
+
+  wrap.appendChild(name);
+  wrap.appendChild(fcWrap);
+  wrap.appendChild(job);
+
+  return wrap;
+}
+
+function getCompactMeta(character) {
+  if (state.activeTab === "avatars") return character.faceclaimName || "Avatar";
+
+  if (state.activeTab === "jobs") {
+    return getCharacterJobs(character).map(function (item) {
+      return item.jobTitle;
+    }).join(" · ");
+  }
+
+  if (state.activeTab === "powers") return ORIGIN_LABELS[character.origin] || "Origine inconnue";
+  return "";
+}
+
+function createMainCompact(character) {
+  const wrap = document.createElement("div");
+  wrap.className = "main";
+
+  const name = document.createElement("h2");
+  name.className = "nm";
+
+  if (
+    (state.activeTab === "avatars" || state.activeTab === "jobs") &&
+    state.search
+  ) {
+    setHighlightedText(name, character.pseudo || "Sans pseudo", state.search);
+  } else {
+    name.textContent = character.pseudo || "Sans pseudo";
+  }
+
+  const meta = createEllipsisWithTip(
+    getCompactMeta(character),
+    "meta",
+    (state.activeTab === "avatars" || state.activeTab === "jobs") ? state.search : ""
+  );
+
+  wrap.appendChild(name);
+  wrap.appendChild(meta);
+
+  return wrap;
+}
+
+function createMainCompactWithMeta(character, metaText) {
+  const wrap = document.createElement("div");
+  wrap.className = "main";
+
+  const name = document.createElement("h2");
+  name.className = "nm";
+  name.textContent = character.pseudo || "Sans pseudo";
+
+  const meta = createEllipsisWithTip(metaText || "—", "meta");
+
+  wrap.appendChild(name);
+  wrap.appendChild(meta);
+
+  return wrap;
+}
+
+function createLinks(character) {
+  if (character.isPnj) {
+    return null;
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "lnks";
+
+  wrap.appendChild(
+    createIconLink("fa-solid fa-feather-pointed", character.presentationLink, "Lire la fiche")
+  );
+
+  wrap.appendChild(
+    createIconLink("fa-solid fa-user", character.profileLink, "Voir le profil")
+  );
+
+  return wrap;
+}
+
+function getCharacterCssClass(character) {
+  return normalizeText(character.id || character.pseudo || "")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function createCardShell(character, mode) {
+  const card = document.createElement("article");
+  const classes = ["cc", mode, character.origin || ""];
+
+  if (character.isPnj) {
+    classes.push("isPnj");
+  }
+
+  const uniqueClass = getCharacterCssClass(character);
+  if (uniqueClass) {
+    classes.push(uniqueClass);
+  }
+
+  card.className = classes.join(" ");
+
+  const ava = document.createElement("div");
+  ava.className = "ava";
+
+  const img = document.createElement("img");
+  img.src = character.avatar || "https://dummyimage.com/60x60/ffffff/000000&text=?";
+  img.alt = "Avatar de " + (character.pseudo || "personnage");
+
+  const sep = document.createElement("span");
+  sep.className = "sep";
+  sep.setAttribute("aria-hidden", "true");
+
+  ava.appendChild(img);
+  card.appendChild(ava);
+  card.appendChild(sep);
+
+  return card;
+}
+
+function createCard(character) {
+  const isFullCard =
+    state.activeTab === "all" ||
+    state.activeTab === "multiaccounts";
+
+  const card = createCardShell(
+    character,
+    isFullCard ? "all" : "compact"
+  );
+
+  if (isFullCard) {
+    card.appendChild(createMainAll(character));
+  } else {
+    card.appendChild(createMainCompact(character));
+  }
+
+  const links = createLinks(character);
+  if (links) {
+    card.appendChild(links);
+  }
+
+  return card;
+}
+
+function createCompactCardWithMeta(character, metaText) {
+  const card = createCardShell(character, "compact");
+  card.appendChild(createMainCompactWithMeta(character, metaText));
+  const links = createLinks(character);
+  if (links) {
+    card.appendChild(links);
+  }
+  return card;
+}
+
+function createWideCardWithMeta(character, metaText) {
+  const card = createCardShell(character, "all");
+  card.appendChild(createMainCompactWithMeta(character, metaText));
+  const links = createLinks(character);
+  if (links) {
+    card.appendChild(links);
+  }
+  return card;
+}
+
+function createAvatarOnlyCard(item) {
+  const card = document.createElement("article");
+  card.className = "cc compact avatar-only";
+
+  const ava = document.createElement("div");
+  ava.className = "ava";
+
+  const img = document.createElement("img");
+  img.src = item.avatar || "https://dummyimage.com/60x60/ffffff/000000&text=?";
+  img.alt = "Avatar de " + cleanText(item.faceclaimName, "faceclaim");
+
+  const sep = document.createElement("span");
+  sep.className = "sep";
+  sep.setAttribute("aria-hidden", "true");
+
+  ava.appendChild(img);
+
+  const main = document.createElement("div");
+  main.className = "main";
+
+  const name = document.createElement("h2");
+  name.className = "nm";
+  setHighlightedText(name, cleanText(item.faceclaimName, "Avatar sans nom"), state.search);
+
+  const meta = createEllipsisWithTip(
+    cleanText(item.status, "Libre"),
+    "meta",
+    state.search
+  );
+
+  main.appendChild(name);
+  main.appendChild(meta);
+
+  card.appendChild(ava);
+  card.appendChild(sep);
+  card.appendChild(main);
+
+  return card;
+}
+
+function createEmptyState(message) {
+  const box = document.createElement("div");
+  box.className = "empty-state";
+
+  const inner = document.createElement("div");
+  inner.className = "empty-state__inner";
+
+  const title = document.createElement("strong");
+  title.textContent = message || "Aucun personnage à afficher.";
+
+  inner.appendChild(title);
+  box.appendChild(inner);
+
+  return box;
+}
+
+function createInlineEmpty(text) {
+  const box = document.createElement("div");
+  box.className = "wr-empty";
+  box.textContent = text;
+  return box;
+}
+
+function renderGrouped(charactersToRender) {
+  ORIGIN_ORDER.forEach(function (originKey) {
+    const list = charactersToRender.filter(function (character) {
+      return character.origin === originKey;
+    });
+
+    if (!list.length) return;
+
+    const section = document.createElement("section");
+    section.className = "origin-group";
+
+    const title = document.createElement("h2");
+    title.className = "origin-group__title";
+    title.textContent = ORIGIN_LABELS[originKey] + "s";
+
+    const cards = document.createElement("div");
+    cards.className = "origin-group__cards";
+
+    list.forEach(function (character) {
+      cards.appendChild(createCard(character));
+    });
+
+    section.appendChild(title);
+    section.appendChild(cards);
+    el.content.appendChild(section);
+  });
+}
+
+function renderFlat(charactersToRender) {
+  const wrap = document.createElement("div");
+  wrap.className = "origin-group__cards";
+
+  charactersToRender.forEach(function (character) {
+    wrap.appendChild(createCard(character));
+  });
+
+  el.content.appendChild(wrap);
+}
+
+/* ==========================================================================
+   FILTRES DYNAMIQUES PAR ONGLET (barre d'outils contextuelle)
+   ========================================================================== */
+
+function getDynamicFilters() {
+  if (state.activeTab === "avatars") return AVATAR_FILTERS;
+  if (state.activeTab === "jobs") return JOB_FILTERS;
+  return [];
+}
+
+function getDynamicFilterValue() {
+  if (state.activeTab === "avatars") return state.avatarFilter;
+  if (state.activeTab === "jobs") return state.jobFilter;
+  return "all";
+}
+
+function setDynamicFilterValue(value) {
+  if (state.activeTab === "avatars") state.avatarFilter = value;
+  if (state.activeTab === "jobs") state.jobFilter = value;
+}
+
+function buildDynamicFilters() {
+  el.avTools.innerHTML = "";
+
+  getDynamicFilters().forEach(function (filter) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "avb";
+    btn.dataset.filter = filter.id;
+    btn.textContent = filter.label;
+    btn.setAttribute("aria-pressed", String(getDynamicFilterValue() === filter.id));
+
+    if (getDynamicFilterValue() === filter.id) {
+      btn.classList.add("is-active");
+    }
+
+    btn.addEventListener("click", function () {
+      setDynamicFilterValue(filter.id);
+      syncDynamicFilters();
+      render();
+    });
+
+    el.avTools.appendChild(btn);
+  });
+}
+
+function syncDynamicFilters() {
+  const buttons = el.avTools.querySelectorAll(".avb");
+
+  buttons.forEach(function (btn) {
+    const active = btn.dataset.filter === getDynamicFilterValue();
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+}
+
+function renderPowerTools() {
+  el.avTools.innerHTML = "";
+
+  const originWrap = document.createElement("label");
+  originWrap.className = "register-field";
+
+  const originSelect = document.createElement("select");
+  originSelect.innerHTML = `
+    <option value="all">Toutes les origines</option>
+    <option value="humain">Humains</option>
+    <option value="eveille">Eveillés</option>
+    <option value="sorcier">Sorciers</option>
+    <option value="familier">Familiers</option>
+    <option value="reliquaire">Reliquaires</option>
+  `;
+  originSelect.value = state.powerOrigin;
+
+  originSelect.addEventListener("change", function (event) {
+    state.powerOrigin = event.target.value;
+    render();
+  });
+
+  originWrap.appendChild(originSelect);
+
+  const domainWrap = document.createElement("label");
+  domainWrap.className = "register-field";
+
+  const domainSelect = document.createElement("select");
+
+  POWER_DOMAINS.forEach(function (domain) {
+    const option = document.createElement("option");
+    option.value = domain;
+    option.textContent = domain === "all" ? "Domaine magique" : domain;
+    domainSelect.appendChild(option);
+  });
+
+  domainSelect.value = state.powerDomain;
+
+  domainSelect.addEventListener("change", function (event) {
+    state.powerDomain = event.target.value;
+    render();
+  });
+
+  domainWrap.appendChild(domainSelect);
+
+  el.avTools.appendChild(originWrap);
+  el.avTools.appendChild(domainWrap);
+}
+
+function syncTools() {
+  const showStd = state.activeTab === "all";
+  const showDynamic =
+    state.activeTab === "avatars" ||
+    state.activeTab === "jobs" ||
+    state.activeTab === "powers";
+
+  el.stdTools.hidden = !showStd;
+  el.avTools.hidden = !showDynamic;
+
+  if (state.activeTab === "avatars" || state.activeTab === "jobs") {
+    buildDynamicFilters();
+    syncDynamicFilters();
+  }
+
+  if (state.activeTab === "powers") {
+    renderPowerTools();
+  }
+}
+
+/* ==========================================================================
+   CONSTRUCTION DES ONGLETS
+   Avatars, Métiers, Pouvoirs, Familiers & Reliquaires, Multicomptes,
+   Noms réservés.
+   ========================================================================== */
+
+function getAvatarGroups() {
+  const map = new Map();
+
+  function addToGroup(source, type, item) {
+    const key = normalizeText(cleanText(source, "Source inconnue"));
+
+    if (!map.has(key)) {
+      map.set(key, {
+        key: key,
+        source: cleanText(source, "Source inconnue"),
+        type: cleanText(type, "Type inconnu"),
+        items: []
+      });
+    }
+
+    map.get(key).items.push(item);
+  }
+
+  avatarsCatalog.forEach(function (avatar) {
+    addToGroup(
+      avatar.faceclaimSource,
+      avatar.faceclaimSourceType,
+      {
+        kind: "avatar",
+        data: avatar
+      }
+    );
+  });
+
+  characters.forEach(function (character) {
+    addToGroup(
+      getSourceLabel(character),
+      getSourceType(character),
+      {
+        kind: "character",
+        data: character
+      }
+    );
+  });
+
+  let groups = Array.from(map.values());
+
+  groups.forEach(function (group) {
+    group.items.sort(function (a, b) {
+      const nameA = a.kind === "character"
+        ? a.data.pseudo
+        : a.data.faceclaimName;
+
+      const nameB = b.kind === "character"
+        ? b.data.pseudo
+        : b.data.faceclaimName;
+
+      return normalizeText(nameA).localeCompare(normalizeText(nameB), "fr");
+    });
+  });
+
+  groups.sort(function (a, b) {
+    const bucketA = getAvatarBucket(a.source);
+    const bucketB = getAvatarBucket(b.source);
+
+    if (bucketA === "0123-#" && bucketB !== "0123-#") return 1;
+    if (bucketA !== "0123-#" && bucketB === "0123-#") return -1;
+
+    return normalizeText(a.source).localeCompare(normalizeText(b.source), "fr");
+  });
+
+  if (state.avatarFilter !== "all") {
+    groups = groups.filter(function (group) {
+      return getAvatarBucket(group.source) === state.avatarFilter;
+    });
+  }
+
+  const term = normalizeText(state.search);
+
+  if (!term) {
+    return groups;
+  }
+
+  return groups.filter(function (group) {
+    if (normalizeText(group.source).includes(term)) {
+      return true;
+    }
+
+    return group.items.some(function (item) {
+      if (item.kind === "character") {
+        const character = item.data;
+
+        return (
+          normalizeText(character.pseudo).includes(term) ||
+          normalizeText(character.faceclaimName).includes(term)
+        );
+      }
+
+      const avatar = item.data;
+
+      return (
+        normalizeText(avatar.faceclaimName).includes(term) ||
+        normalizeText(avatar.faceclaimSource).includes(term) ||
+        normalizeText(avatar.faceclaimSourceType).includes(term) ||
+        normalizeText(avatar.status).includes(term)
+      );
+    });
+  });
+}
+
+function createAvatarGroup(group) {
+  const block = document.createElement("section");
+  block.className = "srcb";
+
+  const left = document.createElement("div");
+  left.className = "srcl";
+
+  const source = document.createElement("h2");
+  source.className = "srcn";
+  setHighlightedText(source, group.source, state.search);
+
+  const type = document.createElement("p");
+  type.className = "srct";
+  type.textContent = group.type;
+
+  left.appendChild(source);
+  left.appendChild(type);
+
+  const right = document.createElement("div");
+  right.className = "srcr";
+
+  group.items.forEach(function (item) {
+    if (item.kind === "character") {
+      right.appendChild(createCard(item.data));
+    } else {
+      right.appendChild(createAvatarOnlyCard(item.data));
+    }
+  });
+
+  block.appendChild(left);
+  block.appendChild(right);
+
+  return block;
+}
+
+function renderAvatars() {
+  const groups = getAvatarGroups();
+
+  if (!groups.length) {
+    el.content.appendChild(createEmptyState());
+    requestAnimationFrame(applyOverflowTips);
+    return;
+  }
+
+  groups.forEach(function (group) {
+    el.content.appendChild(createAvatarGroup(group));
+  });
+
+  requestAnimationFrame(applyOverflowTips);
+}
+
+function buildWorkplaceGroups() {
+  const map = new Map();
+
+  workplacesCatalog.forEach(function (place) {
+    const key = getWorkplaceKeyFromName(place.name);
+
+    if (!map.has(key)) {
+      map.set(key, {
+        key: key,
+        name: cleanText(place.name, "Établissement inconnu"),
+        type: cleanText(place.type, "Type inconnu"),
+        district: cleanText(place.district, "Quartier inconnu"),
+        chars: []
+      });
+    }
+  });
+
+  characters.forEach(function (character) {
+    getCharacterJobs(character).forEach(function (job) {
+      const key = getWorkplaceKeyFromName(job.workplaceName);
+
+      if (!map.has(key)) {
+        map.set(key, {
+          key: key,
+          name: cleanText(job.workplaceName, "Établissement inconnu"),
+          type: cleanText(job.workplaceType, "Type inconnu"),
+          district: cleanText(job.workDistrict, "Quartier inconnu"),
+          chars: []
+        });
+      }
+
+      map.get(key).chars.push({
+        character: character,
+        jobTitle: job.jobTitle
+      });
+    });
+  });
+
+  let groups = Array.from(map.values());
+
+  groups.forEach(function (group) {
+    group.chars.sort(function (a, b) {
+      return compareAlpha(a.character, b.character);
+    });
+  });
+
+  groups.sort(function (a, b) {
+    return normalizeText(a.name).localeCompare(normalizeText(b.name), "fr");
+  });
+
+  if (state.jobFilter !== "all") {
+    const filter = JOB_FILTERS.find(function (item) {
+      return item.id === state.jobFilter;
+    });
+
+    if (filter) {
+      groups = groups.filter(function (group) {
+        return normalizeText(group.district) === filter.match;
+      });
+    }
+  }
+
+  const term = normalizeText(state.search);
+
+  if (!term) {
+    return groups;
+  }
+
+  return groups.filter(function (group) {
+    const leftMatches =
+      normalizeText(group.name).includes(term) ||
+      normalizeText(group.type).includes(term) ||
+      normalizeText(group.district).includes(term);
+
+    const holderMatches = group.chars.some(function (entry) {
+      return (
+        normalizeText(entry.character.pseudo).includes(term) ||
+        normalizeText(entry.jobTitle).includes(term)
+      );
+    });
+
+    return leftMatches || holderMatches;
+  });
+}
+
+function createJobGroup(group) {
+  const block = document.createElement("section");
+  block.className = "wb";
+
+  const left = document.createElement("div");
+  left.className = "wl";
+
+  const info = document.createElement("div");
+  info.className = "wi";
+
+  const name = document.createElement("h2");
+  name.className = "wn";
+  setHighlightedText(name, group.name, state.search);
+
+  const type = document.createElement("p");
+  type.className = "wt";
+  setHighlightedText(type, group.type, state.search);
+
+  const district = document.createElement("p");
+  district.className = "wd";
+  setHighlightedText(district, group.district, state.search);
+
+  info.appendChild(name);
+  info.appendChild(type);
+  info.appendChild(district);
+
+  const count = document.createElement("div");
+  count.className = "wc";
+  count.textContent = group.chars.length + " employé" + (group.chars.length > 1 ? "s" : "");
+
+  left.appendChild(info);
+  left.appendChild(count);
+
+  const right = document.createElement("div");
+  right.className = "wr";
+
+  if (group.chars.length) {
+    group.chars.forEach(function (entry) {
+      right.appendChild(
+        createCompactCardWithMeta(entry.character, entry.jobTitle)
+      );
+    });
+  } else {
+    right.appendChild(createInlineEmpty("Aucun employé enregistré."));
+  }
+
+  block.appendChild(left);
+  block.appendChild(right);
+
+  return block;
+}
+
+function renderJobs() {
+  const groups = buildWorkplaceGroups();
+
+  if (!groups.length) {
+    el.content.appendChild(createEmptyState());
+    requestAnimationFrame(applyOverflowTips);
+    return;
+  }
+
+  groups.forEach(function (group) {
+    el.content.appendChild(createJobGroup(group));
+  });
+
+  requestAnimationFrame(applyOverflowTips);
+}
+
+function buildPowerGroups() {
+  const map = new Map();
+
+  powersCatalog.forEach(function (power) {
+    const key = buildPowerKey(power.name);
+
+    if (!map.has(key)) {
+      map.set(key, {
+        key: key,
+        name: cleanText(power.name, "Pouvoir inconnu"),
+        domain: getCanonicalMagicDomain(power.domain),
+        description: cleanText(power.description, ""),
+        chars: []
+      });
+    }
+  });
+
+  characters.forEach(function (character) {
+    if (!hasRegisteredPower(character)) {
+      return;
+    }
+
+    const key = buildPowerKey(character.powerName);
+
+    if (!map.has(key)) {
+      map.set(key, {
+        key: key,
+        name: cleanText(character.powerName, "Pouvoir inconnu"),
+        domain: getCanonicalMagicDomain(character.magicDomain),
+        description: cleanText(character.powerDescription, ""),
+        chars: []
+      });
+    } else {
+      const group = map.get(key);
+
+      if (!group.domain) {
+        group.domain = getCanonicalMagicDomain(character.magicDomain);
+      }
+
+      if (!group.description) {
+        group.description = cleanText(character.powerDescription, "");
+      }
+    }
+
+    map.get(key).chars.push(character);
+  });
+
+  let groups = Array.from(map.values());
+
+  groups.forEach(function (group) {
+    group.chars.sort(compareAlpha);
+
+    const holdersByOrigin = group.chars.filter(function (character) {
+      return state.powerOrigin === "all" || character.origin === state.powerOrigin;
+    });
+
+    group.visibleChars = holdersByOrigin;
+  });
+
+  groups.sort(function (a, b) {
+    return normalizeText(a.name).localeCompare(normalizeText(b.name), "fr");
+  });
+
+  if (state.powerDomain !== "all") {
+    groups = groups.filter(function (group) {
+      return normalizeText(group.domain) === normalizeText(state.powerDomain);
+    });
+  }
+
+  const term = normalizeText(state.search);
+
+  groups = groups.filter(function (group) {
+    if (state.powerOrigin !== "all" && !group.visibleChars.length) {
+      return false;
+    }
+
+    if (!term) {
+      return state.powerOrigin === "all" || group.visibleChars.length > 0;
+    }
+
+    const leftMatches =
+      normalizeText(group.name).includes(term) ||
+      normalizeText(group.domain).includes(term) ||
+      normalizeText(group.description).includes(term);
+
+    const holderMatches = group.visibleChars.some(function (character) {
+      return matchesSearch(character, term);
+    });
+
+    return leftMatches || holderMatches;
+  });
+
+  return groups;
+}
+
+function createSectionTitle(text) {
+  const title = document.createElement("h2");
+  title.className = "origin-group__title";
+  title.textContent = text;
+  return title;
+}
+
+function createRegisteredPowerBlock(group) {
+  const block = document.createElement("section");
+  block.className = "wb";
+
+  const left = document.createElement("div");
+  left.className = "wl desc-pvr";
+
+  const info = document.createElement("div");
+  info.className = "wi";
+
+  const name = document.createElement("h2");
+  name.className = "wn";
+  setHighlightedText(name, cleanText(group.name, "Pouvoir inconnu"), state.search);
+
+  const domain = document.createElement("p");
+  domain.className = "wt";
+  setHighlightedText(domain, cleanText(group.domain, "—"), state.search);
+
+  const desc = document.createElement("p");
+  desc.className = "wd";
+  setHighlightedText(desc, cleanText(group.description, "Aucune description."), state.search);
+
+  info.appendChild(name);
+  info.appendChild(domain);
+  info.appendChild(desc);
+  left.appendChild(info);
+
+  const right = document.createElement("div");
+  right.className = group.visibleChars.length > 1 ? "wr" : "wr one";
+
+  if (group.visibleChars.length) {
+    group.visibleChars.forEach(function (character) {
+      right.appendChild(
+        createCompactCardWithMeta(
+          character,
+          ORIGIN_LABELS[character.origin] || "Origine inconnue"
+        )
+      );
+    });
+  } else {
+    right.appendChild(createInlineEmpty("Aucun détenteur enregistré."));
+  }
+
+  block.appendChild(left);
+  block.appendChild(right);
+
+  return block;
+}
+
+function buildFamRelBlock(originKey, formKey, filterStore, metaGetter) {
+  const chars = characters
+    .filter(function (character) {
+      return (
+        character.origin === originKey &&
+        hasOriginPower(character) &&
+        matchesFamRelFilters(character)
+      );
+    })
+    .sort(compareAlpha);
+
+  if (!chars.length) {
+    return null;
+  }
+
+  const formsMap = new Map();
+
+  chars.forEach(function (character) {
+    const formValue = cleanText(character[formKey], "Inconnu");
+    const formNorm = normalizeText(formValue);
+
+    if (!formsMap.has(formNorm)) {
+      formsMap.set(formNorm, {
+        label: formValue,
+        count: 0
+      });
+    }
+
+    formsMap.get(formNorm).count += 1;
+  });
+
+  const activeFilter = filterStore[originKey] || "all";
+
+  const visibleChars = chars.filter(function (character) {
+    if (activeFilter === "all") {
+      return true;
+    }
+
+    return normalizeText(cleanText(character[formKey], "Inconnu")) === activeFilter;
+  });
+
+  if (!visibleChars.length) {
+    return null;
+  }
+
+  const block = document.createElement("section");
+  block.className = "wb";
+
+  const left = document.createElement("div");
+  left.className = "wl";
+
+  const info = document.createElement("div");
+  info.className = "wi";
+
+  const title = document.createElement("h2");
+  title.className = "wn";
+  setHighlightedText(title, getOriginPowerNameByOrigin(originKey), state.search);
+
+  const subtitle = document.createElement("p");
+  subtitle.className = "wt";
+  subtitle.textContent = "Pouvoir d’origine";
+
+  info.appendChild(title);
+  info.appendChild(subtitle);
+
+  const bottom = document.createElement("div");
+  bottom.className = "pbox";
+
+  const note = document.createElement("p");
+  note.className = "pnote";
+  note.textContent = "Clique pour filtrer.";
+
+  const chips = document.createElement("div");
+  chips.className = "pfl";
+
+  formsMap.forEach(function (formData, formNorm) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pfb" + (activeFilter === formNorm ? " is-active" : "");
+    btn.textContent = getCountLabel(formData.label, formData.count);
+
+    btn.addEventListener("click", function () {
+      if (filterStore[originKey] === formNorm) {
+        filterStore[originKey] = "all";
+      } else {
+        filterStore[originKey] = formNorm;
+      }
+      render();
+    });
+
+    chips.appendChild(btn);
+  });
+
+  bottom.appendChild(note);
+  bottom.appendChild(chips);
+
+  left.appendChild(info);
+  left.appendChild(bottom);
+
+  const right = document.createElement("div");
+  right.className = "wr";
+
+  visibleChars.forEach(function (character) {
+    right.appendChild(
+      createCompactCardWithMeta(character, metaGetter(character))
+    );
+  });
+
+  block.appendChild(left);
+  block.appendChild(right);
+
+  return block;
+}
+
+function getNoPowerCharacters() {
+  if (state.powerDomain !== "all") return [];
+
+  return characters
+    .filter(function (character) {
+      const okOrigin =
+        state.powerOrigin === "all" || character.origin === state.powerOrigin;
+
+      const okSearch = matchesSearch(character, normalizeText(state.search));
+
+      return !hasAnyPower(character) && okOrigin && okSearch;
+    })
+    .sort(compareAlpha);
+}
+
+function renderPowers() {
+  const registered = buildPowerGroups();
+  const noPower = getNoPowerCharacters();
+
+  let hasContent = false;
+
+  if (registered.length) {
+    hasContent = true;
+    el.content.appendChild(createSectionTitle("POUVOIRS ENREGISTRÉS"));
+
+    registered.forEach(function (group) {
+      el.content.appendChild(createRegisteredPowerBlock(group));
+    });
+  }
+
+  if (noPower.length) {
+    hasContent = true;
+    el.content.appendChild(createSectionTitle("AUCUN POUVOIR"));
+
+    const wrap = document.createElement("div");
+    wrap.className = "origin-group__cards";
+
+    noPower.forEach(function (character) {
+      wrap.appendChild(
+        createWideCardWithMeta(
+          character,
+          ORIGIN_LABELS[character.origin] || "Origine inconnue"
+        )
+      );
+    });
+
+    el.content.appendChild(wrap);
+  }
+
+  if (!hasContent) {
+    el.content.appendChild(createEmptyState());
+  }
+
+  requestAnimationFrame(applyOverflowTips);
+}
+
+function renderFamiliarsReliquaries() {
+  const familiarBlock = buildFamRelBlock(
+    "familier",
+    "animalForm",
+    state.powerAnimalFilters,
+    function (character) {
+      return cleanText(character.animalForm, "Inconnu");
+    }
+  );
+
+  const relicBlock = buildFamRelBlock(
+    "reliquaire",
+    "relicForm",
+    state.powerRelicFilters,
+    function (character) {
+      return cleanText(character.relicForm, "Inconnu");
+    }
+  );
+
+  let hasContent = false;
+
+  if (familiarBlock) {
+    hasContent = true;
+    el.content.appendChild(createSectionTitle("FORMES ANIMALES - FAMILIERS"));
+    el.content.appendChild(familiarBlock);
+  }
+
+  if (relicBlock) {
+    hasContent = true;
+    el.content.appendChild(createSectionTitle("RELIQUES MAGIQUES - RELIQUAIRES"));
+    el.content.appendChild(relicBlock);
+  }
+
+  if (!hasContent) {
+    el.content.appendChild(createEmptyState());
+  }
+
+  requestAnimationFrame(applyOverflowTips);
+}
+
+function getMultiAccountGroups() {
+  const groups = new Map();
+
+  characters.forEach(function (character) {
+    const groupId = normalizeText(character.multiAccountId);
+
+    if (!groupId) return;
+
+    if (!groups.has(groupId)) {
+      groups.set(groupId, []);
+    }
+
+    groups.get(groupId).push(character);
+  });
+
+  return Array.from(groups.entries())
+    .map(function (entry) {
+      return {
+        id: entry[0],
+        members: entry[1]
+      };
+    })
+    .filter(function (group) {
+      return group.members.length >= 2;
+    })
+    .sort(function (a, b) {
+      return compareAlpha(a.members[0], b.members[0]);
+    });
+}
+
+function renderMultiAccounts() {
+  const term = normalizeText(state.search);
+
+  const groups = getMultiAccountGroups().filter(function (group) {
+    /* Une recherche affiche le groupe complet du personnage trouvé. */
+    return group.members.some(function (character) {
+      return matchesSearch(character, term);
+    });
+  });
+
+  if (!groups.length) {
+    el.content.appendChild(
+      createEmptyState("Aucun multicompte à afficher.")
+    );
+    return;
+  }
+
+  const list = document.createElement("div");
+  list.className = "multi-account-list";
+
+  groups.forEach(function (group) {
+    const section = document.createElement("section");
+    section.className = "multi-account-group";
+    section.dataset.multiAccountId = group.id;
+    section.setAttribute(
+      "aria-label",
+      "Comptes liés à " + (group.members[0].pseudo || "ce personnage")
+    );
+
+    const row = document.createElement("div");
+    row.className = "multi-account-group__row";
+
+    const primary = document.createElement("div");
+    primary.className = "multi-account-group__primary";
+    primary.appendChild(createCard(group.members[0]));
+
+    const connector = document.createElement("div");
+    connector.className = "multi-account-group__connector";
+
+    const connectorIcon = document.createElement("i");
+    connectorIcon.className = "fa-solid fa-link";
+    connectorIcon.setAttribute("aria-hidden", "true");
+
+    const connectorText = document.createElement("span");
+
+    connector.appendChild(connectorIcon);
+    connector.appendChild(connectorText);
+
+    const otherAccounts = document.createElement("div");
+    otherAccounts.className = "multi-account-group__others";
+
+    group.members.slice(1).forEach(function (character) {
+      otherAccounts.appendChild(createCard(character));
+    });
+
+    row.appendChild(primary);
+    row.appendChild(connector);
+    row.appendChild(otherAccounts);
+    section.appendChild(row);
+    list.appendChild(section);
+  });
+
+  el.content.appendChild(list);
+  requestAnimationFrame(applyOverflowTips);
+}
+
+function getReservedNames() {
+  const charactersByReference = new Map();
+  const uniqueNames = new Map();
+
+  /* Les id restent prioritaires en cas de collision avec un pseudo. */
+  characters.forEach(function (character) {
+    const idKey = normalizeText(character.id);
+    if (idKey) {
+      charactersByReference.set(idKey, character);
+    }
+  });
+
+  /* Accepte aussi un pseudo dans characterId, par exemple « Amaretto ». */
+  characters.forEach(function (character) {
+    const pseudoKey = normalizeText(character.pseudo);
+    if (pseudoKey && !charactersByReference.has(pseudoKey)) {
+      charactersByReference.set(pseudoKey, character);
+    }
+  });
+
+  reservedNames.forEach(function (entry) {
+    const character = entry.characterId
+      ? charactersByReference.get(normalizeText(entry.characterId))
+      : null;
+
+    const name = character
+      ? cleanText(character.pseudo, "")
+      : cleanText(entry.name || entry.characterId, "");
+
+    if (!name) return;
+
+    const key = normalizeText(name);
+    const existing = uniqueNames.get(key);
+    const existingIsLinked = Boolean(existing && !existing.isManual);
+    const isLinked = Boolean(character) || existingIsLinked;
+    const scenarioLink =
+      cleanText(entry.scenarioLink, "") ||
+      (existing ? existing.scenarioLink : "");
+
+    uniqueNames.set(key, {
+      name: character
+        ? cleanText(character.pseudo, name)
+        : existingIsLinked
+          ? existing.name
+          : name,
+      scenarioAvailable: Boolean(
+        entry.scenarioAvailable ||
+        (existing && existing.scenarioAvailable)
+      ),
+      scenarioLink: scenarioLink,
+      origin: character
+        ? cleanText(character.origin, "")
+        : existing
+          ? existing.origin
+          : "",
+      isPnj: character
+        ? Boolean(character.isPnj)
+        : Boolean(existing && existing.isPnj),
+      isManual: !isLinked
+    });
+  });
+
+  return Array.from(uniqueNames.values()).sort(function (a, b) {
+    return a.name.localeCompare(b.name, "fr", {
+      sensitivity: "base"
+    });
+  });
+}
+
+function renderReservedNames() {
+  const term = normalizeText(state.search);
+
+  const names = getReservedNames().filter(function (item) {
+    const searchableText = [
+      item.name,
+      item.scenarioAvailable ? "scénario disponible" : "nom réservé",
+      item.isPnj ? "pnj" : "",
+      ORIGIN_LABELS[item.origin] || ""
+    ].join(" ");
+
+    return !term || normalizeText(searchableText).includes(term);
+  });
+
+  if (!names.length) {
+    el.content.appendChild(
+      createEmptyState("Aucun nom réservé à afficher.")
+    );
+    return;
+  }
+
+  const section = document.createElement("section");
+  section.className = "reserved-names";
+
+  const title = document.createElement("h2");
+  title.className = "origin-group__title reserved-names__title";
+  title.textContent = "Noms réservés — " + names.length;
+
+  const list = document.createElement("ul");
+  list.className = "reserved-names__list";
+
+  names.forEach(function (item) {
+    const listItem = document.createElement("li");
+    listItem.className = "reserved-name";
+
+    if (item.isManual) {
+      listItem.classList.add("is-manual");
+    } else if (item.origin) {
+      listItem.classList.add(item.origin);
+    }
+
+    if (item.isPnj) {
+      listItem.classList.add("is-pnj");
+    }
+
+    const name = document.createElement("span");
+    name.className = "reserved-name__text";
+    setHighlightedText(name, item.name, state.search);
+
+    listItem.appendChild(name);
+
+    const badges = document.createElement("span");
+    badges.className = "reserved-name__badges";
+
+    if (item.scenarioAvailable) {
+      const badge = document.createElement(
+        item.scenarioLink ? "a" : "span"
+      );
+
+      badge.className =
+        "reserved-name__badge reserved-name__badge--scenario";
+      badge.textContent = "Scénario disponible";
+
+      if (item.scenarioLink) {
+        badge.href = item.scenarioLink;
+        badge.target = "_blank";
+        badge.rel = "noopener noreferrer";
+        badge.setAttribute(
+          "aria-label",
+          "Voir le scénario disponible pour " + item.name
+        );
+      }
+
+      badges.appendChild(badge);
+    }
+
+    if (item.isPnj) {
+      const pnjBadge = document.createElement("span");
+      pnjBadge.className =
+        "reserved-name__badge reserved-name__badge--pnj";
+      pnjBadge.textContent = "PNJ";
+      badges.appendChild(pnjBadge);
+    }
+
+    if (badges.childElementCount) {
+      listItem.appendChild(badges);
+    }
+
+    list.appendChild(listItem);
+  });
+
+  section.appendChild(title);
+  section.appendChild(list);
+  el.content.appendChild(section);
+}
+
+/* ==========================================================================
+   RENDU PRINCIPAL & ÉVÉNEMENTS
+   ========================================================================== */
+
+function render() {
+  el.content.innerHTML = "";
+
+  if (state.activeTab === "avatars") {
+    renderAvatars();
+    return;
+  }
+
+  if (state.activeTab === "jobs") {
+    renderJobs();
+    return;
+  }
+
+  if (state.activeTab === "powers") {
+    renderPowers();
+    return;
+  }
+
+  if (state.activeTab === "familiars") {
+    renderFamiliarsReliquaries();
+    return;
+  }
+
+  if (state.activeTab === "multiaccounts") {
+    renderMultiAccounts();
+    return;
+  }
+
+  if (state.activeTab === "reserved-names") {
+    renderReservedNames();
+    return;
+  }
+
+  const list = getFilteredCharacters();
+
+  if (!list.length) {
+    el.content.appendChild(createEmptyState());
+    requestAnimationFrame(applyOverflowTips);
+    return;
+  }
+
+  if (state.sortMode === "origin") {
+    renderGrouped(list);
+  } else {
+    renderFlat(list);
+  }
+
+  requestAnimationFrame(applyOverflowTips);
+}
+
+function syncTabs() {
+  el.tabs.forEach(function (tab) {
+    const active = tab.dataset.tab === state.activeTab;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", String(active));
+  });
+}
+
+function bindEvents() {
+  el.tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      state.activeTab = tab.dataset.tab;
+      syncTabs();
+      syncTools();
+      render();
+    });
+  });
+
+  el.search.addEventListener("input", function (event) {
+    state.search = event.target.value;
+    render();
+  });
+
+  el.origin.addEventListener("change", function (event) {
+    state.origin = event.target.value;
+    render();
+  });
+
+  el.sort.addEventListener("change", function (event) {
+    state.sortMode = event.target.value;
+    render();
+  });
+
+  el.pnj.addEventListener("click", function () {
+    state.pnjOnly = !state.pnjOnly;
+    el.pnj.classList.toggle("is-active", state.pnjOnly);
+    el.pnj.setAttribute("aria-pressed", String(state.pnjOnly));
+    render();
+  });
+
+  window.addEventListener("resize", function () {
+    applyOverflowTips();
+    PPK.theme.apply(PPK.theme.get(), false);
+  });
+}
+
+bindEvents();
+  syncTabs();
+  syncTools();
+  render();
+
+})();

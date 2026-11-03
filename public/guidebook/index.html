@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guidebook</title>
+
+  <!--
+    Anti-flash : applique un thème avant le premier rendu, en attendant que
+    guidebook.js prenne le relais (synchronisation avec le forum parent via
+    postMessage notamment). Ordre de résolution (§41 du cahier technique) :
+    thème sauvegardé → thème transmis en paramètre d'URL (?theme=) →
+    préférence système → thème par défaut.
+  -->
+  <script>
+    (function () {
+      var STORAGE_KEY = "ppk-theme-preference";
+      var LEGACY_KEY = "color-scheme";
+      var VALID_THEMES = { dark: true, light: true, autumn: true, winter: true };
+      var DEFAULT_THEME = "dark";
+
+      function getSystemTheme() {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+      }
+
+      function getSavedTheme() {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) {
+          var legacy = localStorage.getItem(LEGACY_KEY);
+          if (VALID_THEMES[legacy]) {
+            saved = legacy;
+            localStorage.setItem(STORAGE_KEY, legacy);
+          }
+        }
+        return VALID_THEMES[saved] ? saved : null;
+      }
+
+      function getUrlTheme() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var theme = params.get("theme");
+          return VALID_THEMES[theme] ? theme : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      var theme = getSavedTheme() || getUrlTheme() || getSystemTheme() || DEFAULT_THEME;
+      document.documentElement.setAttribute("data-color-scheme", theme);
+    })();
+  </script>
+
+  <!-- Thèmes communs (variables de couleur + moteur de switch partagé) -->
+  <link rel="stylesheet" href="../css/core.css">
+
+  <!-- CSS forum générique (styles globaux partagés par tous les fragments) -->
+  <link rel="stylesheet" href="../css/forum.css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Apparence du Guidebook -->
+  <link rel="stylesheet" href="../css/guidebook.css">
+</head>
+
+<body>
+  <div id="layout">
+    <!-- ==================== SIDEBAR ==================== -->
+    <nav id="sidebar">
+      <div id="sidebar-shell">
+        <div class="nav-link" id="toggle-btn" title="Fermer le menu" data-nav-tip="Ouvrir le menu" aria-label="Fermer le menu">
+          <span class="toggle-icon-wrap">
+            <i id="toggle-icon" class="fa-solid fa-angles-left"></i>
+          </span>
+          <span id="toggle-label">Fermer le menu</span>
+        </div>
+
+        <div id="sidebar-content">
+          <div class="nav-category">
+            <span class="nav-category__full">Bien débuter</span>
+            <span class="nav-category__short">01</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Règlement" data-page="reglement" title="Règlement">
+            <i class="fa-solid fa-scroll"></i>
+            <span class="link-label">Règlement</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Staff" data-page="staff" title="Staff">
+            <i class="fa-solid fa-users"></i>
+            <span class="link-label">Staff</span>
+          </div>
+
+          <div class="nav-category">
+            <span class="nav-category__full">Univers</span>
+            <span class="nav-category__short">02</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Contexte" data-page="contexte" title="Contexte">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <span class="link-label">Contexte</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Magie & Pouvoirs" data-page="magie" title="Magie & Pouvoirs">
+            <i class="fa-solid fa-wand-sparkles"></i>
+            <span class="link-label">Magie & Pouvoirs</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Origines" data-page="origines" title="Origines">
+            <i class="fa-solid fa-ghost"></i>
+            <span class="link-label">Origines</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Compendium" data-page="compendium" title="Compendium">
+            <i class="fa-solid fa-book"></i>
+            <span class="link-label">Compendium</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="PNJ" data-page="pnj" title="PNJ">
+            <i class="fa-solid fa-hat-wizard"></i>
+            <span class="link-label">PNJ</span>
+          </div>
+
+          <div class="nav-category">
+            <span class="nav-category__full">Mécaniques</span>
+            <span class="nav-category__short">03</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Évènements" data-page="evenements" title="Évènements">
+            <i class="fa-solid fa-moon"></i>
+            <span class="link-label">Évènements</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Divers" data-page="divers" title="Divers">
+            <i class="fa-solid fa-ellipsis"></i>
+            <span class="link-label">Divers</span>
+          </div>
+
+          <div class="nav-category">
+            <span class="nav-category__full">Toujours utiles</span>
+            <span class="nav-category__short">04</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Foire aux questions" data-page="faq" title="Foire aux questions">
+            <i class="fa-solid fa-circle-question"></i>
+            <span class="link-label">Foire aux questions</span>
+          </div>
+
+          <div class="nav-link" data-nav-tip="Codes RP" data-page="codes" title="Codes RP">
+            <i class="fa-solid fa-code"></i>
+            <span class="link-label">Codes RP</span>
+          </div>
+
+          <a href="https://pumpkinsrpg.forumactif.com/" target="_top" class="nav-link" data-nav-tip="Retourner au forum" title="Retourner au forum">
+            <i class="fa-solid fa-house"></i>
+            <span class="link-label">Retourner au forum</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ==================== MAIN ==================== -->
+    <div id="main">
+      <div id="topbar">
+        <div class="search-field">
+          <i class="fa-solid fa-magnifying-glass search-field__icon"></i>
+          <input type="text" id="search-input" placeholder="Rechercher..." autocomplete="off" />
+        </div>
+
+        <div id="search-nav">
+          <span id="search-count"></span>
+
+          <button type="button" id="search-prev" class="search-nav-btn hidden" aria-label="Occurrence précédente" title="Occurrence précédente">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+
+          <button type="button" id="search-next" class="search-nav-btn hidden" aria-label="Occurrence suivante" title="Occurrence suivante">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+
+        <div class="topbar-spacer"></div>
+
+        <div class="theme-switch glass" id="themeSwitch">
+          <div class="theme-switch-clip">
+            <div class="theme-thumb"></div>
+          </div>
+
+          <button type="button" data-tip="Dark" class="theme-btn fa-tip" data-theme="dark" aria-label="Thème sombre" aria-pressed="false">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i>
+          </button>
+
+          <button type="button" data-tip="Light" class="theme-btn fa-tip" data-theme="light" aria-label="Thème clair" aria-pressed="false">
+            <i class="fa-solid fa-sun" aria-hidden="true"></i>
+          </button>
+
+          <button type="button" data-tip="Autumn" class="theme-btn fa-tip" data-theme="autumn" aria-label="Thème automne" aria-pressed="false">
+            <i class="fa-solid fa-leaf" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="content-container">
+        <div id="placeholder">
+          <span class="intro">UDE</span>
+          <img data-theme-image="chatCurieux" class="chatcurieux" src="https://2img.net/i.imgur.com/FgOcsFl.png">
+          <div class="introdiv">Sélectionne une section dans le menu pour afficher son contenu !</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nav-tooltip" aria-hidden="true"></div>
+
+  <script src="../js/guidebook.js"></script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+/*
+ * compendium.css — styles propres au fragment Compendium du Guidebook
+ * (public/guidebook/pages/compendium.html), chargés uniquement quand cette
+ * section est ouverte (voir public/js/guidebook.js).
+ *
+ * Nettoyé depuis le <style> de l'ancien compendium.html (page/iframe
+ * autonome) : comportement visuel inchangé. Les résets génériques qui
+ * s'appliquaient alors à toute la page (ul, textarea, p, @font-face) ont été
+ * déplacés dans public/css/guidebook.css, partagés par tous les fragments.
+ * Tout le reste (mini-app #guide-app, accordéons .rpg-dropdown, encart
+ * .intro/.introdiv, corrections de thème) a été explicitement scopé sous
+ * "#guide-app" pour ne plus fuiter sur les autres fragments une fois ce
+ * fichier chargé (le <link> reste en mémoire même après avoir quitté la
+ * section Compendium, puisqu'il n'est jamais déchargé).
+ */
+
+#guide-app .rpg-dropdown__text {
+  font-weight: 300;
+}
+
+#guide-app .paragraphe h2 {
+  font-size: 22px !important;
+}
+
+#guide-app .rpg-dropdown {
+  border: 2px solid var(--color3bis);
+  border-radius: 16px;
+  overflow: hidden;
+  background: transparent;
+  transition: 300ms ease;
+}
+
+#guide-app .rpg-dropdown:hover {
+  border-color: var(--color14);
+  transition: 300ms ease;
+}
+
+#guide-app .rpg-dropdown:hover .rpg-dropdown__title,
+#guide-app .rpg-dropdown:hover .rpg-dropdown__icon {
+  color: var(--blanc);
+}
+
+#guide-app .rpg-dropdown__head {
+  cursor: pointer;
+}
+
+#guide-app .rpg-dropdown__content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  background: var(--color1);
+  transition:
+    max-height 0.5s ease,
+    opacity 0.35s ease;
+}
+
+#guide-app .rpg-dropdown.active .rpg-dropdown__content {
+  opacity: 1;
+}
+
+#guide-app .rpg-dropdown__inner {
+  padding: 0 24px 22px 24px;
+  background: var(--color1);
+  color: var(--color5) !important;
+}
+
+#guide-app .rpg-dropdown__text {
+  margin: 0;
+  padding-top: 20px;
+  font: 18px Calibri;
+  color: var(--color5);
+  line-height: 20px;
+}
+
+#guide-app .rpg-dropdown__title,
+#guide-app .rpg-dropdown__icon {
+  color: var(--color5);
+}
+
+#guide-app .rpg-dropdown.active .rpg-dropdown__head {
+  background: var(--color14);
+}
+
+#guide-app .rpg-dropdown.active {
+  border-color: var(--color14);
+}
+
+#guide-app .rpg-dropdown.active .rpg-dropdown__title,
+#guide-app .rpg-dropdown.active .rpg-dropdown__icon {
+  color: var(--blanc);
+}
+
+#guide-app .rpg-dropdown__title:before {
+  display: none !important;
+}
+
+#guide-app .intro {
+  font: 28px 'Glow Night';
+}
+
+#guide-app .introdiv {
+  height: auto;
+  background: var(--color13);
+  width: 100%;
+  border-radius: 10px;
+  line-height: 20px;
+  text-align: center;
+  padding: 20px 25px;
+}
+
+#guide-app #guide-placeholder {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#guide-app desc {
+  font: italic 16px Calibri;
+  color: var(--color5);
+}
+
+#guide-app .rpg-dropdown:hover desc,
+#guide-app .rpg-dropdown.active desc {
+  color: var(--blanc);
+}
+
+#guide-app {
+  --bg-main: var(--color2);
+  --bg-card: var(--color1);
+  --bg-soft: var(--color3bis);
+  --accent: var(--color14);
+  --text: var(--color5);
+  --text-soft: var(--color9);
+  --border: var(--color3bis);
+
+  max-width: 100%;
+  margin: 0;
+  color: var(--text);
+  font: 18px/1.6 Calibri, Arial, sans-serif;
+}
+
+#guide-app * {
+  box-sizing: border-box;
+}
+
+#guide-app .guide-shell {
+  display: none;
+  border-radius: 18px;
+}
+
+#guide-app .guide-shell.is-active {
+  display: block;
+}
+
+#guide-app .guide-home {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#guide-app.is-collapsed .guide-home {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+#guide-app .guide-choice {
+  flex: 1 1 100%;
+  min-width: 0;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  min-height: 80px;
+  box-shadow: 0px 4px 4px var(--dropshadow), var(--panel-1-inset);
+  text-align: left;
+}
+
+#guide-app.is-collapsed .guide-choice {
+  flex: 1 1 calc(50% - 8px);
+}
+
+#guide-app .guide-choice:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+#guide-app .guide-choice strong {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 8px;
+  font-family: "Glow Night", Calibri, serif;
+  font-weight: normal;
+}
+
+#guide-app .guide-choice span {
+  font: 18px Calibri;
+}
+
+#guide-app .guide-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+  font: 14px Calibri;
+  color: var(--text-soft);
+}
+
+#guide-app .guide-breadcrumb button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+#guide-app .guide-breadcrumb button:hover {
+  color: var(--text);
+}
+
+#guide-app .guide-panel {
+  border-radius: 16px;
+}
+
+#guide-app .guide-title {
+  font: 28px "Glow Night", Calibri, serif;
+  font-weight: normal;
+  margin: 0 0 16px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+#guide-app .guide-list-panel,
+#guide-app .guide-article-panel {
+  display: none;
+}
+
+#guide-app .guide-list-panel.is-active,
+#guide-app .guide-article-panel.is-active {
+  display: block;
+}
+
+#guide-app .guide-list {
+  display: grid;
+  gap: 12px;
+}
+
+#guide-app .guide-article-link {
+  width: 100%;
+  text-align: left;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  color: var(--color5);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  font: 18px Calibri;
+}
+
+#guide-app .guide-article-link:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--blanc);
+}
+
+#guide-app .guide-article-link strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 17px;
+}
+
+#guide-app .guide-current-article-title {
+  margin-left: 6px;
+}
+
+#guide-app .guide-content {
+  border-radius: 14px;
+  margin-bottom: 16px;
+  color: var(--color5);
+}
+
+#guide-app .guide-content > *:last-child {
+  margin-bottom: 0;
+}
+
+#guide-app .guide-actions {
+  display: flex;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--color1);
+  padding: 12px 0;
+}
+
+#guide-app .guide-list-actions {
+  margin-top: 16px;
+}
+
+#guide-app .guide-btn {
+  border: none;
+  background: var(--bg-main);
+  color: var(--blanc);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  font: bold 16px Calibri;
+}
+
+#guide-app .guide-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+
+#guide-app .guide-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+#guide-app .guide-btn.-back {
+  margin-right: auto;
+}
+
+@media (max-width: 700px) {
+  #guide-app {
+    padding: 14px;
+  }
+
+  #guide-app .guide-shell {
+    padding: 16px;
+  }
+
+  #guide-app .guide-actions {
+    flex-direction: column;
+  }
+
+  #guide-app .guide-btn.-back {
+    margin-right: 0;
+  }
+
+  #guide-app.is-collapsed .guide-home {
+    flex-direction: column;
+  }
+
+  #guide-app.is-collapsed .guide-choice {
+    flex: 1 1 100%;
+  }
+}
+
+/* Corrections spécifiques par thème */
+html[data-color-scheme="dark"] body #guide-app .rpg-dropdown:hover,
+html[data-color-scheme="dark"] body #guide-app .guide-choice:hover,
+html[data-color-scheme="dark"] body #guide-app .guide-article-link:hover {
+  background: var(--color13) !important;
+  background-color: var(--color13) !important;
+}
+
+html[data-color-scheme="light"] body #guide-app .guide-actions,
+html[data-color-scheme="light"] body #guide-app .guide-actions.guide-list-actions {
+  background: var(--blanc) !important;
+  background-color: var(--blanc) !important;
+  background-image: none !important;
+}
+
+html[data-color-scheme="light"] body #guide-app .chrono-item::before {
+  color: var(--color9) !important;
+  text-shadow:
+    4px 0 var(--color1),
+    -4px 0 var(--color1),
+    0 4px var(--color1),
+    0 -4px var(--color1) !important;
+}
+
+html[data-color-scheme="light"] body #guide-app .chronologie::before {
+  background: var(--color1) !important;
+  background-color: var(--color1) !important;
+}

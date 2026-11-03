@@ -1,0 +1,62 @@
+<div class="ppk-agreement-page">
+
+  <div style="height: auto;" class="f1 ppk-nav-sujet ppk-agreement-header">
+    <h1 class="f2 glass no-glyph-replace">INSCRIPTION</h1>
+  </div>
+
+  <!-- BEGIN switch_fb_explain -->
+  <div class="f1 ppk-agreement-box">
+    <div class="ppk-agreement-panel f2 glass ppk-agreement-warning">
+      <img src="https://2img.net/i/fa/admin/icones/big_ico/warning.png" alt="" loading="lazy" />
+      <div class="ppk-agreement-warning-text">
+        {switch_fb_explain.FB_EXPLAIN}
+      </div>
+    </div>
+  </div>
+  <!-- END switch_fb_explain -->
+
+  <form method="GET" id="frmAgreement" action="{U_AGREE_OVER13}">
+    <div class="f1 ppk-agreement-box">
+      <div class="ppk-agreement-panel f2 glass">
+        <div class="ppk-agreement-content">
+          <div class="ppk-agreement-text">
+            {AGREEMENT}
+          </div>
+
+          <div class="ppk-agreement-rules">
+            {MY_RULES}
+          </div>
+
+          <div class="ppk-agreement-checks">
+            <input type="hidden" name="step" value="2" />
+            <!-- BEGIN switch_fb_explain -->
+            <input type="hidden" name="uid" value="{switch_fb_explain.FB_UID}" />
+            <!-- END switch_fb_explain -->
+
+            <label class="ppk-agreement-check" for="frmAgreeChkAgree">
+              <input type="checkbox" name="agreement" id="frmAgreeChkAgree" value="1" data-validation="required" />
+              <span>{AGREE_CONDITIONS}</span>
+            </label>
+
+            <label class="ppk-agreement-check" for="frmAgreeChkPrivacy">
+              <input type="checkbox" name="privacy" id="frmAgreeChkPrivacy" value="1" data-validation="required" />
+              <span>{AGREE_PRIVACY}</span>
+            </label>
+          </div>
+      
+
+    <div class="ppk-agreement-box" style="padding: 0px; margin-top: 20px;">
+      <div class="ppk-agreement-actions">
+        <input type="submit" value="{AGREE_OVER_13}" class="button1 ppk-agreement-btn" />
+      </div>
+    </div>
+          
+          
+        </div>
+        
+        
+      </div>
+    </div>
+  </form>
+
+</div>

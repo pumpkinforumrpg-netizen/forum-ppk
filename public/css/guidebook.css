@@ -1,0 +1,531 @@
+/*
+ * guidebook.css — apparence générale de l'application Guidebook
+ * (public/guidebook/index.html + public/guidebook/pages/*.html).
+ *
+ * Extrait et adapté du <style> de l'ancienne page guidebook_navigation.html.
+ * Comportement visuel inchangé pour la coquille (sidebar, barre de
+ * recherche, switch de thème) ; les règles propres à l'ancien système
+ * d'iframes (une <iframe class="guide-frame"> par section, affichée/masquée
+ * via .active) ont été retirées car les sections sont désormais des
+ * fragments HTML injectés directement dans #content-container par
+ * public/js/guidebook.js (fetch + innerHTML), et plus des documents
+ * séparés. #iframe-container est devenu #content-container, qui porte
+ * maintenant le padding (28px) qu'assumait auparavant le <body> de chaque
+ * page de contenu chargée en iframe.
+ *
+ * Les résets génériques (ul, textarea, p) utilisés par le contenu des
+ * fragments (règlement, codes...) étaient dupliqués dans chaque ancienne
+ * page de contenu (dont compendium.html) ; ils sont factorisés ici une
+ * seule fois, scopés à #content-container pour ne pas affecter la sidebar
+ * ou la barre de recherche.
+ */
+
+@font-face {
+  font-family: 'Glow Night';
+  src: url('https://dl.dropboxusercontent.com/scl/fi/sclz8zc7gpxg3w46p3y0w/Glow-Night.otf?rlkey=x33h8no2mt3sdqwntc78fcfb2&st=7eyj8944') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --layout-width: 1150px;
+  --layout-padding: 28px;
+  --layout-gap: 25px;
+  --sidebar-width: 261px;
+  --sidebar-collapsed-width: 78px;
+  --highlight-color: var(--color9);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#layout {
+  width: var(--layout-width);
+  height: 100vh;
+  padding: var(--layout-padding);
+  display: flex;
+  gap: var(--layout-gap);
+  background: var(--color8);
+}
+
+.chatcurieux {
+  position: absolute;
+  margin-top: 10px;
+  margin-left: -3px;
+}
+
+.intro {
+  font: 80px 'Glow Night';
+  color: var(--color5);
+}
+
+.introdiv {
+  height: 100px;
+  background: var(--color13);
+  width: 315px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 25px 30px;
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+
+#sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100%;
+  position: relative;
+  overflow: visible;
+  transition:
+    width 0.78s cubic-bezier(0.16, 1, 0.3, 1),
+    min-width 0.78s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20;
+}
+
+#sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+  min-width: var(--sidebar-collapsed-width);
+}
+
+#sidebar-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color1);
+  padding: 19px 17px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 4px var(--dropshadow), var(--panel-1-inset);
+  transition: padding 0.78s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#sidebar.collapsed #sidebar-shell {
+  padding: 19px 8px;
+}
+
+/* bouton fermer le menu = même style visuel que les nav-links */
+#toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 15px 5px 8px;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--color5);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  justify-content: flex-start;
+  transition:
+    background 0.25s ease,
+    padding 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    gap 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#toggle-btn:hover {
+  background: var(--color6);
+}
+
+.toggle-icon-wrap {
+  min-width: 20px;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#toggle-btn i {
+  font-size: 15px;
+  color: var(--color9);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+#toggle-label {
+  overflow: hidden;
+  min-width: 0;
+  max-width: 180px;
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--color5);
+  font: bold 18px Calibri;
+  transition:
+    opacity 0.26s ease,
+    max-width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s ease;
+}
+
+#sidebar.collapsed #toggle-btn {
+  justify-content: center;
+  padding: 8px 0;
+  gap: 0;
+}
+
+#sidebar.collapsed #toggle-label {
+  opacity: 0;
+  max-width: 0;
+  transform: translateX(-6px);
+}
+
+#sidebar-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  padding: 8px 0;
+  position: relative;
+}
+
+#sidebar-content::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-category {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 25px 12px 4px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--color5);
+  font: 14px "Glow Night";
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition:
+    padding 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.26s ease;
+}
+
+.nav-category__full,
+.nav-category__short {
+  display: block;
+  line-height: 1;
+}
+
+.nav-category__full {
+  opacity: 1;
+  transition: opacity 0.26s ease;
+}
+
+.nav-category__short {
+  display: none;
+  padding: 25px 12px 4px 12px;
+}
+
+#sidebar.collapsed .nav-category {
+  justify-content: center;
+  padding: 12px 0 4px 0;
+}
+
+#sidebar.collapsed .nav-category__full {
+  display: none;
+}
+
+#sidebar.collapsed .nav-category__short {
+  display: block;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 15px 5px 8px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--color5);
+  text-decoration: none;
+  justify-content: flex-start;
+  transition:
+    background 0.25s ease,
+    padding 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    gap 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s ease;
+}
+
+.nav-link:hover {
+  background: var(--color6);
+}
+
+.nav-link.active {
+  background: var(--color2);
+  font-weight: bold;
+  color: var(--blanc);
+}
+
+.nav-link i {
+  font-size: 18px;
+  min-width: 20px;
+  text-align: center;
+  color: var(--color9);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+  padding-top: 2px;
+}
+
+.nav-link .link-label {
+  overflow: hidden;
+  min-width: 0;
+  max-width: 180px;
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--color5);
+  font: bold 18px Calibri;
+  transition:
+    opacity 0.26s ease,
+    max-width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s ease;
+}
+
+.nav-link.active i,
+.nav-link.active .link-label {
+  color: var(--blanc);
+}
+
+#sidebar.collapsed .nav-link .link-label {
+  opacity: 0;
+  max-width: 0;
+  transform: translateX(-6px);
+}
+
+#sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 8px 0;
+  gap: 0;
+}
+
+/* ============================================================
+   TOOLTIP CUSTOM NAV
+============================================================ */
+
+#nav-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.16s ease, visibility 0.16s ease;
+  max-width: 240px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: var(--color2);
+  color: var(--blanc);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.22);
+  font: 15px Calibri;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#nav-tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ============================================================
+   MAIN
+============================================================ */
+
+#main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-gap);
+  overflow: visible;
+}
+
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  min-height: 58px;
+  flex-shrink: 0;
+  background: var(--color1);
+  border-radius: 15px;
+  box-shadow: 0px 4px 4px var(--dropshadow), var(--panel-1-inset);
+}
+
+.search-field {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.search-field__icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: rgba(250, 249, 250, 0.65);
+  pointer-events: none;
+}
+
+#search-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px 0 32px;
+  border: none;
+  border-radius: 10px;
+  outline: none;
+  background: var(--color3);
+  color: var(--blanc);
+  box-shadow: var(--glass);
+  font: 14px Calibri;
+}
+
+#search-input::placeholder {
+  color: rgba(250, 249, 250, 0.65);
+}
+
+#search-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: max-content;
+}
+
+#search-count {
+  font: 12px Calibri;
+  color: var(--color5);
+  white-space: nowrap;
+  opacity: 0.8;
+  min-width: 72px;
+  text-align: right;
+}
+
+.search-nav-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color3);
+  color: var(--blanc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--glass);
+  transition: 200ms ease;
+}
+
+.search-nav-btn:hover:not(:disabled) {
+  background: var(--color2);
+}
+
+.search-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.search-nav-btn.hidden {
+  display: none;
+}
+
+.search-nav-btn i {
+  font-size: 11px;
+}
+
+.topbar-spacer {
+  flex: 1 1 auto;
+}
+
+/* ============================================================
+   ZONE DE CONTENU (fragments injectés par guidebook.js)
+============================================================ */
+
+#content-container {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+  background: var(--color1);
+  border-radius: 15px;
+  box-shadow: 0px 4px 4px var(--dropshadow), var(--panel-1-inset);
+  padding: 28px;
+}
+
+#content-container::-webkit-scrollbar {
+  display: none;
+}
+
+#placeholder {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 30px;
+  color: var(--color5);
+  gap: 50px;
+  font: 16px Calibri;
+  opacity: 1;
+}
+
+/* Résets génériques utilisés par le contenu des fragments (règlement, codes,
+   compendium...) : factorisés ici pour ne plus être dupliqués dans chaque
+   page de contenu comme c'était le cas avant (voir compendium.html). */
+#content-container ul {
+  padding: 5px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--color5) !important;
+}
+
+#content-container textarea {
+  border: none;
+  width: 100%;
+  background: none;
+  appearance: none;
+  resize: none;
+  color: var(--color9);
+  padding-top: 12px;
+}
+
+#content-container p {
+  line-height: 20px;
+}
+
+.search-highlight {
+  background-color: var(--highlight-color);
+  border-radius: 2px;
+  color: var(--color3);
+}
+
+.search-highlight-current {
+  background-color: var(--color9) !important;
+  color: var(--color3) !important;
+  border-radius: 2px;
+}

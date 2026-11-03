@@ -1,0 +1,545 @@
+<script type="text/javascript" src="{JSPWD}"></script>
+
+<div class="ppk-ucp-page">
+
+  <!-- BEGIN switch_display_menu -->
+  <div class="ppk-nav-sujet f1 ppk-ucp-header">
+    <h1 class="f2 glass no-glyph-replace">ÉDITION DU PROFIL</h1>
+    <div class="nav-wrap-sjt f2 glass">
+      <div class="nav-sjt ppk-ucp-tabs">
+        {UCP_TABS}
+      </div>
+    </div>
+  </div>
+  <!-- END switch_display_menu -->
+
+  {ERROR_BOX}
+
+  <div class="ppk-ucp-main">
+    <form action="{S_PROFILE_ACTION}" {S_FORM_ENCTYPE} method="post" name="post" id="ucp">
+
+      <!-- BEGIN switch_informations_menu -->
+      <div class="f1 ppk-ucp-box ppk-ucp-box--plain-labels">
+        <div class="ppk-ucp-section-head">
+          <h2>{L_REGISTRATION_INFO}</h2>
+        </div>
+
+        <div class="ppk-ucp-panel f2 glass">
+          <p class="ppk-ucp-required">{L_ITEMS_REQUIRED}</p>
+
+          <fieldset class="ppk-ucp-fields">
+            <!-- BEGIN switch_namechange_disallowed -->
+            <dl>
+              <dt><label>{L_USERNAME} *</label></dt>
+              <dd>
+                <input type="hidden" name="username" value="{USERNAME}" class="inputbox" />
+                <strong>{USERNAME}</strong>
+              </dd>
+            </dl>
+            <!-- END switch_namechange_disallowed -->
+
+            <!-- BEGIN switch_namechange_allowed -->
+            <dl>
+              <dt><label>{L_USERNAME} *</label></dt>
+              <dd><input type="text" name="username" value="{USERNAME}" class="inputbox" maxlength="25" /></dd>
+            </dl>
+            <!-- END switch_namechange_allowed -->
+
+            <!-- BEGIN switch_emailchange_disallowed -->
+            <dl>
+              <dt><label>{L_EMAIL_ADDRESS} *</label></dt>
+              <dd>
+                <input type="hidden" name="email" value="{EMAIL}" />
+                {EMAIL}
+                {L_INVALID_EMAIL}
+              </dd>
+            </dl>
+            <!-- END switch_emailchange_disallowed -->
+
+            <!-- BEGIN switch_emailchange_allowed -->
+            <dl>
+              <dt><label>{L_EMAIL_ADDRESS} *</label></dt>
+              <dd>
+                <input type="email" name="email" value="{EMAIL}" class="inputbox" />
+                {L_INVALID_EMAIL}
+              </dd>
+            </dl>
+            <!-- END switch_emailchange_allowed -->
+
+            <!-- BEGIN switch_change_password -->
+            <dl>
+              <dt><label>{L_CHANGE_PASSWORD} *</label></dt>
+              <dd>
+                <a href="{LINK_FOR_PASSWD_CHANGE}" target="_blank" class="ppk-ucp-link-btn">{L_MODIFY}</a>
+              </dd>
+            </dl>
+            <!-- END switch_change_password -->
+          </fieldset>
+        </div>
+      </div>
+
+      <!-- BEGIN switch_span_div -->
+      <!-- END switch_span_div -->
+
+      <!-- BEGIN switch_profile_fields -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-section-head">
+          <h2>{switch_informations_menu.switch_profile_fields.L_PROFILE_FIELDS}</h2>
+        </div>
+
+        <div class="ppk-ucp-panel f2 glass">
+          <fieldset class="ppk-ucp-fields ppk-ucp-removable-fields">
+            <!-- BEGIN field -->
+            <dl>
+              <dt>{switch_informations_menu.switch_profile_fields.field.NAME}</dt>
+              <dd>
+                {switch_informations_menu.switch_profile_fields.field.OBJECT}
+                <span class="ppk-ucp-description">{switch_informations_menu.switch_profile_fields.field.DESCRIPTION}</span>
+              </dd>
+            </dl>
+            <!-- END field -->
+          </fieldset>
+        </div>
+      </div>
+      <!-- END switch_profile_fields -->
+
+      <!-- BEGIN switch_awards -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-section-head">
+          <h2>{switch_informations_menu.switch_awards.L_AWARDS}</h2>
+        </div>
+
+        <div class="ppk-ucp-panel f2 glass ppk-ucp-awards-panel">
+          <div id="list_awards" class="ppk-ucp-awards-list">{switch_informations_menu.switch_awards.AWARDS_LIST}</div>
+
+          <div class="ppk-ucp-actions-center">
+            <input id="awards_order" type="hidden" name="awards_order" value="" />
+            <input id="sort_awards" class="button1 ppk-ucp-btn" type="button" name="order" value="{switch_informations_menu.switch_awards.L_SORT}" />
+          </div>
+        </div>
+        {switch_informations_menu.switch_awards.SCRIPT_SORT_AWARDS}
+      </div>
+      <!-- END switch_awards -->
+
+      <!-- BEGIN switch_register_not_display -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-panel f2 glass">
+          <p class="ppk-ucp-required">{L_PROFILE_INFO_NOTICE}</p>
+          <fieldset class="ppk-ucp-fields">
+            <!-- BEGIN switch_unsubscribe_allowed -->
+            <dl>
+              <dt><label>{L_DELETE}</label></dt>
+              <dd>
+                <label class="ppk-ucp-inline-option"><input type="checkbox" name="delete_user" /> {L_DELETE_EXPLAIN}</label>
+              </dd>
+            </dl>
+            <!-- END switch_unsubscribe_allowed -->
+          </fieldset>
+        </div>
+      </div>
+      <!-- END switch_register_not_display -->
+
+      <!-- BEGIN switch_profile_fields_register -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-panel f2 glass">
+          <fieldset class="ppk-ucp-fields ppk-ucp-removable-fields">
+            <!-- BEGIN field -->
+            <dl>
+              <dt><label>{switch_informations_menu.switch_profile_fields_register.field.NAME}</label></dt>
+              <dd>{switch_informations_menu.switch_profile_fields_register.field.OBJECT}</dd>
+            </dl>
+            <!-- END field -->
+          </fieldset>
+        </div>
+      </div>
+      <!-- END switch_profile_fields_register -->
+
+      <!-- export de données séparé -->
+      <div class="f1 ppk-ucp-box ppk-ucp-rgpd-box ppk-ucp-box--plain-labels">
+        <div class="ppk-ucp-section-head">
+          <h2>{switch_informations_menu.RGPD_ACTION_TITLE}</h2>
+        </div>
+
+        <!-- BEGIN rgpd_generate_or_download -->
+        <div class="ppk-ucp-panel f2 glass">
+          <fieldset class="ppk-ucp-fields">
+            <dl>
+              <dt><label>{switch_informations_menu.rgpd_generate_or_download.RGPD_ACTION_LABEL}</label></dt>
+              <dd>
+                <a href="{switch_informations_menu.rgpd_generate_or_download.RGPD_ACTION_LINK}" class="ppk-ucp-link-btn">
+                  {switch_informations_menu.rgpd_generate_or_download.RGPD_ACTION_CONTENT}
+                </a>
+                <span class="ppk-ucp-description">{switch_informations_menu.rgpd_generate_or_download.RGPD_ACTION_EXPLAIN}</span>
+              </dd>
+            </dl>
+          </fieldset>
+        </div>
+        <!-- END rgpd_generate_or_download -->
+
+        <!-- BEGIN rgpd_await_export -->
+        <div class="ppk-ucp-panel f2 glass">
+          <fieldset class="ppk-ucp-fields">
+            <p>{switch_informations_menu.rgpd_await_export.RGPD_AWAIT_EXPORT}</p>
+          </fieldset>
+        </div>
+        <!-- END rgpd_await_export -->
+      </div>
+      <!-- END switch_informations_menu -->
+
+      <!-- BEGIN switch_confirm_password -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-section-head">
+          <h2>{L_REGISTRATION_INFO}</h2>
+        </div>
+
+        <div class="ppk-ucp-panel f2 glass">
+          <fieldset class="ppk-ucp-fields">
+            <dl>
+              <dt><label>{L_CURRENT_PASSWORD} *</label></dt>
+              <dd><input type="password" name="cur_password" value="{CUR_PASSWORD}" class="inputbox" /></dd>
+            </dl>
+          </fieldset>
+        </div>
+      </div>
+      <!-- END switch_confirm_password -->
+
+      <!-- BEGIN switch_confirm_password_new -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-panel f2 glass">
+          <fieldset class="ppk-ucp-fields">
+            <dl>
+              <dt><label>{L_NEW_PASSWORD} *</label></dt>
+              <dd><input type="password" name="new_password" value="{NEW_PASSWORD}" class="inputbox" maxlength="25" /></dd>
+            </dl>
+            <dl>
+              <dt><label>{L_CONFIRM_PASSWORD} *</label></dt>
+              <dd>
+                <input type="password" name="password_confirm" value="{PASSWORD_CONFIRM}" class="inputbox" maxlength="25" />
+                <input type="hidden" name="change_password" value="change_password" />
+              </dd>
+            </dl>
+          </fieldset>
+        </div>
+      </div>
+      <!-- END switch_confirm_password_new -->
+
+      <!-- BEGIN switch_preferences_menu -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-section-head">
+          <h2>{L_PREFERENCES}</h2>
+        </div>
+
+        <div class="ppk-ucp-panel f2 glass profil_preferences">
+          <fieldset class="ppk-ucp-fields ppk-ucp-removable-fields">
+            <dl>
+              <dt><label>{L_PUBLIC_VIEW_EMAIL}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="viewemail" value="2" {VIEW_EMAIL_FORM} /> {L_YES}</label>
+                <!-- BEGIN switch_enable_mail_view -->
+                <label><input type="radio" name="viewemail" value="2" {VIEW_EMAIL_FORM} /> {L_FORM}</label>
+                <label><input type="radio" name="viewemail" value="1" {VIEW_EMAIL_MAILTO} /> {L_MAILTO}</label>
+                <!-- END switch_enable_mail_view -->
+                <label><input type="radio" name="viewemail" value="0" {VIEW_EMAIL_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+
+            <!-- BEGIN switch_view_pm -->
+            <dl>
+              <dt><label>{L_PUBLIC_VIEW_MP}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="view_pm" value="1" {VIEW_MP_YES} /> {L_YES}</label>
+                <label><input type="radio" name="view_pm" value="0" {VIEW_MP_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+            <!-- END switch_view_pm -->
+
+            <dl>
+              <dt><label>{L_NEWSLETTER_ACCEPT}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="newsletter" value="1" {NEWSLETTER_YES} /> {L_YES}</label>
+                <label><input type="radio" name="newsletter" value="0" {NEWSLETTER_NO} /> {L_NO}</label>
+                <span class="ppk-ucp-description">{L_NEWSLETTER_ACCEPT_EXPLAIN}</span>
+              </dd>
+            </dl>
+
+            <!-- BEGIN display_newsletter_auto -->
+            <dl>
+              <dt><label>{L_NEWSLETTER_AUTO_ACCEPT}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="newsletter_auto" value="1" {NEWSLETTER_AUTO_YES} /> {L_YES}</label>
+                <label><input type="radio" name="newsletter_auto" value="0" {NEWSLETTER_AUTO_NO} /> {L_NO}</label>
+                <span class="ppk-ucp-description">{L_NEWSLETTER_AUTO_ACCEPT_EXPLAIN}</span>
+              </dd>
+            </dl>
+            <!-- END display_newsletter_auto -->
+
+            <dl>
+              <dt><label>{L_HIDE_USER}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="hideonline" value="1" {HIDE_USER_YES} /> {L_YES}</label>
+                <label><input type="radio" name="hideonline" value="0" {HIDE_USER_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+
+            <dl>
+              <dt><label>{L_NOTIFY_ON_REPLY}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="notifyreply" value="1" {NOTIFY_REPLY_YES} /> {L_YES}</label>
+                <label><input type="radio" name="notifyreply" value="0" {NOTIFY_REPLY_NO} /> {L_NO}</label>
+                <span class="ppk-ucp-description">{L_NOTIFY_ON_REPLY_EXPLAIN}</span>
+              </dd>
+            </dl>
+
+            <!-- BEGIN switch_can_disable_mass_pm -->
+            <dl>
+              <dt><label>{L_ENABLE_MASS_PM}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="allow_mass_pm" value="4" {ALLOW_MASS_PM_NOTIFY_CHECKED} /> {L_YES}</label>
+                <label><input type="radio" name="allow_mass_pm" value="2" {ALLOW_MASS_PM_CHECKED} /> {L_NO}</label>
+                <label><input type="radio" name="allow_mass_pm" value="0" {DISABLE_MASS_PM_CHECKED} /> {L_NO_MASS_PM}</label>
+                <span class="ppk-ucp-description">{L_ENABLE_MASS_PM_EXPLAIN}</span>
+              </dd>
+            </dl>
+            <!-- END switch_can_disable_mass_pm -->
+
+            <!-- BEGIN switch_notify_subscriptions -->
+            <dl>
+              <dt><label>{L_NOTIFY_SUBSCRIPTIONS}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="notify_subscriptions" value="1" {NOTIFY_SUBSCRIPTIONS_YES} /> {L_YES}</label>
+                <label><input type="radio" name="notify_subscriptions" value="0" {NOTIFY_SUBSCRIPTIONS_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+            <!-- END switch_notify_subscriptions -->
+
+            <dl>
+              <dt><label>{L_POPUP_ON_PRIVMSG}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="popup_pm" value="1" {POPUP_PM_YES} /> {L_YES}</label>
+                <label><input type="radio" name="popup_pm" value="0" {POPUP_PM_NO} /> {L_NO}</label>
+                <span class="ppk-ucp-description">{L_POPUP_ON_PRIVMSG_EXPLAIN}</span>
+              </dd>
+            </dl>
+
+            <dl>
+              <dt><label>{L_NOTIFY_POST_PREVENT}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="post_prevent" value="1" {POST_PREVENT_YES} /> {L_YES}</label>
+                <label><input type="radio" name="post_prevent" value="0" {POST_PREVENT_NO} /> {L_NO}</label>
+                <span class="ppk-ucp-description">{L_NOTIFY_POST_PREVENT_EXPLAIN}</span>
+              </dd>
+            </dl>
+
+            <!-- BEGIN switch_report -->
+            <dl>
+              <dt><label>{switch_preferences_menu.switch_report.L_NO_REPORT_POPUP}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="no_report_popup" value="0" {switch_preferences_menu.switch_report.NO_REPORT_POPUP_YES} /> {L_YES}</label>
+                <label><input type="radio" name="no_report_popup" value="1" {switch_preferences_menu.switch_report.NO_REPORT_POPUP_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+            <!-- END switch_report -->
+
+            <dl>
+              <dt><label>{L_ALWAYS_ALLOW_BBCODE}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="allowbbcode" value="1" {ALWAYS_ALLOW_BBCODE_YES} /> {L_YES}</label>
+                <label><input type="radio" name="allowbbcode" value="0" {ALWAYS_ALLOW_BBCODE_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+
+            <dl>
+              <dt><label>{L_ALWAYS_ALLOW_HTML}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="allowhtml" value="1" {ALWAYS_ALLOW_HTML_YES} /> {L_YES}</label>
+                <label><input type="radio" name="allowhtml" value="0" {ALWAYS_ALLOW_HTML_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+
+            <dl>
+              <dt><label>{L_ALWAYS_ALLOW_SMILIES}</label></dt>
+              <dd class="ppk-ucp-choice-group">
+                <label><input type="radio" name="allowsmilies" value="1" {ALWAYS_ALLOW_SMILIES_YES} /> {L_YES}</label>
+                <label><input type="radio" name="allowsmilies" value="0" {ALWAYS_ALLOW_SMILIES_NO} /> {L_NO}</label>
+              </dd>
+            </dl>
+
+            <dl>
+              <dt><label>{L_BOARD_LANGUAGE}</label></dt>
+              <dd>{LANGUAGE_SELECT}</dd>
+            </dl>
+
+            <dl>
+              <dt><label>{L_TIMEZONE}</label></dt>
+              <dd>{TIMEZONE_SELECT}</dd>
+            </dl>
+
+            <dl>
+              <dt><label>{L_DATE_FORMAT}</label></dt>
+              <dd>
+                {DATE_FORMAT}
+                <span class="ppk-ucp-description">{CURRENT_TIME}</span>
+              </dd>
+            </dl>
+          </fieldset>
+        </div>
+      </div>
+      <!-- END switch_preferences_menu -->
+
+      <!-- BEGIN switch_avatar_block -->
+      <div class="f1 ppk-ucp-box">
+        <div class="ppk-ucp-section-head">
+          <h2>{L_AVATAR_PANEL}</h2>
+        </div>
+
+        <div class="ppk-ucp-panel f2 glass profil_editavatar">
+          <fieldset class="ppk-ucp-fields">
+            <dl>
+              <dt>
+                <strong>{L_CURRENT_IMAGE}</strong>
+                <span style="display: flex;" class="ppk-ucp-description">Ceci n'est PAS l'avatar. Il faut mettre l'icône 200*200px que l'on voit un peu partout sur le forum ! L'avatar s'ajoute dans l'onglet 'Informations'. Merci ✦✧</span>
+              </dt>
+              <dd class="ppk-ucp-avatar-current">
+                {AVATAR}
+                <label class="ppk-ucp-inline-option"><input type="checkbox" name="avatardel" /> {L_DELETE_AVATAR}</label>
+              </dd>
+            </dl>
+
+            <!-- BEGIN switch_avatar_local_upload -->
+            <dl>
+              <dt><label>{L_UPLOAD_AVATAR_FILE}</label></dt>
+              <dd><input type="file" name="avatar" class="inputbox" /></dd>
+            </dl>
+            <!-- END switch_avatar_local_upload -->
+
+            <!-- BEGIN switch_avatar_remote_upload -->
+            <dl>
+              <dt><label>{L_UPLOAD_AVATAR_URL}</label></dt>
+              <dd>
+                <input type="text" name="avatarurl" class="inputbox" />
+                <span class="ppk-ucp-description">{L_UPLOAD_AVATAR_URL_EXPLAIN}</span>
+              </dd>
+            </dl>
+            <!-- END switch_avatar_remote_upload -->
+
+            <!-- BEGIN switch_avatar_remote_link -->
+            <dl>
+              <dt><label>{L_LINK_REMOTE_AVATAR}</label></dt>
+              <dd>
+                <input type="text" name="avatarremoteurl" class="inputbox" />
+                <span class="ppk-ucp-description">{L_LINK_REMOTE_AVATAR_EXPLAIN}</span>
+              </dd>
+            </dl>
+            <!-- END switch_avatar_remote_link -->
+          </fieldset>
+        </div>
+      </div>
+      <!-- END switch_avatar_block -->
+
+      <fieldset class="ppk-ucp-submit">
+        {S_HIDDEN_FIELDS}
+        <input class="button1 ppk-ucp-btn" type="submit" name="submit" value="{L_SUBMIT}" />
+        <input class="button2 ppk-ucp-btn" type="reset" name="reset" value="{L_RESET}" />
+      </fieldset>
+
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+  $('input[name=reset]').click(function() {
+    $("#pwd_good,#pwd_middle,#pwd_bad").hide();
+  });
+
+  $('input[name=new_password],input[name=username]').keyup(function() {
+    if ($('input[name=new_password]').val() != "") {
+      var level = passwordStrength($('input[name=new_password]').val(), $('input[name=username]').val());
+      switch (level) {
+        case 'bad':
+          $("#pwd_middle,#pwd_good").hide();
+          $("#pwd_bad").show();
+          break;
+        case 'good':
+          $("#pwd_good,#pwd_bad").hide();
+          $("#pwd_middle").show();
+          break;
+        case 'strong':
+          $("#pwd_middle,#pwd_bad").hide();
+          $("#pwd_good").show();
+          break;
+      }
+    } else {
+      $("#pwd_middle,#pwd_good,#pwd_bad").hide();
+    }
+  });
+
+  function normalizeFieldLabel(str) {
+  return (str || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const hiddenLabels = [
+  "localisation",
+  "date de naissance",
+  "emploi loisirs",
+  "humeur",
+  "commentaires",
+  "genre",
+  "site web",
+  "facebook",
+  "twitter",
+  "x twitter",
+  "pinterest",
+  "skype"
+].map(normalizeFieldLabel);
+
+$('.ppk-ucp-removable-fields dl').each(function() {
+  const $dl = $(this);
+  const raw = $dl.find('dt').first().text();
+  const label = normalizeFieldLabel(raw);
+
+  const mustHide = hiddenLabels.some(function(hidden) {
+    return label === hidden || label.indexOf(hidden) !== -1 || hidden.indexOf(label) !== -1;
+  });
+
+  if (mustHide) {
+    $dl.remove();
+  }
+});
+
+  const $tabs = $('.ppk-ucp-tabs');
+  $tabs.find('a').each(function() {
+    const $a = $(this);
+    if (!$a.parent().hasClass('nav')) {
+      $a.wrap('<span class="nav"></span>');
+    }
+  });
+  $tabs.find('li').each(function() {
+    const $li = $(this);
+    const $a = $li.find('a').first();
+    if ($a.length) {
+      const active = $li.hasClass('activetab') || $li.hasClass('active');
+      const cls = active ? 'nav active' : 'nav';
+      li.replaceWith(('<span class="' + cls + '"></span>').append($a));
+    }
+  });
+  $tabs.find('ul').contents().unwrap();
+  $tabs.find('li').contents().unwrap();
+  $tabs.find('br').remove();
+
+  var banner_width;
+  $(window).on("resize", function() {
+    ("#fymbanner").width(bannerwidth/((window).width() < 1000 ? 1.5 : 1));
+  }).on("load", function() {
+    banner_width = $("#fym_banner").width();
+    $(this).trigger("resize");
+  });
+});
+</script>

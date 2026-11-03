@@ -1,0 +1,259 @@
+<link rel="stylesheet" href="https://dl.dropboxusercontent.com/scl/fi/pg06fkxia9gju5idtu6ax/perlepluie.css?rlkey=mgd8drhy2ul1aiuionaj8t685&st=gp0uguwx">
+<style>
+  #field_id1 .field_uneditable:first-of-type {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+<div class="ppk-profil glass f1">
+  <div class="ppk-profil1">
+    <img class="nuage-haut" src="https://2img.net/i.imgur.com/hamGvHC.png" />
+    <div class="profil-avatar f2">
+      <!-- BEGIN profile_field -->
+        <div class="label-stats" id="field_id{profile_field.ID}">
+          {profile_field.CONTENT}
+        </div>
+      <!-- END profile_field -->
+    </div>
+    <div class="sjt-msg f2">
+      <!-- BEGIN profile_field -->
+        <!-- BEGIN profil_type_user_posts -->
+          <!-- BEGIN links -->
+          <a class="button" rel="nofollow" href="/sta/{PUSERNAME}">{L_TOPICS}</a>
+          <a class="button" rel="nofollow" href="/spa/{PUSERNAME}">{L_POSTS}</a>
+          <!-- END links -->
+        <!-- END profil_type_user_posts -->
+      <!-- END profile_field -->
+    </div>
+  </div>
+  <div class="ppk-profil2">
+    <div class="bann-profil">
+      <div class="ppk-user-profil f2 glass">
+        <span class="nameprofil">{USERNAME}</span>
+
+        <div class="is-online no-glyph-replace">      
+          <!-- BEGIN switch_show_status -->
+          <span>{USER_ONLINE}</span>
+          <!-- END switch_show_status -->
+        </div>
+        <!-- pour changer l'affichage selon online ou offline -->
+        <script>
+        $(function () {
+          $(".ppk-profil .is-online").each(function () {
+            const $status = $(this);
+            const text = $.trim($status.text());
+        
+            if (text === "En ligne") {
+              $status
+                .addClass("status-online")
+                .html("<span>ONLINE</span>");
+            } else if (text === "Hors ligne") {
+              $status
+                .addClass("status-offline")
+                .html("<span>OFFLINE</span>");
+            }
+          });
+        });
+        </script>
+        <div class="rang" style="font-size: 0px;">{POSTER_RANK}</div>
+      </div>
+      <div class="infos-profil f2 glass">
+        <div class="liens-profil">
+          <!-- BEGIN contact_field -->
+          <div class="un-link" id="field_id{contact_field.ID}">
+            {contact_field.CONTENT}
+          </div>
+          <!-- END contact_field -->
+        </div>
+        <!-- BEGIN profile_field -->
+          <div class="label-stats" id="field_id{profile_field.ID}">
+            {profile_field.LABEL}{profile_field.CONTENT}
+          </div>
+        <!-- END profile_field -->
+        <span class="enligneee"><span>EN LIGNE</span>{LAST_VISIT_TIME}</span>
+      </div>
+      <!-- pour retirer les deux points et changer les titres -->
+      <script>
+      $(function () {
+        $(".infos-profil #field_id-4, .infos-profil #field_id-6, .infos-profil #field_id-13").each(function () {
+          $(this).html(
+            $(this).html().replace(/ ?:/g, "")
+          );
+        });
+      
+        $(".infos-profil .label-stats").each(function () {
+          $(this).html(
+            $(this).html()
+              .replace("Dernière visite", "EN LIGNE")
+              .replace("Date d'inscription", "INSCRIPTION")
+          );
+        });
+      });
+      </script>
+      <span class="ppk-profile-avatar" id="user_avatar">{AVATAR_IMG}</span>
+    </div>
+    <div class="infos-personnage f2 glass">
+      <!-- BEGIN switch_rpg -->
+        <!-- BEGIN rpg_fields -->
+          {switch_rpg.rpg_fields.F_VALUE_NEW}
+        <!-- END rpg_fields -->
+      <!-- END switch_rpg --> 
+    </div>
+    <div data-tip="Voir la collection" class="fa-tip user-collection"><i class="fa-solid fa-award"></i></div>
+    <!-- BEGIN switch_awards -->
+    <div class="awards_block_simple_wrapper">
+      <div class="h3">Collection de perles</div>
+      <div class="awards_block simple">{switch_awards.AWARDS_LIST}</div>
+    </div>
+    <!-- END switch_awards -->
+    <img class="nuage-bas" src="https://2img.net/i.imgur.com/NHhjmsI.png" />
+  </div>
+</div>
+
+<!-- POUR RECUPERER LA COULEUR DU GROUPE ET LA METTRE SUR LES LIENS -->
+<script>
+function applyGroupColor() {
+  $('.ppk-post, .ppk-profil').each(function () {
+    const $bloc = $(this);
+    const $name = $bloc.find('.nameprofil').first();
+
+    if (!$name.length) return;
+
+    const $source =
+      $name.find('[style*="color"], font[color], a[style*="color"], span[style*="color"]').last().length
+        ? $name.find('[style*="color"], font[color], a[style*="color"], span[style*="color"]').last()
+        : ($name.find('a, font, span, strong, b').last().length
+            ? $name.find('a, font, span, strong, b').last()
+            : $name);
+
+    const el = $source[0];
+
+    const color =
+      el.style.color ||
+      el.getAttribute('color') ||
+      window.getComputedStyle(el).color;
+
+    if (color) {
+      this.style.setProperty('--pseudo-color', color);
+    }
+  });
+}
+
+$(window).on('load pageshow', function () {
+  applyGroupColor();
+
+  requestAnimationFrame(function () {
+    applyGroupColor();
+  });
+
+  setTimeout(function () {
+    applyGroupColor();
+  }, 100);
+});
+</script>
+
+<!-- POUR LES BADGES FANTOMES -->
+<script>
+$(function () {
+  const badges = {
+    "ame errante": {
+      img: "https://2img.net/i.imgur.com/0EvJOAI.png",
+      desc: "Récemment inscrit(e)"
+    },
+    "nouvelle ame": {
+      img: "https://2img.net/i.imgur.com/aG1VrGf.png",
+      desc: "Récemment validé(e)"
+    },
+    "ame residente": {
+      img: "https://2img.net/i.imgur.com/0jHWMMw.png",
+      desc: "Là depuis 3 mois"
+    },
+    "hantise locale": {
+      img: "https://2img.net/i.imgur.com/0pY04Kf.png",
+      desc: "Là depuis 6 mois"
+    },
+    "fantome certifie": {
+      img: "https://2img.net/i.imgur.com/Fe8GuQ5.png",
+      desc: "Là depuis 1 an"
+    },
+    "oh l ancetre la": {
+      img: "https://2img.net/i.imgur.com/EsDQUtL.png",
+      desc: "Là depuis 2 ans"
+    },
+    "super ame": {
+      img: "https://2img.net/i.imgur.com/H7F0Ezq.png",
+      desc: "Point faible : trop fort."
+    },
+    "ame perdue": {
+      img: "https://2img.net/i.imgur.com/RFURPD0.png",
+      desc: "À compléter"
+    }
+  };
+
+  function normalizeBadgeLabel(str) {
+    return (str || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[’'`´-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  $("#rpg-badge").each(function () {
+    const $badge = $(this);
+    const label = $badge.text().trim();
+
+    if (!label) return;
+
+    const key = normalizeBadgeLabel(label);
+    const badge = badges[key];
+
+    if (!badge) {
+      $badge[0].style.setProperty("--badge-icon", "none");
+      $badge.removeAttr("data-badge-desc");
+      return;
+    }
+
+    $badge[0].style.setProperty("--badge-icon", 'url("' + badge.img + '")');
+    $badge.attr("data-badge-desc", badge.desc);
+  });
+});
+</script>
+
+<script>
+$(function () {
+  let mpFound = false;
+
+  $(".liens-profil .un-link").each(function () {
+    const $link = $(this);
+    const id = $link.attr("id");
+
+    $link.removeClass("fa-tip").removeAttr("data-tip");
+
+    if (id === "field_id") {
+      if (!mpFound) {
+        mpFound = true;
+        $link
+          .addClass("fa-tip")
+          .attr("data-tip", "MP");
+      } else {
+        $link.remove();
+      }
+    }
+
+    else if (id === "field_id2") {
+      $link
+        .addClass("fa-tip")
+        .attr("data-tip", "Lire la fiche");
+    }
+
+    else if (id === "field_id3") {
+      $link
+        .addClass("fa-tip")
+        .attr("data-tip", "Voir les relations");
+    }
+  });
+});
+</script>

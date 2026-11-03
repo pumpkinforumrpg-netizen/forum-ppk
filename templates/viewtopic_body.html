@@ -1,0 +1,628 @@
+<link rel="stylesheet" href="https://dl.dropboxusercontent.com/scl/fi/pg06fkxia9gju5idtu6ax/perlepluie.css?rlkey=mgd8drhy2ul1aiuionaj8t685&st=gp0uguwx">
+
+  <style>
+.rpg-dropdown__text {
+  font-weight: 300;
+}
+.rpg-dropdown {
+  border: 2px solid var(--color3bis);
+  border-radius: 16px;
+  overflow: hidden;
+  background: transparent;
+  transition: 300ms ease;
+}
+
+.rpg-dropdown:hover {
+  border-color: var(--color14);
+  transition: 300ms ease;
+}
+
+.rpg-dropdown:hover .rpg-dropdown__title,
+.rpg-dropdown:hover .rpg-dropdown__icon {
+  color: var(--blanc);
+}
+
+.rpg-dropdown__head {
+  cursor: pointer;
+}
+
+.rpg-dropdown__content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  background: var(--color1);
+  transition:
+    max-height 0.5s ease,
+    opacity 0.35s ease;
+}
+
+.rpg-dropdown.active .rpg-dropdown__content {
+  opacity: 1;
+}
+
+.rpg-dropdown__inner {
+  padding: 0 24px 22px 24px;
+  background: var(--color1);
+color: var(--color5)!important;
+}
+
+.rpg-dropdown__text {
+  margin: 0;
+  padding-top: 20px;
+  font: 18px Calibri;
+  color: var(--color5);
+  line-height: 20px;
+}
+
+.rpg-dropdown__title,
+.rpg-dropdown__icon {
+  color: var(--color5);
+}
+
+.rpg-dropdown.active .rpg-dropdown__head {
+  background: var(--color14);
+}
+
+.rpg-dropdown.active {
+  border-color: var(--color14);
+}
+
+.rpg-dropdown.active .rpg-dropdown__title,
+.rpg-dropdown.active .rpg-dropdown__icon {
+  color: var(--blanc);
+}
+
+.rpg-dropdown__title:before {
+  display: none !important;
+}
+.sceditor-button-source {
+  display: none !important;
+}
+.sceditor-button-emoticon {margin-left: -15px!important;}
+.sceditor-button-emoticon div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/MD2YDXzM/image.png)!important;
+}
+.sceditor-button-mention div {
+  background-position: 0!important;
+  background: center / 24px no-repeat url(https://i.ibb.co/j9QL4YHX/image.png)!important;
+}
+.sceditor-button-font div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/hxnp1KgT/image.png)!important;
+}
+.sceditor-button-color div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/4nykPRCW/image.png)!important;
+}
+.sceditor-button-size div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/mVnCcT6s/image.png)!important;
+}
+.sceditor-button-link div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/35NrtBvm/image.png)!important;
+}
+.sceditor-button-image div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/KzNDJXs1/image.png)!important;
+}
+.sceditor-button-faspoiler div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/8L6Pw53D/image.png)!important;
+}
+.sceditor-button-code div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/FLNmBtRv/image.png)!important;
+}
+.sceditor-button-quote div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/Kcz9ZGtx/image.png)!important;
+}
+.sceditor-button-justify div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/r2r5jJKW/image.png)!important;
+}
+.sceditor-button-right div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/zHRDF3CW/image.png)!important;
+}
+.sceditor-button-center div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/B91z2qp/image.png)!important;
+}
+.sceditor-button-left div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/9F0VNd7/image.png)!important;
+}
+.sceditor-button-strike div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/XxNR68KD/image.png)!important;
+}
+.sceditor-button-underline div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/hxNxWys4/image.png)!important;
+}
+.sceditor-button-italic div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/vC2ZRWKG/image.png)!important;
+}
+.sceditor-button-bold div {
+  background-position: 0!important;
+  background-image: url(https://i.ibb.co/Qv33TMTn/image.png)!important;
+}
+.sceditor-button div {
+    background-position: center !important;
+    background-size: cover;
+    height: 24px!important;
+    width: 24px !important;
+}
+a.sceditor-button {
+    height: 30px !important;
+    width: 30px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+div.sceditor-group {
+    display: inline-block;
+    padding: 0;
+    display: flex !important;
+    flex-direction: row;
+    gap: 10px;
+    margin: 0px 10px !important;
+}  
+.sceditor-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;  
+}
+</style>
+<div class="ppk-nav-sujet f1">
+  <img data-theme-image="chatCurieux" class="chatcurieux" src="https://2img.net/i.imgur.com/nKfZpku.png" />
+  <h1 class="f2 glass no-glyph-replace">{TOPIC_TITLE}</h1>
+  <div class="nav-wrap-sjt f2 glass">
+    <div class="nav-sjt">
+    	{NAV_CAT_DESC}
+    </div>
+    <script>
+    function removeNbsp() {
+      $('.nav-sjt').html(function(_, oldHtml) {
+        return oldHtml.replace(/&nbsp;/g, '');
+      });
+    }
+    
+    removeNbsp();
+    </script>
+    <div class="boutons-sujet">
+      <!-- BEGIN topicpagination -->
+      	<span class="page-page">{PAGINATION}</span>
+      <!-- END topicpagination -->
+      <a href="{U_POST_NEW_TOPIC}" accesskey="n" rel="nofollow">nouveau</a>
+      <a href="{U_POST_REPLY_TOPIC}">répondre</a>
+    </div>
+  </div>
+</div>
+
+<div class="ppk-sujet-wrap glass f1">
+  <!-- BEGIN postrow -->
+  <!-- BEGIN displayed -->
+  <div id="{postrow.displayed.U_POST_ID}" class="ppk-post">
+    <div id="profile{postrow.displayed.U_POST_ID}" class="ppk-post1">
+      <div class="ppk-user-profil f2 glass">
+        <span class="nameprofil">{postrow.displayed.POSTER_NAME}</span>
+
+      <div class="is-online no-glyph-replace {postrow.displayed.ONLINE_IMG_NEW}"></div>
+      
+      <script>
+      $(function () {
+        $(".ppk-post .is-online").each(function () {
+          const $status = $(this);
+      
+          if ($status.hasClass("online")) {
+            $status
+              .addClass("status-online")
+              .html("<span>ONLINE</span>");
+          } else {
+            $status
+              .addClass("status-offline")
+              .html("<span>OFFLINE</span>");
+          }
+        });
+      });
+      </script>
+      <div class="rang">{postrow.displayed.RANK_IMAGE}</div>
+      </div>
+      <div class="profil-avatar f2">
+        <!-- BEGIN profile_field -->
+          <div class="label-stats" id="field_id{profile_field.ID}">
+            {postrow.displayed.profile_field.CONTENT}
+          </div>
+        <!-- END profile_field -->
+      
+      <div class="hover-avatar">
+        {postrow.displayed.POSTER_RPG}
+      </div>
+<script>
+$(function () {
+  $(".hover-avatar").not(".is-processed").each(function () {
+    const $box = $(this).addClass("is-processed");
+
+    $box.find("a, br").remove();
+
+    $box.contents().filter(function () {
+      return this.nodeType === 3 && /^\s*:\s*$/.test(this.nodeValue);
+    }).remove();
+
+    $box.children("span.gen:not([id])").remove();
+
+    $box.children('span.gen[id^="rpg-"]').not(function () {
+      return $(this).parent().hasClass("hover-card");
+    }).wrap('<div class="hover-card"></div>');
+
+    $box.children(".hover-card").last().attr("id", "hover-card-last");
+  });
+});
+</script>
+      </div>
+    </div>
+    <div class="ppk-post2">
+      <div class="bann-post">
+        <div class="infos-profil f2 glass">
+          <div class="infoprf-wrap">
+            <!-- BEGIN profile_field -->
+            <div class="unlabelcontent">
+              <span class="field_content">{postrow.displayed.profile_field.CONTENT}</span>
+              <span class="field_label">{postrow.displayed.profile_field.LABEL}</span>
+            </div>
+            <!-- END profile_field -->
+          </div>
+          <div class="liens-profil">
+            <span class="fa-tip" data-tip="Voir le profil">{postrow.displayed.PROFILE_IMG}</span>
+            <span class="fa-tip" data-tip="MP">{postrow.displayed.PM_IMG}</span>
+            <!-- BEGIN contact_field -->
+            <span class="fa-tip" data-tip="Lire la fiche">{postrow.displayed.contact_field.CONTENT}</span>
+            <!-- END contact_field -->
+          </div>
+          <script>
+          $('.liens-profil').each(function(){ $(this).find('.fa-tip').eq(3).attr('data-tip', 'Voir les relations'); });
+          </script>
+        </div>
+        
+          <div class="infos-post f2 glass">
+            <div class="wrap-post-btn-date">
+              <span class="date-post">{postrow.displayed.POST_DATE_NEW}</span>
+              <div class="wrap-liens-post">
+                <span class="fa-tip" data-tip="Éditer">{postrow.displayed.EDIT_IMG}</span>
+                <span class="fa-tip" data-tip="Citer">{postrow.displayed.QUOTE_IMG}</span>
+                <span class="fa-tip" data-tip="Supprimer">{postrow.displayed.DELETE_IMG}</span>
+              </div>
+            </div>
+            <a class="lien-topic" href="{postrow.displayed.POST_URL}">{postrow.displayed.POST_SUBJECT}</a>
+          </div>
+          <span class="ppk-profile-avatar">{postrow.displayed.POSTER_AVATAR}</span>
+      </div>
+      
+        <div class="contenu-post f2 glass">{postrow.displayed.MESSAGE}</div>
+    </div>
+  
+  
+</div>
+<!-- END displayed -->
+<!-- END postrow -->
+  
+  
+<!-- BEGIN switch_user_logged_in -->
+<div class="btns-footer-sujet">
+  <!-- BEGIN watchtopic -->
+  <span data-tip="" class="button ppk-topic-footer-btn fa-tip">{S_WATCH_TOPIC}<i class="fa-regular fa-eye"></i></span>
+  <!-- END watchtopic -->
+  <!-- END switch_user_logged_in -->
+
+  <!-- BEGIN switch_plus_menu -->
+  <a data-tip="Sujets surveillés" class="button ppk-topic-footer-btn fa-tip" href="{U_WATCHSEARCH_JS_PLUS_MENU}"><i class="fa-solid fa-bookmark"></i></a>
+  <!-- END switch_plus_menu -->
+  
+  <form method="get" action="{S_FORM_MOD_ACTION}">
+    <fieldset class="quickmod">
+      <input type="hidden" name="t" value="{TOPIC_ID}" />
+
+      <!-- <input type="hidden" name="sid" value="{S_SID}" /> -->
+      <input type="hidden" name="{SECURE_ID_NAME}" value="{SECURE_ID_VALUE}" />
+      {S_SELECT_MOD}
+      <button class="button2" type="submit">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+      </button>
+    </fieldset>
+  </form>
+  
+</div>
+  
+
+<!-- BEGIN topicpagination -->
+<span class="page-page">{PAGINATION}</span>
+<!-- END topicpagination -->
+</div>
+
+
+<div class="ppk-topic-quickreply" id="quickreply_content">
+  <!-- BEGIN switch_user_logged_in -->
+  {QUICK_REPLY_FORM}
+  <!-- END switch_user_logged_in -->
+</div>
+
+
+<!-- POUR RECUPERER LA COULEUR DU GROUPE ET LA METTRE SUR LES LIENS -->
+<script>
+function applyGroupColor() {
+  $('.ppk-post, .ppk-profil').each(function () {
+    const $bloc = $(this);
+    const $name = $bloc.find('.nameprofil').first();
+
+    if (!$name.length) return;
+
+    const $source =
+      $name.find('[style*="color"], font[color], a[style*="color"], span[style*="color"]').last().length
+        ? $name.find('[style*="color"], font[color], a[style*="color"], span[style*="color"]').last()
+        : ($name.find('a, font, span, strong, b').last().length
+            ? $name.find('a, font, span, strong, b').last()
+            : $name);
+
+    const el = $source[0];
+
+    const color =
+      el.style.color ||
+      el.getAttribute('color') ||
+      window.getComputedStyle(el).color;
+
+    if (color) {
+      this.style.setProperty('--pseudo-color', color);
+    }
+  });
+}
+
+$(window).on('load pageshow', function () {
+  applyGroupColor();
+
+  requestAnimationFrame(function () {
+    applyGroupColor();
+  });
+
+  setTimeout(function () {
+    applyGroupColor();
+  }, 100);
+});
+</script>
+
+<!-- POUR LES BADGES FANTOMES -->
+<script>
+$(function () {
+  const badges = {
+    "ame errante": {
+      img: "https://2img.net/i.imgur.com/0EvJOAI.png",
+      desc: "Récemment inscrit(e)"
+    },
+    "nouvelle ame": {
+      img: "https://2img.net/i.imgur.com/aG1VrGf.png",
+      desc: "Récemment validé(e)"
+    },
+    "ame residente": {
+      img: "https://2img.net/i.imgur.com/0jHWMMw.png",
+      desc: "Là depuis 3 mois"
+    },
+    "hantise locale": {
+      img: "https://2img.net/i.imgur.com/0pY04Kf.png",
+      desc: "Là depuis 6 mois"
+    },
+    "fantome certifie": {
+      img: "https://2img.net/i.imgur.com/Fe8GuQ5.png",
+      desc: "Là depuis 1 an"
+    },
+    "oh l ancetre la": {
+      img: "https://2img.net/i.imgur.com/EsDQUtL.png",
+      desc: "Là depuis 2 ans"
+    },
+    "super ame": {
+      img: "https://2img.net/i.imgur.com/H7F0Ezq.png",
+      desc: "Point faible : trop fort."
+    },
+    "ame perdue": {
+      img: "https://2img.net/i.imgur.com/RFURPD0.png",
+      desc: "À compléter"
+    }
+  };
+
+  function normalizeBadgeLabel(str) {
+    return (str || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[’'`´-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  $('[id="rpg-badge"]').each(function () {
+    const $badge = $(this);
+    const label = $badge.text().trim();
+
+    if (!label) return;
+
+    const key = normalizeBadgeLabel(label);
+    const badge = badges[key];
+
+    if (!badge) {
+      $badge[0].style.setProperty("--badge-icon", "none");
+      $badge.removeAttr("data-badge-desc");
+      return;
+    }
+
+    $badge[0].style.setProperty("--badge-icon", 'url("' + badge.img + '")');
+    $badge.attr("data-badge-desc", badge.desc);
+  });
+});
+</script>
+<script>
+$(function () {
+  $('[id="rpg-badge"]').each(function () {
+    $(this).closest('.unlabelcontent').find('.field_label').remove();
+  });
+});
+</script>
+
+<script>
+document.querySelectorAll('.lien-topic').forEach(function(link) {
+  link.textContent = link.textContent.replace(/^Re:\s*/i, '');
+});
+  
+document.querySelectorAll('.label').forEach(el => el.textContent = el.textContent.replace(/\s*:\s*$/, ''));
+</script>
+
+<script>
+$(function () {
+  function setupQuickReply() {
+    const $form = $('#quick_reply');
+    $('#quickreply_content > .h3 + br').remove();
+    if (!$form.length || $form.hasClass('ppk-qr-ready')) return;
+
+    const $textareaContent = $form.find('#textarea_content').first();
+    const $sceditor = $textareaContent.find('.sceditor-container').first();
+    const $toolbar = $sceditor.find('.sceditor-toolbar').first();
+
+    if (!textareaContent.length||!sceditor.length || !$toolbar.length) return;
+
+    /* le vrai bloc des boutons = le div juste après #textarea_content */
+    const $buttonsRow = $textareaContent.next('div');
+
+    if (!$buttonsRow.length) return;
+
+    $form.addClass('ppk-qr-ready');
+
+    /* créer le bloc boutons */
+    const $actions = $('<div class="ppk-qr-actions"></div>');
+    const $sep = $('<div class="ppk-qr-separator"></div>');
+
+    $buttonsRow.find('input, button').each(function () {
+      $actions.append(this);
+    });
+
+    /* injecter dans la toolbar */
+    toolbar.append(sep, $actions);
+
+    /* supprimer l’ancienne ligne */
+    $buttonsRow.remove();
+
+    /* wrapper de la zone d’écriture */
+    if (!$sceditor.find('.ppk-qr-editor').length) {
+      $sceditor.children('iframe, textarea, .sceditor-resize-cover').wrapAll('<div class="ppk-qr-editor"></div>');
+    }
+  }
+
+  setupQuickReply();
+
+  const timer = setInterval(function () {
+    setupQuickReply();
+    if ($('#quick_reply').hasClass('ppk-qr-ready')) {
+      clearInterval(timer);
+    }
+  }, 300);
+
+  setTimeout(function () {
+    clearInterval(timer);
+  }, 10000);
+});
+</script>
+
+
+<script>
+$(function () {
+  $('.page-page').contents().filter(function () {
+    return this.nodeType === 3 && this.nodeValue.trim() === '•';
+  }).remove();
+});
+</script>
+
+<script>
+$(function () {
+  $('.page-page').html(function (_, html) {
+    return html.replace(/&nbsp;/g, '');
+  });
+});
+</script>
+
+<script>
+$(window).on('load pageshow', function () {
+  const guestGif = 'https://2img.net/i.imgur.com/1j13haw.png';
+
+  function getAvatarUrl($root) {
+    if (!$root.length) return '';
+
+    const $img = $root.find('img').first();
+    if ($img.length) return $img.attr('src') || '';
+
+    const bg = $root.css('background-image') || '';
+    const match = bg.match(/url\((['"]?)(.*?)\1\)/i);
+    return match ? match[2] : '';
+  }
+
+  function applyGuestGif() {
+    $('.ppk-post').each(function () {
+      const $post = $(this);
+
+      const $avatarRoot = $post.find('.ppk-profile-avatar').first();
+      const avatarUrl = getAvatarUrl($avatarRoot);
+
+      if (!/invite10\.png/i.test(avatarUrl)) return;
+
+      const $target = $post.find('.profil-avatar.f2').first();
+      if (!$target.length || $target.hasClass('guest-gif-applied')) return;
+
+      $target.addClass('guest-gif-applied');
+      $target.children().hide();
+
+      $target.css({
+        'background-image': 'url("' + guestGif + '")',
+        'background-size': 'cover',
+        'background-position': 'center',
+        'background-repeat': 'no-repeat'
+      });
+    });
+  }
+
+  applyGuestGif();
+  setTimeout(applyGuestGif, 300);
+  setTimeout(applyGuestGif, 1000);
+  setTimeout(applyGuestGif, 2000);
+});
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.ppk-topic-footer-btn').forEach(function (btn) {
+    const link = btn.querySelector('a[href]');
+    const icon = btn.querySelector('i');
+
+    if (!link || !icon) return;
+
+    if (link.href.includes('unwatch-topic')) {
+      icon.className = 'fa-regular fa-eye-slash';
+    } else if (link.href.includes('watch-topic')) {
+      icon.className = 'fa-regular fa-eye';
+    }
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.ppk-topic-footer-btn.fa-tip').forEach(function (el) {
+    const link = el.querySelector('a');
+    if (!link) return;
+
+    const label = link.textContent.trim();
+    el.setAttribute('data-tip', label);
+    el.setAttribute('title', label);
+  });
+});
+</script>

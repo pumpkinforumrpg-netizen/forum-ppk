@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="https://2img.net/i.imgur.com/ZgNT9Dm.png">
+  <title>Registre des personnages</title>
+
+  <!--
+    Anti-flash : applique le thème sauvegardé (ou système) avant le premier
+    rendu, en attendant que core.js prenne le relais. Identique au bootstrap
+    déjà en place dans templates/overall_header.html (liste des 4 thèmes
+    valides, "winter" inclus) pour éviter tout flash de mauvais thème.
+  -->
+  <script>
+    (function () {
+      var STORAGE_KEY = "ppk-theme-preference";
+      var LEGACY_KEY = "color-scheme";
+      var VALID_THEMES = { dark: true, light: true, autumn: true, winter: true };
+
+      function getSystemTheme() {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+      }
+
+      function getSavedTheme() {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) {
+          var legacy = localStorage.getItem(LEGACY_KEY);
+          if (VALID_THEMES[legacy]) {
+            saved = legacy;
+            localStorage.setItem(STORAGE_KEY, legacy);
+          }
+        }
+        return VALID_THEMES[saved] ? saved : null;
+      }
+
+      var theme = getSavedTheme() || getSystemTheme();
+      document.documentElement.setAttribute("data-color-scheme", theme);
+    })();
+  </script>
+
+  <!-- Thèmes communs (variables de couleur + moteur de switch partagé) -->
+  <link rel="stylesheet" href="../css/core.css">
+
+  <!-- CSS forum générique (styles globaux : .paragraphe, .note, .bonus, .custom-list, <tw>, <ppkb>...) -->
+  <link rel="stylesheet" href="../css/forum.css">
+
+  <!-- Styles propres au Registre -->
+  <link rel="stylesheet" href="../css/registre.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="register-page">
+    <section class="character-register" aria-labelledby="register-title">
+      <h1 id="register-title" class="character-register__title glow-night">EIST DES ESNNAES</h1>
+
+      <div class="character-register__tabs" role="tablist" aria-label="Navigation du registre">
+        <button type="button" class="register-tab is-active" data-tab="all" role="tab" aria-selected="true">Tout voir</button>
+        <button type="button" class="register-tab" data-tab="avatars" role="tab" aria-selected="false">Avatars</button>
+        <button type="button" class="register-tab" data-tab="jobs" role="tab" aria-selected="false">Métiers</button>
+        <button type="button" class="register-tab" data-tab="powers" role="tab" aria-selected="false">Pouvoirs</button>
+        <button type="button" class="register-tab" data-tab="familiars" role="tab" aria-selected="false">Familiers &amp; Reliquaires</button>
+        <button type="button" class="register-tab" data-tab="multiaccounts" role="tab" aria-selected="false">Multicomptes</button>
+        <button type="button" class="register-tab" data-tab="reserved-names" role="tab" aria-selected="false">Noms réservés</button>
+      </div>
+
+      <div class="character-register__tools">
+        <label class="register-search" for="register-search-input">
+          <input id="register-search-input" type="search" placeholder="Rechercher..." autocomplete="off" />
+        </label>
+
+        <div id="std-tools" class="tstd">
+          <label class="register-field" for="register-origin-filter">
+            <select id="register-origin-filter">
+              <option value="all">Toutes les origines</option>
+              <option value="humain">Humains</option>
+              <option value="eveille">Eveillés</option>
+              <option value="sorcier">Sorciers</option>
+              <option value="familier">Familiers</option>
+              <option value="reliquaire">Reliquaires</option>
+            </select>
+          </label>
+
+          <label class="register-field" for="register-sort-mode">
+            <select id="register-sort-mode">
+              <option value="alpha">Ordre alphabétique</option>
+              <option value="origin">Par origine</option>
+            </select>
+          </label>
+
+          <button type="button" id="register-pnj-toggle" class="register-toggle" aria-pressed="false">PNJ</button>
+        </div>
+
+        <div id="av-tools" class="tav" hidden></div>
+      </div>
+
+      <main id="register-content" class="character-register__content" aria-live="polite">
+        <!-- contenu généré par public/js/registre.js -->
+      </main>
+
+    </section>
+  </div>
+
+  <!-- Moteur de thème commun (PPK.theme) : doit être chargé avant registre.js -->
+  <script src="../js/core.js"></script>
+  <script src="../js/registre.js"></script>
+</body>
+</html>

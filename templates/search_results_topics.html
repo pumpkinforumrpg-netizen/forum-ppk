@@ -1,0 +1,48 @@
+<div style="height: auto;" class="ppk-nav-sujet f1 ppk-search-topics-header">
+  <h1 class="f2 glass no-glyph-replace">{L_SEARCH_MATCHES}</h1>
+</div>
+
+<div class="ppk-search-topics-page f1">
+  <form action="{S_ACTION}" method="post" name="post" onsubmit="return verify_select();">
+
+    <!-- BEGIN searchresults -->
+    <div class="ppk-search-topic-row f2 glass">
+
+      <div class="ppk-search-topic-main">
+        <div class="ppk-search-topic-top">
+          <span class="ppk-search-topic-type">{searchresults.TOPIC_TYPE}</span>
+          <a class="ppk-search-topic-title" href="{searchresults.U_VIEW_TOPIC}">{searchresults.TOPIC_TITLE}</a>
+        </div>
+
+        <div class="ppk-search-topic-meta">
+          <span class="ppk-search-topic-meta-label">{searchresults.L_BY}</span>
+          <span class="ppk-search-topic-author no-glyph-replace">{searchresults.TOPIC_AUTHOR}</span>
+          <span class="ppk-search-topic-meta-label">{searchresults.L_IN}</span>
+          <a class="ppk-search-topic-forum" href="{searchresults.U_VIEW_FORUM}">{searchresults.FORUM_NAME}</a>
+        </div>
+
+        <div class="ppk-search-topic-pages">
+          {searchresults.GOTO_PAGE_NEW}
+          <!-- BEGIN nav_tree -->
+          {searchresults.TOPIC_NAV_TREE_NEW}
+          <!-- END nav_tree -->
+        </div>
+      </div>
+
+      <div class="ppk-search-topic-lastpost">
+        <div class="ppk-search-topic-lastpost-text">
+          <span class="ppk-search-topic-lastauthor">{searchresults.LAST_POST_AUTHOR}</span>
+          <span class="ppk-search-topic-lastdash">—</span>
+          <span class="ppk-search-topic-lastdate">{searchresults.LAST_POST_TIME}</span>
+        </div>
+        <div class="ppk-search-topic-lasticon">{searchresults.LAST_POST_IMG}</div>
+      </div>
+
+    </div>
+    <!-- END searchresults -->
+
+    <div class="ppk-search-topics-pagination">
+      {PAGINATION}
+    </div>
+  </form>
+</div>

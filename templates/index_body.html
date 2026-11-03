@@ -1,0 +1,307 @@
+{JAVASCRIPT}
+
+<!----------------------------------------------->
+<!-- CONNEXION RAPIDE (haut) -------------->
+
+
+<!-- BEGIN switch_user_login_form_header -->
+<div class="co-rapide-wrap panel">
+    <form action="{S_LOGIN_ACTION}" method="post" name="form_login">
+        <div class="co-rapide-wrapbis user_login_form center">
+            <div class="co-rapide">
+              <!-- Nom utilisateur -->
+              <label>{L_USERNAME}<input class="input-corapide" type="text" size="10" name="username" /></label>
+  
+              <!-- Mot de passe -->
+              <label style="display: flex;">{L_PASSWORD}<input class="input-corapide" type="password" size="10" name="password" /></label>
+            </div>
+
+            <!-- Check : connexion automatique -->
+            <!-- <label>{L_AUTO_LOGIN}<input class="radio" type="checkbox" name="autologin" {AUTOLOGIN_CHECKED} /></label> -->
+
+            <!-- Bouton connexion -->
+            {S_HIDDEN_FIELDS}<input class="co-rapide-btn mainoption button1" type="submit" name="login" value="{L_LOGIN}" />
+
+
+        </div>
+    </form>
+</div>
+<!-- END switch_user_login_form_header -->
+
+
+<!----------------------------------------------->
+<!-- PAGE D'ACCUEIL -------------->
+
+
+<!-- BEGIN message_admin_index -->
+<div class="panel introduction">
+
+    <!-- Titre de la PA -->
+    <!-- BEGIN message_admin_titre -->
+    <div class="h3">{message_admin_index.message_admin_titre.MES_TITRE}</div>
+    <!-- END message_admin_titre -->
+
+    <!-- Contenu de la PA -->
+    <!-- BEGIN message_admin_txt -->
+    <div class="mes-txt">{message_admin_index.message_admin_txt.MES_TXT}</div>
+    <!-- END message_admin_txt -->
+</div>
+<!-- END message_admin_index -->
+
+
+<!----------------------------------------------->
+<!-- CB (si affichée en haut) -------------->
+
+{CHATBOX_TOP}
+
+<!-- GUIDEBOOK -->
+<div class="ppk-cate-guidebook">
+  <div class="ppk-cate-gb">
+  <div class="ppk-cate-gb-chats">
+    <div class="ppk-cate-gb-chats">
+      <span class="fa-tip" data-tip="... meow.">
+        <img style="margin-top: 7px;" src="https://2img.net/i.imgur.com/BOoxNga.png" />
+      </span>
+      <span class="fa-tip" data-tip="*HHHH*">
+        <img src="https://2img.net/i.imgur.com/p6eHtzN.png" />
+      </span>
+    </div>
+  </div>
+  <div class="ppk-cate-gb-liens">
+    <a class="fc button" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=reglement">Règlement</a>
+    <a class="fc button" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=contexte">Contexte</a>
+    <a class="fc button" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=origines">Origines</a>
+    <a class="fc button" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=magie">Magie & Pouvoirs</a>
+    <a class="fc button" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=compendium">Compendium</a>
+    <a class="fc button" style="padding: 9px 13px;" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=faq">Questions</a>
+    <a class="fc button" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=pnj">PNJ</a>
+  </div>
+  </div>
+  <a class="ppk-gb-lien-a" target="_blank" href="https://pumpkinsrpg.forumactif.com/h1-guidebook"><h2>GUIDEBOOK</h2></a>
+</div>
+  
+<!----------------------------------------------->
+<!-- CATEGORIES -------------->
+<!-- (template : index_box) -->
+
+{BOARD_INDEX}
+
+
+<!-- BEGIN disable_viewonline -->
+<div id="bas" class="ppk-qeel">
+  <div class="ppk-qeel-wrap">
+  <div class="ppk-qeel1">
+    <div class="new-ppk f2 glass">
+      <img data-theme-image="newPpkImg" class="new-ppk-img" src="https://2img.net/i.imgur.com/YCuCzWU.png" />
+      <div id="last_user" class="new-ppk-wrap">
+        <div id="newest_user" class="ppk-new-username">{NEWEST_USER}</div>
+        <div class="fc ppk-np">NEW PUMPKIN</div>
+      </div>
+      <div id="lastuser_avatar" class="new-ppk-avatar"><img src="https://2img.net/i.imgur.com/xIYTRfT.png" /></div>
+    </div>
+    <div class="ppk-stats">
+      <div id="qeel_members" class="ppk-membres">
+        {TOTAL_USERS}
+      </div>
+      <div id="qeel_posts" class="ppk-messages">
+         {TOTAL_POSTS}
+      </div>
+    </div>
+  </div>
+  <div class="ppk-qeel2">
+    <div class="ppk-qeel-co f2 glass">
+      <h2>Cnneté·es</h2>
+      <div id="online_users" class="p">{LOGGED_IN_USER_LIST}</div>
+    </div>
+    <div class="ppk-48h f2 glass">
+      <h2>denès 48</h2>
+      <div id="last_connected" class="p">{L_CONNECTED_MEMBERS}</div>
+    </div>
+  </div>
+  <div class="ppk-qeel3">
+    <div>
+      <div class="ppk-content-tab-groups glass" id="ppk-tab-content"></div>
+      
+      <div class="ppk-tabs-data" style="display:none;">
+        <div class="ppk-tab-panel" data-tab="1">
+          <p>
+            Nés à Vesperune, ils manient naturellement la magie, qu’ils perfectionnent avec le temps. Marqués par l’héritage de leurs royaumes, ils portent visions, tensions et traditions différentes. Puissants et expérimentés, ils vivent entre deux mondes en protégeant un secret essentiel.
+          </p>
+          <div class="group-name">SERS·Ès</div>
+        </div>
+      
+        <div class="ppk-tab-panel" data-tab="2">
+          <p>
+           Anciens sorciers frappés de bannissement, ils sont liés à un autre qu’ils doivent guider pour se racheter. Ce lien façonne leur existence, impose une proximité constante et redéfinit leur place. Entre deux formes, ils avancent avec le poids de leur faute et la promesse d’une possible rédemption.
+          </p>
+          <div class="group-name">ALES</div>
+        </div>
+      
+        <div class="ppk-tab-panel" data-tab="3">
+          <p>
+           Humains touchés par la Résonance, ils développent une magie souvent inconsciente. Sensations étranges, influences ou perceptions émergent peu à peu. Avec effort, ils peuvent évoluer davantage, voire prétendre à plus, faisant d’eux des êtres en devenir, instables mais prometteurs.
+          </p>
+          <div class="group-name">éellé·es</div>
+        </div>
+      
+        <div class="ppk-tab-panel" data-tab="4">
+          <p>
+	   Nés d’objets magiques devenus vivants, ils possèdent une magie innée et puissante. Étrangers aux émotions humaines, ils peinent à s’intégrer mais disposent de capacités qui inquiètent même les mages les plus aguerris. Entre artefact et entité, ils incarnent une magie plus brute.
+          </p>
+          <div class="group-name">LAS</div>
+        </div>
+      
+        <div class="ppk-tab-panel" data-tab="5">
+          <p>
+	    Natifs d’Amberwoods, les humains ignorent la magie. Parfaitement intégrés, ils connaissent la ville, ses codes et ses habitants mieux que quiconque. Discrets et légitimes, ils évoluent sans soupçon et peuvent gravir les échelons sociaux ou enquêter sans éveiller la moindre méfiance.
+          </p>
+          <div class="group-name">HMA·ES</div>
+        </div>
+      </div>
+      <div class="ppk-mois f2 glass">
+        <div class="ppk-mois-avatar"><img style="border-radius: 7px;" src="https://zupimages.net/up/26/37/geca.jpg" /></div>
+        <div>
+          <div class="fc ppk-mois-pseudo">PUMPKIN DU MOIS</div>
+          <span>Génoise</span>
+        </div>
+
+      </div>
+    </div>
+    <div class="ppk-groups-tabs">
+      <button type="button" data-tab="1" class="active"><img src="https://2img.net/i.imgur.com/4K03oEF.png" /></button>
+      <button type="button" data-tab="2"><img src="https://2img.net/i.imgur.com/Oubg9DC.png" /></button>
+      <button type="button" data-tab="3"><img src="https://2img.net/i.imgur.com/exwAdhn.png" /></button>
+      <button type="button" data-tab="4"><img src="https://2img.net/i.imgur.com/788bVMt.png" /></button>
+      <button type="button" data-tab="5"><img src="https://2img.net/i.imgur.com/Vy6Ut44.png" /></button>
+    </div>
+    <script type="text/javascript">
+      function openPpkTab(tabId) {
+        var content = $('.ppk-tab-panel[data-tab="' + tabId + '"]').html();
+        $('#ppk-tab-content').html(content);
+    
+        $('.ppk-groups-tabs button').removeClass('active');
+        $('.ppk-groups-tabs button[data-tab="' + tabId + '"]').addClass('active');
+      }
+    
+      $(document).ready(function () {
+        openPpkTab(1);
+    
+        $('.ppk-groups-tabs button').on('click', function () {
+          var tabId = $(this).data('tab');
+          openPpkTab(tabId);
+        });
+      });
+    </script>
+    <img data-theme-image="chatQeel" src="https://2img.net/i.imgur.com/jfU9ny4.png" class="ppk-cat-qeel" />
+  </div>
+  </div>
+  
+  
+  <!-- Changement de texte des informations du QEEL -->
+  <script type="text/javascript">
+    ("#lastuser").html(("#last_user").html().replace("L'utilisateur enregistré le plus récent est", " "));
+
+    
+   ("#qeelposts").html(("#qeel_posts").html().replace("Nos membres ont posté un total de", " "));
+    ("#qeelposts").html(("#qeel_posts").html().replace("messages", " "));
+     ("#qeelmembers").html(("#qeel_members").html().replace("Nous avons", ""));
+     ("#qeelmembers").html(("#qeel_members").html().replace("membres enregistrés", " "));
+    
+    ("#onlineusers").html(("#online_users").html().replace("Utilisateurs enregistrés :", " "));
+    
+    ("#lastconnected").html(("#last_connected").html().replace("Membres connectés au cours des 48 dernières heures :", " "));
+    $("#online_users br").remove();
+  </script>
+  
+<!-- END disable_viewonline -->
+  
+  <div class="liens-importants-ppk glass f2">
+    <span>Liens utiles</span>
+    <div>
+      <a class="fa-tip button" data-tip="Nouveaux messages" id="lastvisit_posts" href="{U_SEARCH_NEW}"><i class="fa-solid fa-bell"></i></a>
+      <a class="fa-tip button" data-tip="Mes messages" href="{U_SEARCH_SELF}"><i class="fa-solid fa-message"></i></a>
+      <a class="fa-tip button" data-tip="Messages sans réponse" id="posts_unanswered" href="{U_SEARCH_UNANSWERED}"><i class="fa-solid fa-voicemail"></i></a>
+      <a class="fa-tip button specials_links right" data-tip="Tout marquer comme lu" id="mark_read" href="{U_MARK_READ}" accesskey="m"><i class="fa-solid fa-square-check"></i></a>
+      <a class="fa-tip button" data-tip="Sujets HOT" href="{U_TODAY_ACTIVE}"><i class="fa-solid fa-fire"></i></a> 
+      <a class="fa-tip button" data-tip="TOP Pumpkins du jour" href="{U_TODAY_POSTERS}"><i class="fa-solid fa-ranking-star"></i></a> 
+      <a class="fa-tip button" data-tip="TOP 20 des Pumpkins" href="{U_OVERALL_POSTERS}"><i class="fa-solid fa-star"></i></a>      
+      <a class="fa-tip button specials_links right" data-tip="Manger les cookies" href="/?mode=delete_cookies" rel="nofollow"><i class="fa-solid fa-cookie-bite"></i></a>
+    </div>
+  </div>
+  
+</div>
+
+
+
+
+<!----------------------------------------------->
+<!-- FOOTER -------------->
+
+<div class="ppk-footer f1">
+  <div class="wrap-liens-importants-ppk">
+  <div class="ppk-credits glass f2">
+    <p>© L’univers est inspiré du manga Sugar Sugar Rune de Moyoco Anno. Le forum appartient à son équipe administrative. Les inspirations partielles sont bienvenues.<br/>
+© Les écrits appartiennent à sa communauté et à son équipe administrative.<br/>
+© Le design a été réalisé par Framboise.<br/>
+© Le code a été réalisé par Framboise sur la base du BlankTheme de GeniusPanda.<br/>    
+© Le switcheroo appartient à Monomer.<br/>
+© Les scripts (JS) ont été assistés par IA. Les images des catégories de l'index ont été générées par les IA d'Open AI et de Midjourney pour visualiser l'univers.<br/>
+© Les icônes proviennent de Font Awesome.<br/>
+© Les formulaires ont été créés à partir des tutoriels d'Onyx de Never Utopia.<br/>
+© Artistes : Camiaulait, Itsthestardust, Look Human, Applejuice, Johanna Polle, Yukiame, Vacuum.<br/>
+Un immense merci à tous ceux cités.<br/><br/>
+
+(FR) Nous ne tirons aucun profit des œuvres présentes sur le forum. Si vous reconnaissez l’une de vos œuvres sur le forum et souhaitez qu’elle soit retirée, ou si vous remarquez un crédit manquant, n’hésitez pas à nous le signaler dans la partie invités. (EN) We do not derive any profit from the works featured on the forum. If you recognize one of your works on the forum and would like it to be removed, or if you notice a missing credit, please feel free to let us know in the guest section.
+    </p>
+  </div>
+  <div class="pa-amis pa-partenaires glass f2">
+    <div>
+      <a class="fa-tip" data-tip="The Otherlands" href="https://otherlands.forumactif.com/"><img src="https://2img.net/i.imgur.com/8s6Ah1Y.png" /></a>
+      <a class="fa-tip" data-tip="Fosse Soyeuse" href="https://fosse-soyeuse.forumsrpg.com/"><img src="https://zupimages.net/up/23/21/tfzn.png" /></a>
+      <a class="fa-tip" data-tip="Neverland Zero" href="https://neverland-zero.forumactif.com/"><img src="https://i.servimg.com/u/f67/16/34/47/29/50_50_10.jpg" /></a>
+      <a class="fa-tip" data-tip="Elswhere" href="https://elsewhere-rpg.forumactif.com/"><img src="https://i.servimg.com/u/f53/17/19/85/81/505010.png" /></a>
+    </div>
+    <div>
+      <a class="fa-tip" data-tip="Liminality" href="https://zero-liminality.forumactif.com/"><img src="https://i.servimg.com/u/f58/20/66/16/65/logo11.png" /></a>
+      <a class="fa-tip" data-tip="L'Orée" href="https://loree-rpg.forumactif.com/"><img src="https://i.servimg.com/u/f94/17/76/40/39/50_5010.png" /></a>
+      <a class="fa-tip" data-tip="Orodia" href="https://orodia.forumactif.com/"><img src="https://2img.net/i.imgur.com/9QTILkB.png" /></a>
+      <a class="fa-tip" data-tip="Somnium" href="https://somnyum.forumactif.com/"><img src="https://2img.net/i.imgur.com/eB3iH4G.png" /></a>
+    </div>
+    <div>
+      <a class="fa-tip" data-tip="Shiverstone" href="https://shiverstone.forumactif.com/"><img src="https://2img.net/i.imgur.com/MkaMzzG.png" /></a>
+      <a class="fa-tip" data-tip="Populuss" href="https://populuss.forumactif.com"><img src="https://i.servimg.com/u/f58/20/06/83/91/50x5014.png" /></a>
+      <a class="fa-tip" data-tip="Aurora" href="https://aurorarpg.forumactif.com/"><img src="https://zupimages.net/up/23/06/nzgw.png" /></a>
+      <a class="fa-tip" data-tip="Polaris" href="https://polaris-rpg.forumactif.com/"><img src="https://2img.net/i.imgur.com/tEi9xdP.png" /></a>
+    </div>
+    <div>
+      <a class="fa-tip" data-tip="Contraste" href="https://contraste.forumactif.com"><img src="https://zupimages.net/up/26/25/984p.png" /></a>
+      <a class="fa-tip" data-tip="L'Orée des Songes" href="https://l-oree-des-songes-rp.forumactif.com"><img src="https://2img.net/i.imgur.com/nVpZMuk.png" /></a>
+      <a class="fa-tip" data-tip="Helianthus" href="https://helianthus.forumactif.com/"><img src="https://zupimages.net/up/24/25/hfdb.png" /></a>
+      <a class="fa-tip" data-tip="In The Forest At Night" href="https://at-night.forumactif.com/"><img src="https://i.ibb.co/84QTLC1d/50x50.jpg" /></a>
+    </div>
+    <div>
+      <a class="fa-tip" data-tip="Themis trials" href="https://themistrials.forumactif.com/"><img src="https://2img.net/i.imgur.com/8QEbTeK.png" /></a>
+      <a class="fa-tip" data-tip="Deliquescence" href="https://deliquescence.actifforum.com/"><img src="https://2img.net/i.imgur.com/8nJJ5oA.jpeg" /></a>
+      <a class="fa-tip" data-tip="Shinsei City" href="https://shinsei-city.forumactif.com/"><img src="https://2img.net/i.imgur.com/RhjMSCL.png" /></a>
+      <a class="fa-tip" data-tip="Bobidibu" href="https://bobidibu.forumactif.com/"><img src="https://www.zupimages.net/up/26/04/zcav.png" /></a>
+    </div>
+    <div>
+      <a class="fa-tip" data-tip="Terrae Elementalys" href="https://terrae-elementarys.forumactif.com/"><img src="https://zupimages.net/up/26/40/lwc4.png" /></a>
+      <a class="fa-tip" data-tip="Lithium Souls" href="https://lithium-souls.forumactif.com/"><img src="https://zupimages.net/up/26/36/chdx.png" /></a>
+      <a class="fa-tip" data-tip="Oglen" href="https://oglen.forumactif.com/"><img src="https://zupimages.net/up/26/35/1xsb.png" /></a>
+      <a class="fa-tip" data-tip="NomDuForum" href="#"><img data-theme-image="parto" src="https://2img.net/i.imgur.com/4IK5Kwh.png" /></a>
+    </div>
+    <div>
+      <a class="fa-tip" data-tip="Soulmates" href="https://soul-mates.forumactif.com/"><img src="https://2img.net/i.imgur.com/gQx8CI0.png" /></a>
+      <a class="fa-tip" data-tip="Chaos" href="https://chaosenlozere.forumactif.com/"><img src="https://i.postimg.cc/Wb76RK7K/50.png" /></a>
+      <a class="fa-tip" data-tip="L'âge du feu" href="https://agedefeu-rpg.forumactif.com/"><img src="https://zupimages.net/up/26/32/yzw0.png" /></a>
+      <a class="fa-tip" data-tip="NomDuForum" href="#"><img data-theme-image="parto" src="https://2img.net/i.imgur.com/4IK5Kwh.png" /></a>
+    </div>
+  </div>
+    
+  </div>
+</div>
+
+
+{AUTO_DST}
+            

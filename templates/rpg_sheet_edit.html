@@ -1,0 +1,71 @@
+<div class="ppk-nav-sujet f1 ppk-ucp-header">
+  <h1 class="f2 glass no-glyph-replace">{L_VIEWING_PROFILE}</h1>
+  <div class="nav-wrap-sjt f2 glass">
+    <div class="nav-sjt ppk-ucp-tabs">
+      <!-- BEGIN switch_menu -->
+      {UCP_TABS}
+      <!-- END switch_menu -->
+    </div>
+  </div>
+</div>
+
+<div class="ppk-ucp-page ppk-rpg-edit-page">
+  <div class="ppk-ucp-main">
+    <form action="{U_ADMIN_RPG}" method="post" name="post" class="ppk-rpg-edit-form">
+      <div class="f1 ppk-ucp-box" style="margin-top: 28px; margin-bottom: 28px;">
+        <div class="ppk-ucp-section-head">
+          <h2>{L_AVATAR_PANEL}</h2>
+        </div>
+
+      <div class="ppk-rpg-edit-columns">
+        <div class="f1 ppk-ucp-box ppk-rpg-edit-col">
+          <div class="ppk-ucp-panel f2 glass">
+            <fieldset class="ppk-ucp-fields">
+              <!-- BEGIN rpg_fields -->
+              <dl>
+                <dt><label>{rpg_fields.F_NAME}</label></dt>
+                <dd>{rpg_fields.F_VALUE_NEW}</dd>
+              </dl>
+              <!-- END rpg_fields -->
+            </fieldset>
+          </div>
+        </div>
+      </div>
+
+      <fieldset class="ppk-ucp-submit">
+        <input type="submit" name="submit" value="{L_VALID}" class="button1 ppk-ucp-btn" />
+        <input class="button2 ppk-ucp-btn" type="reset" name="reset" value="{L_RESET}" />
+        <input type="hidden" name="username" value="{U_ID}" />
+        <input type="hidden" name="mode" value="valid" />
+      </fieldset>
+
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+  const $tabs = $('.ppk-ucp-tabs');
+
+  $tabs.find('a').each(function() {
+    const $a = $(this);
+    if (!$a.parent().hasClass('nav')) {
+      $a.wrap('<span class="nav"></span>');
+    }
+  });
+
+  $tabs.find('li').each(function() {
+    const $li = $(this);
+    const $a = $li.find('a').first();
+    if ($a.length) {
+      const active = $li.hasClass('activetab') || $li.hasClass('active');
+      const cls = active ? 'nav active' : 'nav';
+      li.replaceWith(('<span class="' + cls + '"></span>').append($a));
+    }
+  });
+
+  $tabs.find('ul').contents().unwrap();
+  $tabs.find('li').contents().unwrap();
+  $tabs.find('br').remove();
+});
+</script>

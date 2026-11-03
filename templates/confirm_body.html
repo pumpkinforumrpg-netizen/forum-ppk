@@ -1,0 +1,21 @@
+<div class="ppk-message-page">
+
+  <div class="ppk-nav-sujet f1 ppk-message-header">
+    <h1 class="f2 glass no-glyph-replace">{MESSAGE_TITLE}</h1>
+  </div>
+
+  <form id="confirm" action="{S_CONFIRM_ACTION}" method="post" class="ppk-message-box f1">
+    <div class="ppk-message-inner f2 glass">
+      <div class="ppk-message-content">
+        {MESSAGE_TEXT}
+      </div>
+
+      <div class="ppk-confirm-actions">
+        {S_HIDDEN_FIELDS}
+        <input type="submit" name="confirm" value="{L_YES}" class="button2" />
+        <input type="submit" name="cancel" value="{L_NO}" class="button2" />
+      </div>
+    </div>
+  </form>
+
+</div>

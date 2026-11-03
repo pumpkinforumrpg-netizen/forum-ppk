@@ -1,0 +1,33 @@
+<div class="ppk-mp-review-shell">
+
+  <!-- BEGIN switch_inline_mode -->
+  <div class="ppk-mp-review-title f1 glass">{L_TOPIC_REVIEW}</div>
+  <!-- END switch_inline_mode -->
+
+  <!-- BEGIN postrow -->
+  <div class="ppk-mp-review-item f1 glass {postrow.ROW_CLASS}{postrow.CURRENT_MSG}">
+    <div class="ppk-mp-review-head">
+      <div class="ppk-mp-review-avatar">
+        {postrow.POSTER_AVATAR}
+      </div>
+
+      <div class="ppk-mp-review-meta">
+        <span class="ppk-mp-review-by">{postrow.L_TOPIC_BY}</span>
+        <span class="ppk-mp-review-author no-glyph-replace">{postrow.POSTER_NAME}</span>
+        <span class="ppk-mp-review-on">{postrow.L_TOPIC_ON}</span>
+        <span class="ppk-mp-review-date">{postrow.POST_DATE}</span>
+      </div>
+    </div>
+
+    <div class="ppk-mp-review-content">
+      {postrow.MESSAGE}
+    </div>
+  </div>
+  <!-- END postrow -->
+
+  <div class="ppk-mp-review-pagination">
+    <div class="pagination">
+      {PM_PAGINATION}
+    </div>
+  </div>
+</div>

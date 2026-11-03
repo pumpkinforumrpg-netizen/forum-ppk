@@ -1,0 +1,818 @@
+<!-- BEGIN html_validation -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+<div>
+	<div>
+		<div>
+			<div>
+				<div>
+					<div>
+						<div>
+							<ul>
+								<li>
+<!-- END html_validation -->
+								</li>
+							</ul>
+
+						</div>
+					</div>
+				</div>
+				{PROTECT_FOOTER}
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+	fa_endpage();
+//]]>
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+	$(window).scroll(function() {
+		var header_top = $('#headerbar-top');
+
+		if (header_top.hasClass('w-toolbar')) {
+			if ($(window).scrollTop() >= 42) {
+				header_top.addClass('is-sticky');
+			} else {
+				header_top.removeClass('is-sticky');
+			}
+		} else {
+			if ($(window).scrollTop() >= 1) {
+				header_top.addClass('is-sticky');
+			} else {
+				header_top.removeClass('is-sticky');
+			}
+		}
+	});
+});
+//]]>
+</script>
+
+<!-- SWITCHEROO plugin : https://blankthemerpg.forumactif.com/t36-switcheroo -->
+<script src="https://cdn.jsdelivr.net/gh/caezd/switcheroo@1.1-beta/monomer.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/caezd/switcheroo@1.1-beta/switcheroo.js"></script>
+
+<script>
+(function($) {
+  $(function() {
+
+    new Switcheroo('#switcheroo_panel', {
+      logo: '<i class="fa-solid fa-house"></i>',
+      enableReorder: true,
+      updateAvatar: true,
+      confirm: true,
+      confirmMsg: 'Confirmer le Switcheroo de personnage ?',
+      deleteIcon: '<i class="fa-solid fa-xmark"></i>',
+      addIcon: '<i class="fa-solid fa-plus"></i>',
+      errorMsg: 'Une erreur est survenue lors du Switcheroo.'
+    });
+
+    var $trigger = $('#open-switch2');
+    var $modal = $('.switcheroo-opened');
+
+    function setSwitcherooTriggerContent() {
+      if (!$trigger.length) return;
+
+      if (typeof window._userdata !== 'undefined' && _userdata.avatar && _userdata.avatar !== '') {
+        $trigger.html('<span class="fa_avatar">' + _userdata.avatar + '</span>');
+      } else {
+        $trigger.html('<i class="fa-solid fa-user-group" aria-hidden="true"></i>');
+      }
+    }
+
+    setSwitcherooTriggerContent();
+
+    function openSwitcheroo() {
+      $modal.css('display', 'flex');
+    
+      requestAnimationFrame(function() {
+        $modal.addClass('open');
+      });
+    }
+    
+    function closeSwitcheroo() {
+      $modal.removeClass('open');
+    
+      setTimeout(function() {
+        $modal.css('display', 'none');
+      }, 250);
+    }
+
+    $(document).on('click', '#open-switch2', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openSwitcheroo();
+    });
+
+    $(document).on('click', '.close-switch', function(e) {
+      e.preventDefault();
+      closeSwitcheroo();
+    });
+
+    $(document).on('click', '.switcheroo-box', function(e) {
+      e.stopPropagation();
+    });
+
+    $(document).on('click', function(e) {
+      if (!$(e.target).closest('.switcheroo-box, #open-switch2').length) {
+        closeSwitcheroo();
+      }
+    });
+
+    var renameAddButton = setInterval(function() {
+      var $label = $('li.switcheroo__squircle--button .switcheroo__popper-text');
+      if ($label.length) {
+        $label.text('Ajout');
+        clearInterval(renameAddButton);
+      }
+    }, 300);
+
+  });
+})(jQuery);
+</script>
+
+
+<!-- NOTIFFIN plugin : https://blankthemerpg.forumactif.com/t203-notiffi -->
+<!-- BEGIN switch_user_logged_in -->
+<script src="https://cdn.jsdelivr.net/gh/Kim-Bnx/Notiffi@main/notiffi/notiffi.min.js"></script>
+<script>
+(function($) {
+  $(function() {
+    if (typeof window.Notiffi !== 'undefined') {
+      Notiffi.init();
+    }
+
+    function updateBellState() {
+      var count = .trim(('.unread_count').text());
+      $('#notiffi_button i').toggleClass('fa-shake', count !== '');
+    }
+
+    updateBellState();
+
+    var unread = document.querySelector('.unread_count');
+    if (unread) {
+      new MutationObserver(updateBellState).observe(unread, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    }
+  });
+})(jQuery);
+</script>
+  <script>
+(function($) {
+  const avatarCache = new Map();
+  const guestAvatar = 'https://2img.net/u/4916/78/51/33/avatars/gallery/invite10.png';
+
+  function absoluteUrl(href) {
+    return new URL(href, window.location.origin).href;
+  }
+
+  async function getAvatarFromProfile(profileHref) {
+    const url = absoluteUrl(profileHref);
+
+    if (avatarCache.has(url)) {
+      return avatarCache.get(url);
+    }
+
+    const promise = fetch(url, { credentials: 'same-origin' })
+      .then(function(res) { return res.text(); })
+      .then(function(html) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        const img = doc.querySelector(
+          '.profil-avatar img, #profile-advanced-left .module img, #profile-advanced-right .module img, .avatar-field img, .profile_avatar img'
+        );
+
+        return img && img.src ? img.src : guestAvatar;
+      })
+      .catch(function() {
+        return guestAvatar;
+      });
+
+    avatarCache.set(url, promise);
+    return promise;
+  }
+
+  async function patchNotificationAvatar(notifEl) {
+    const $notif = $(notifEl);
+    const $slot = $notif.find('.notif_avatar').first();
+
+    if (!$slot.length) return;
+    if (.trim(slot.html()) !== '') return;
+
+    const $profileLink = $notif.find('.notif_text a[href^="/u"]').first();
+
+    if (!$profileLink.length) {
+      $slot.html('<img src="' + guestAvatar + '" alt="">');
+      return;
+    }
+
+    const src = await getAvatarFromProfile($profileLink.attr('href'));
+
+    if (.trim(slot.html()) === '') {
+      $slot.html('<img src="' + src + '" alt="">');
+    }
+  }
+
+  function patchAllNotiffiAvatars() {
+    $('#notiffi_panel .notification, .notification.alert').each(function() {
+      patchNotificationAvatar(this);
+    });
+  }
+
+  $(function() {
+    patchAllNotiffiAvatars();
+
+    const observer = new MutationObserver(function() {
+      patchAllNotiffiAvatars();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  });
+})(jQuery);
+</script>
+<!-- END switch_user_logged_in -->
+
+<!-- SCRIPTS GLOW NIGHT REMPLACEMENTS DE LETTRES -->
+<script>
+(() => {
+  const TARGET_FONT = "glow night";
+
+  const DOUBLE_REPLACEMENTS_UPPER = [
+    ["RE", ""],
+    ["RO", ""],
+    ["RA", ""],
+    ["RU", ""],
+    ["KE", ""],
+    ["KO", ""],
+    ["KA", ""],
+    ["KU", ""]
+  ];
+
+  const DOUBLE_REPLACEMENTS_LOWER = [
+    ["ri", ""],
+    ["gi", ""],
+    ["ct", ""],
+    ["ft", ""]
+  ];
+
+  const SINGLE_REPLACEMENTS_UPPER = new Map([
+    ["O", ""],
+    ["P", ""],
+    ["Q", ""],
+    ["Y", ""],
+    ["K", ""],
+    ["B", ""],
+    ["R", ""],
+    ["C", ""]
+  ]);
+
+  const SINGLE_REPLACEMENTS_LOWER = new Map([
+    ["i", ""],
+    ["j", ""],
+    ["k", ""],
+    ["y", ""],
+    ["z", ""]
+  ]);
+
+  const SKIP_TAGS = new Set([
+    "SCRIPT",
+    "STYLE",
+    "NOSCRIPT",
+    "TEXTAREA",
+    "INPUT",
+    "OPTION",
+    "CODE",
+    "PRE"
+  ]);
+
+  function applyUppercaseReplacements(text) {
+    let result = text.toUpperCase();
+
+    for (const [from, to] of DOUBLE_REPLACEMENTS_UPPER) {
+      result = result.split(from).join(to);
+    }
+
+    result = Array.from(result, char => SINGLE_REPLACEMENTS_UPPER.get(char) || char).join("");
+    return result;
+  }
+
+  function applyNormalReplacements(text) {
+    let result = text;
+
+    for (const [from, to] of DOUBLE_REPLACEMENTS_UPPER) {
+      result = result.split(from).join(to);
+    }
+
+    for (const [from, to] of DOUBLE_REPLACEMENTS_LOWER) {
+      result = result.split(from).join(to);
+    }
+
+    result = Array.from(result, char => {
+      return SINGLE_REPLACEMENTS_UPPER.get(char)
+        || SINGLE_REPLACEMENTS_LOWER.get(char)
+        || char;
+    }).join("");
+
+    return result;
+  }
+
+  function hasGlowNight(el) {
+    if (!el) return false;
+    const fontFamily = window.getComputedStyle(el).fontFamily || "";
+    return fontFamily.toLowerCase().includes(TARGET_FONT);
+  }
+
+  function isVisualUppercase(el) {
+    if (!el) return false;
+    return window.getComputedStyle(el).textTransform === "uppercase";
+  }
+
+  function shouldSkip(textNode) {
+    const parent = textNode.parentElement;
+    if (!parent) return true;
+    if (SKIP_TAGS.has(parent.tagName)) return true;
+    if (parent.isContentEditable) return true;
+    if (parent.closest(".no-glyph-replace, [data-no-glyph-replace]")) return true;
+    return false;
+  }
+
+  function processTextNode(textNode) {
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+    if (shouldSkip(textNode)) return;
+
+    const parent = textNode.parentElement;
+    if (!hasGlowNight(parent)) return;
+
+    const original = textNode.nodeValue;
+    const transformed = isVisualUppercase(parent)
+      ? applyUppercaseReplacements(original)
+      : applyNormalReplacements(original);
+
+    if (original !== transformed) {
+      textNode.nodeValue = transformed;
+    }
+  }
+
+  function processNode(root) {
+    if (!root) return;
+
+    if (root.nodeType === Node.TEXT_NODE) {
+      processTextNode(root);
+      return;
+    }
+
+    if (root.nodeType !== Node.ELEMENT_NODE && root.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
+      return;
+    }
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let current;
+    while ((current = walker.nextNode())) {
+      processTextNode(current);
+    }
+  }
+
+  function init() {
+    processNode(document.body);
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          mutation.addedNodes.forEach(processNode);
+        }
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- SWITCH DE THEME ET CHANGEMENTS IMAGES -->
+<script>
+(function() {
+  var switchEl = document.getElementById("themeSwitch");
+  if (!switchEl) return;
+
+  var buttons = switchEl.querySelectorAll(".theme-btn");
+  var thumb = switchEl.querySelector(".theme-thumb");
+
+  function updateThumb(index) {
+    if (!buttons.length || !thumb) return;
+    var btnWidth = buttons[0].offsetWidth;
+    thumb.style.transform = "translateX(" + (index * btnWidth) + "px)";
+  }
+
+  buttons.forEach(function(button, index) {
+    button.addEventListener("click", function() {
+      buttons.forEach(function(btn) {
+        btn.classList.remove("active");
+      });
+      button.classList.add("active");
+      updateThumb(index);
+    });
+  });
+
+  updateThumb(0);
+})();
+</script>
+  <script>
+(function () {
+  var STORAGE_KEY = "ppk-theme-preference";
+  var LEGACY_KEY = "color-scheme";
+  var VALID_THEMES = { dark: true, light: true, autumn: true, winter: true };
+
+  var THEME_IMAGE_MAP = {
+    dark: {
+      ppkMadame: "https://2img.net/i.imgur.com/YuDB2sy.png",
+      ppkOuterCircle: "https://2img.net/i.imgur.com/knWsiIa.png",
+      ppkInnerCircle: "https://2img.net/i.imgur.com/BbdONP0.png",
+      ppkRadial: "https://2img.net/i.imgur.com/pgOuYvR.png",
+      ppkP: "https://2img.net/i.imgur.com/LjtixDs.png",
+      ppkP2: "https://2img.net/i.imgur.com/avlD2pq.png",
+      ppkS: "https://2img.net/i.imgur.com/40pnzEa.png",
+    
+      coMtn: "https://2img.net/i.imgur.com/0Kilnpz.png",
+      hihi: "https://2img.net/i.imgur.com/yvf39Bn.png",
+      raven: "https://2img.net/i.imgur.com/YKbXkk1.png",
+      contexte: "https://2img.net/i.imgur.com/9brogu4.png",
+     
+      chatCurieux: "https://2img.net/i.imgur.com/nKfZpku.png",
+      chatQeel: "https://2img.net/i.imgur.com/OV0q0SI.png",
+      newPpkImg: "https://2img.net/i.imgur.com/aApsUPX.png",
+    
+      lastPostIcon: "https://2img.net/i.imgur.com/fFTy3hz.png",
+      parto: "https://2img.net/i.imgur.com/8McVOIi.png",
+    
+      firstIMGhistoire: "https://2img.net/i.imgur.com/FlZxF1K.png",
+      fcSparkHeader: "https://2img.net/i.imgur.com/IGJ5ddz.png",
+      fcAvaSpark: "https://2img.net/i.imgur.com/fuXAwpZ.png",
+    
+      newMsgIcon: "https://2img.net/i.imgur.com/4juhIjr.png"
+    },
+
+    light: {
+      ppkMadame: "https://2img.net/i.imgur.com/7HmxZFF.png",
+      ppkOuterCircle: "https://2img.net/i.imgur.com/FX3CLwk.png",
+      ppkInnerCircle: "https://2img.net/i.imgur.com/ghKlVwm.png",
+      ppkRadial: "https://2img.net/i.imgur.com/mya0s6J.png",
+      ppkP: "https://2img.net/i.imgur.com/WjjHX9E.png",
+      ppkP2: "https://2img.net/i.imgur.com/wgbNEKt.png",
+      ppkS: "https://2img.net/i.imgur.com/N5ipMZI.png",
+    
+      coMtn: "https://2img.net/i.imgur.com/EbalfSi.png",
+      hihi: "https://2img.net/i.imgur.com/yvf39Bn.png",
+      raven: "https://2img.net/i.imgur.com/bx1ijpY.png",
+      contexte: "https://2img.net/i.imgur.com/7zkiBVE.png",
+      
+      chatCurieux: "https://2img.net/i.imgur.com/AAsxj7q.png",
+      chatQeel: "https://2img.net/i.imgur.com/EdW9od1.png",
+      newPpkImg: "https://2img.net/i.imgur.com/PjqNGQl.png",
+    
+      lastPostIcon: "https://2img.net/i.imgur.com/gbMAR3H.png",
+      parto: "https://2img.net/i.imgur.com/lWLf0QP.png",
+    
+      firstIMGhistoire: "https://2img.net/i.imgur.com/FwmwJqb.png",
+      fcSparkHeader: "https://2img.net/i.imgur.com/6QNBXgR.png",
+      fcAvaSpark: "https://2img.net/i.imgur.com/hPqYrui.png",
+    
+      newMsgIcon: "https://2img.net/i.imgur.com/Xu7qKps.png"
+    },
+
+    autumn: {
+      ppkMadame: "https://2img.net/i.imgur.com/OECzXm0.png",
+      ppkOuterCircle: "https://2img.net/i.imgur.com/ElJVKgd.png",
+      ppkInnerCircle: "https://2img.net/i.imgur.com/Dkaunho.png",
+      ppkRadial: "https://2img.net/i.imgur.com/g1NSKY2.png",
+      ppkP: "https://2img.net/i.imgur.com/lwjYr0G.png",
+      ppkP2: "https://2img.net/i.imgur.com/7j5jDYv.png",
+      ppkS: "https://2img.net/i.imgur.com/vIMNWo6.png",
+    
+      coMtn: "https://2img.net/i.imgur.com/8Yq7C7j.png",
+      hihi: "https://2img.net/i.imgur.com/Mdhn1Be.png",
+      raven: "https://2img.net/i.imgur.com/l1igidT.png",
+      contexte: "https://2img.net/i.imgur.com/hmpoIGR.png",
+    
+      chatCurieux: "https://2img.net/i.imgur.com/FgOcsFl.png",
+      chatQeel: "https://2img.net/i.imgur.com/w8Q8SwD.png",
+      newPpkImg: "https://2img.net/i.imgur.com/sMRmfBo.png",
+    
+      lastPostIcon: "https://2img.net/i.imgur.com/NhussbA.png",
+      parto: "https://2img.net/i.imgur.com/qubCSLf.png",
+    
+      firstIMGhistoire: "https://2img.net/i.imgur.com/LtQLxr9.png",
+      fcSparkHeader: "https://2img.net/i.imgur.com/AP1aPQW.png",
+      fcAvaSpark: "https://2img.net/i.imgur.com/2sc3fll.png",
+    
+      newMsgIcon: "https://2img.net/i.imgur.com/ERpYhqb.png"
+    },
+
+    winter: {
+      ppkMadame: "https://2img.net/i.imgur.com/mNi23ND.png",
+      ppkOuterCircle: "https://2img.net/i.imgur.com/ihJCqNb.png",
+      ppkInnerCircle: "https://2img.net/i.imgur.com/5STEOcQ.png",
+      ppkRadial: "https://2img.net/i.imgur.com/s9wQ80y.png",
+      ppkP: "https://2img.net/i.imgur.com/uRNvkLW.png",
+      ppkP2: "https://2img.net/i.imgur.com/f74WWFj.png",
+      ppkS: "https://2img.net/i.imgur.com/s8GtwAe.png",
+    
+      coMtn: "",
+      hihi: "https://2img.net/i.imgur.com/vg4TQCn.png",
+      raven: "https://2img.net/i.imgur.com/nB6256q.png",
+      contexte: "https://2img.net/i.imgur.com/PVt1yxV.png",
+    
+      chatCurieux: "https://2img.net/i.imgur.com/4pP5XUP.png",
+      chatQeel: "https://2img.net/i.imgur.com/8N9pUCU.png",
+      newPpkImg: "",
+    
+      lastPostIcon: "https://2img.net/i.imgur.com/5d4qZ90.png",
+      parto: "https://2img.net/i.imgur.com/4IK5Kwh.png",
+    
+      firstIMGhistoire: "",
+      fcSparkHeader: "https://2img.net/i.imgur.com/OVtZPZC.png",
+      fcAvaSpark: "https://2img.net/i.imgur.com/7X0NDyo.png",
+    
+      newMsgIcon: "https://2img.net/i.imgur.com/vxrlXVv.png"
+    }
+  };
+
+  function isValidTheme(theme) {
+    return !!VALID_THEMES[theme];
+  }
+
+  function getSystemTheme() {
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  function getSavedTheme() {
+    var saved = localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) {
+      var legacy = localStorage.getItem(LEGACY_KEY);
+      if (isValidTheme(legacy)) {
+        saved = legacy;
+        localStorage.setItem(STORAGE_KEY, legacy);
+      }
+    }
+
+    return isValidTheme(saved) ? saved : null;
+  }
+
+  function getEffectiveTheme() {
+    return getSavedTheme() || getSystemTheme();
+  }
+
+  function saveTheme(theme) {
+    localStorage.setItem(STORAGE_KEY, theme);
+    localStorage.setItem(LEGACY_KEY, theme);
+  }
+
+  function closestThemeButton(node, limit) {
+    while (node && node !== limit) {
+      if (
+        node.classList &&
+        node.classList.contains("theme-btn") &&
+        node.getAttribute("data-theme")
+      ) {
+        return node;
+      }
+      node = node.parentNode;
+    }
+    return null;
+  }
+
+  function hasNewMessageState(img) {
+    var container = img.closest
+      ? img.closest('.ppk-forum, .ppk-cate')
+      : null;
+  
+    if (!container) return false;
+  
+    return (
+      container.classList.contains('cat_new') ||
+      container.classList.contains('forum_new')
+    );
+  }    
+    
+  function updateThemeImages(theme, scope) {
+    var map = THEME_IMAGE_MAP[theme] || THEME_IMAGE_MAP.dark;
+    var root = scope || document;
+  
+    var images = root.querySelectorAll
+      ? root.querySelectorAll(
+          [
+            'img[data-theme-image]',
+            '.new-msg',
+            '.last-post-icon img',
+            '#pot-img a img',
+            '.ppk-search-topic-lasticon img'
+          ].join(', ')
+        )
+      : [];
+  
+    for (var i = 0; i < images.length; i++) {
+      var img = images[i];
+      var key = img.getAttribute('data-theme-image');
+  
+      if (!key) {
+        if (img.classList && img.classList.contains('new-msg')) {
+          if (!hasNewMessageState(img)) {
+            img.style.display = 'none';
+            continue;
+          }
+      
+          img.style.display = '';
+          key = 'newMsgIcon';
+        } else if (
+          (img.closest && img.closest('.last-post-icon')) ||
+          (img.closest && img.closest('#pot-img')) ||
+          (img.closest && img.closest('.ppk-search-topic-lasticon'))
+        ) {
+          key = 'lastPostIcon';
+        }
+      }
+  
+      var nextSrc = map[key];
+  
+      if (nextSrc && img.getAttribute('src') !== nextSrc) {
+        img.setAttribute('src', nextSrc);
+      }
+    }
+  }
+
+  function syncSwitchUI(theme) {
+    var switchEl = document.getElementById("themeSwitch");
+    if (!switchEl) return;
+
+    var buttons = switchEl.querySelectorAll(".theme-btn");
+    var thumb = switchEl.querySelector(".theme-thumb");
+    var activeIndex = 0;
+
+    for (var i = 0; i < buttons.length; i++) {
+      var isActive = buttons[i].getAttribute("data-theme") === theme;
+      buttons[i].classList.toggle("active", isActive);
+      buttons[i].setAttribute("aria-pressed", isActive ? "true" : "false");
+
+      if (isActive) {
+        activeIndex = i;
+      }
+    }
+
+    if (thumb && buttons.length) {
+      var btnWidth = buttons[0].offsetWidth || 0;
+      thumb.style.transform = "translateX(" + (activeIndex * btnWidth) + "px)";
+    }
+  }
+
+  function applyTheme(theme, persist) {
+    if (!isValidTheme(theme)) {
+      theme = "dark";
+    }
+
+    document.documentElement.setAttribute("data-color-scheme", theme);
+    updateThemeImages(theme, document);
+    syncSwitchUI(theme);
+
+    if (persist) {
+      saveTheme(theme);
+    }
+  }
+
+  function bindSwitch() {
+    var switchEl = document.getElementById("themeSwitch");
+    if (!switchEl) return;
+    if (switchEl.getAttribute("data-theme-bound") === "1") return;
+
+    switchEl.setAttribute("data-theme-bound", "1");
+
+    switchEl.addEventListener("click", function (e) {
+      var button = closestThemeButton(e.target, switchEl);
+      if (!button) return;
+
+      var theme = button.getAttribute("data-theme");
+      if (!isValidTheme(theme)) return;
+
+      applyTheme(theme, true);
+    });
+  }
+
+  function watchSystemTheme() {
+    if (!window.matchMedia) return;
+
+    var mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function handleSystemChange() {
+      if (!getSavedTheme()) {
+        applyTheme(getSystemTheme(), false);
+      }
+    }
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleSystemChange);
+    } else if (mediaQuery.addListener) {
+      mediaQuery.addListener(handleSystemChange);
+    }
+  }
+
+  function observeDynamicNodes() {
+    if (!window.MutationObserver || !document.body) return;
+
+    var observer = new MutationObserver(function (mutations) {
+      var theme = getEffectiveTheme();
+      var needsFullSync = false;
+
+      for (var i = 0; i < mutations.length; i++) {
+        var addedNodes = mutations[i].addedNodes;
+
+        for (var j = 0; j < addedNodes.length; j++) {
+          var node = addedNodes[j];
+          if (!node || node.nodeType !== 1) continue;
+
+          if (node.id === "themeSwitch" || (node.querySelector && node.querySelector("#themeSwitch"))) {
+            needsFullSync = true;
+          }
+
+          if (
+            (
+              node.matches &&
+              (
+                node.matches('img[data-theme-image]') ||
+                node.matches('.new-msg') ||
+                node.matches('.last-post-icon img') ||
+                node.matches('#pot-img a img') ||
+                node.matches('.ppk-search-topic-lasticon img')
+              )
+            ) ||
+            (
+              node.querySelector &&
+              node.querySelector(
+                [
+                  'img[data-theme-image]',
+                  '.new-msg',
+                  '.last-post-icon img',
+                  '#pot-img a img',
+                  '.ppk-search-topic-lasticon img'
+                ].join(', ')
+              )
+            )
+          ) {
+            updateThemeImages(theme, document);
+          }
+        }
+      }
+
+      if (needsFullSync) {
+        bindSwitch();
+        syncSwitchUI(theme);
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  function initThemeManager() {
+    bindSwitch();
+    applyTheme(getEffectiveTheme(), false);
+    watchSystemTheme();
+    observeDynamicNodes();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThemeManager);
+  } else {
+    initThemeManager();
+  }
+
+  window.addEventListener("load", function () {
+    applyTheme(getEffectiveTheme(), false);
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<div class="ppk-mp-read-page">
+
+  <div class="ppk-nav-sujet f1 ppk-mp-read-header">
+    <h1 class="f2 glass no-glyph-replace">MESSAGERIE</h1>
+
+    <div class="nav-wrap-sjt f2 glass">
+      <div class="nav-sjt ppk-mp-read-nav">
+        <span class="nav ppk-mp-read-menu-item" data-folder="inbox">{INBOX}</span>
+        <span class="nav ppk-mp-read-menu-item" data-folder="sentbox">{SENTBOX}</span>
+        <span class="nav ppk-mp-read-menu-item" data-folder="outbox">{OUTBOX}</span>
+        <span class="nav ppk-mp-read-menu-item" data-folder="savebox">{SAVEBOX}</span>
+      </div>
+
+      <div class="boutons-sujet ppk-mp-read-top-btns">
+        <!-- BEGIN switch_post_reply -->
+        <a href="{REPLY_PM_URL}" rel="nofollow">répondre</a>
+        <!-- END switch_post_reply -->
+      </div>
+    </div>
+  </div>
+
+  <form action="{S_PRIVMSGS_ACTION}" method="post" class="ppk-mp-read-main f1">
+    <div class="ppk-mp-read-actions f2 glass">
+      <!-- BEGIN switch_post_reply -->
+      <a class="ppk-mp-read-action-link fa-tip" data-tip="Répondre" href="{REPLY_PM_URL}" rel="nofollow">
+        <i class="fa-regular fa-paper-plane"></i>
+      </a>
+      <!-- END switch_post_reply -->
+
+      <div id="ppk-mp-read-save" class="ppk-mp-read-action fa-tip" data-tip="Sauvegarder">
+        <!-- BEGIN switch_save -->
+        <input type="submit" name="save" />
+        <!-- END switch_save -->
+      </div>
+
+      <div id="ppk-mp-read-trash" class="ppk-mp-read-action fa-tip" data-tip="Supprimer">
+        <input type="submit" name="delete" />
+      </div>
+    </div>
+
+    <div class="ppk-mp-read-meta f2 glass">
+      <span class="ppk-mp-read-from">{MESSAGE_FROM}</span>
+      <span class="ppk-mp-read-subject">{POST_SUBJECT}</span>
+      <span class="ppk-mp-read-date">{POST_DATE}</span>
+    </div>
+
+    <div class="ppk-mp-read-content">
+      <div class="ppk-mp-read-author f2 glass">
+        <div class="ppk-mp-read-author-avatar">
+          {AVATAR_FROM}
+        </div>
+        <div class="ppk-mp-read-author-name">
+          <span class="ppk-mp-read-sender">{MESSAGE_FROM}</span>
+        </div>
+        <div class="ppk-mp-read-profile-link">
+          {PROFILE_IMG}
+        </div>
+      </div>
+
+      <div class="ppk-mp-read-message f2 glass">{MESSAGE}</div>
+    </div>
+  </form>
+
+</div>
+
+<!-- BEGIN switch_review_box -->
+<div class="ppk-mp-read-history">
+  {TOPIC_REVIEW_BOX}
+</div>
+<!-- END switch_review_box -->
+
+<script>
+$(function () {
+  const folder = new URLSearchParams(window.location.search).get('folder') || 'inbox';
+  $('.ppk-mp-read-menu-item').removeClass('active').filter(function () {
+    return $(this).data('folder') === folder;
+  }).addClass('active');
+});
+
+function setProfilColor() {
+  let bloc = document.querySelector('.ppk-mp-read-page');
+  if (!bloc) return;
+
+  let coloredElement = bloc.querySelector('.ppk-mp-read-sender [style^="color:"]');
+  let pseudo = bloc.querySelector('.ppk-mp-read-author-name strong');
+
+  if (coloredElement && pseudo) {
+    pseudo.style.setProperty("--groupColor", coloredElement.style.color);
+  }
+}
+
+function wrapSenderName() {
+  const sender = document.querySelector('.ppk-mp-read-sender');
+  if (!sender) return;
+
+  const strong = sender.querySelector('strong');
+  if (strong) return;
+
+  const wrapper = document.createElement('strong');
+  wrapper.innerHTML = sender.innerHTML;
+  sender.innerHTML = '';
+  sender.appendChild(wrapper);
+}
+
+wrapSenderName();
+setProfilColor();
+</script>
+
+<!-- BEGIN switch_image_resize -->
+<script type="text/javascript">
+//<![CDATA[
+$(resize_images({
+  'selector': '.postbody .content, .ppk-mp-read-message',
+  'max_width': {switch_image_resize.IMG_RESIZE_WIDTH},
+  'max_height': {switch_image_resize.IMG_RESIZE_HEIGHT}
+}));
+//]]>
+</script>
+<!-- END switch_image_resize -->

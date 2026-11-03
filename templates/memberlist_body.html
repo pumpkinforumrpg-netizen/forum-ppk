@@ -1,0 +1,237 @@
+<div class="ppk-memberlist-wrap f1">
+
+    <div class="links_bar">
+        <form action="{S_MODE_ACTION}" method="get" class="ppk-memberlist-form">
+            <div class="ppk-memberlist-filters">
+                <div class="wrapmember">
+                  <div class="ppk-memberlist-searchbox">
+                      <input type="text" class="inputbox tiny" id="ppk-live-search" name="username" maxlength="25"
+                          size="20" value="" placeholder="Rechercher un joueur..." autocomplete="off" />
+                  </div>
+  
+                  <div class="ppk-memberlist-select">{S_MODE_SELECT}</div>
+                  <div class="ppk-memberlist-select">{S_ORDER_SELECT}</div>
+  
+                  {S_HIDDEN_SID}
+                  <input class="button2 ppk-memberlist-submit" type="submit" name="submit" value="{L_SUBMIT}" />
+                </div>
+                <span class="h2">LISTE DES MEMBRES</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="ppk-memberlist-cards">
+        <!-- BEGIN memberrow -->
+        <div class="ppk-member-card f2 glass">
+
+            <a href="{memberrow.U_VIEWPROFILE}" class="ppk-member-name-link">
+                <div class="ppk-member-head">
+                    <div class="ppk-member-username-wrap">
+                        <div class="ppk-member-username">{memberrow.USERNAME}</div>
+                    </div>
+
+                    <div class="ppk-member-avatar">
+                        {memberrow.AVATAR_IMG}
+                    </div>
+                </div>
+            </a>
+
+            <div class="ppk-member-meta">
+              
+            <img class="ppk-member-ghost" src="https://2img.net/i.imgur.com/hgj4VGq.png" alt="" />
+              
+                <div class="ppk-member-line inscri">
+                    <strong>Inscription</strong>
+                    <span>{memberrow.JOINED}</span>
+                </div>
+
+                <div class="ppk-member-line sur-ghost">
+                    <strong>en ligne</strong>
+                    <span>{memberrow.LASTVISIT}</span>
+                </div>
+
+                <div class="ppk-member-footer">
+                    <div class="ppk-member-posts glow-night">{memberrow.POSTS} messages</div>
+
+                    <div class="ppk-member-actions">
+                        {memberrow.PM_IMG}
+                        {memberrow.WWW_IMG}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- END memberrow -->
+    </div>
+
+    <!-- BEGIN switch_pagination -->
+    <div class="ppk-memberlist-pagination">
+        <span class="pagination">{PAGINATION}</span>
+    </div>
+    <!-- END switch_pagination -->
+
+</div>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+
+        /*
+         * Reconvertit uniquement pour la recherche
+         * les glyphes Glow Night vers leurs lettres normales.
+         *
+         * Ça ne modifie PAS ce qui est affiché sur la page.
+         */
+        function decodeGlowNight(str) {
+            str = str || '';
+
+            var replacements = [
+                ["", "RE"],
+                ["", "RO"],
+                ["", "RA"],
+                ["", "RU"],
+                ["", "KE"],
+                ["", "KO"],
+                ["", "KA"],
+                ["", "KU"],
+
+                ["", "ri"],
+                ["", "gi"],
+                ["", "ct"],
+                ["", "ft"],
+
+                ["", "O"],
+                ["", "P"],
+                ["", "Q"],
+                ["", "Y"],
+                ["", "K"],
+                ["", "B"],
+                ["", "R"],
+                ["", "C"],
+
+                ["", "i"],
+                ["", "j"],
+                ["", "k"],
+                ["", "y"],
+                ["", "z"]
+            ];
+
+            for (var i = 0; i < replacements.length; i++) {
+                str = str.split(replacements[i][0]).join(replacements[i][1]);
+            }
+
+            return str;
+        }
+
+        function normalizeText(str) {
+            str = decodeGlowNight(str);
+            str = (str || '').toLowerCase();
+
+            if (str.normalize) {
+                str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            }
+
+            return $.trim(str);
+        }
+
+        function applyMemberColors() {
+            $('.ppk-member-card').each(function () {
+                var $card = $(this);
+                var $username = $card.find('.ppk-member-username');
+                var $coloredElement = $();
+
+                if ($username.is('[style*="color"]')) {
+                    $coloredElement = $username;
+                } else {
+                    $coloredElement = $username.find('[style*="color"]').first();
+                }
+
+                if ($coloredElement.length) {
+                    var color = $coloredElement.css('color');
+                    $card.find('.ppk-member-actions a').css('background-color', color);
+                }
+            });
+        }
+
+        function liveSearch() {
+            var term = normalizeText($('#ppk-live-search').val());
+
+            $('.ppk-member-card').each(function () {
+                var $card = $(this);
+                var username = $card.find('.ppk-member-username').text();
+
+                username = normalizeText(username);
+
+                $card.toggle(
+                    term === '' || username.indexOf(term) !== -1
+                );
+            });
+
+            $('.ppk-memberlist-pagination').toggle(term === '');
+        }
+
+        applyMemberColors();
+
+        $('#ppk-live-search').on('input keyup', function () {
+            liveSearch();
+        });
+    });
+</script>
+
+<script>
+jQuery(function ($) {
+    const badgeImages = {
+        "ame errante": "https://2img.net/i.imgur.com/0EvJOAI.png",
+        "nouvelle ame": "https://2img.net/i.imgur.com/aG1VrGf.png",
+        "ame residente": "https://2img.net/i.imgur.com/0jHWMMw.png",
+        "hantise locale": "https://2img.net/i.imgur.com/0pY04Kf.png",
+        "fantome certifie": "https://2img.net/i.imgur.com/Fe8GuQ5.png",
+        "oh l ancetre la": "https://2img.net/i.imgur.com/EsDQUtL.png",
+        "super ame": "https://2img.net/i.imgur.com/H7F0Ezq.png",
+        "ame perdue": "https://2img.net/i.imgur.com/RFURPD0.png"
+    };
+
+    function normalizeBadgeLabel(str) {
+        str = (str || '').toLowerCase();
+
+        if (str.normalize) {
+            str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        return str
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/[’'`´-]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function decodeHtml(str) {
+        return $('<textarea/>').html(str || '').text();
+    }
+
+    $('.ppk-member-card').each(function () {
+        var $card = $(this);
+        var profileUrl = $card.find('.ppk-member-name-link').attr('href');
+        var $ghost = $card.find('.ppk-member-ghost');
+
+        if (!profileUrl || !$ghost.length) return;
+
+        $.get(profileUrl, function (html) {
+            var match = html.match(/id=["']rpg-badge["'][^>]*>([\s\S]*?)<\/[^>]+>/i);
+            if (!match || !match[1]) return;
+
+            var rawBadge = decodeHtml(
+                match[1]
+                    .replace(/<br\s*\//gi, ' ')
+                    .replace(/<[^>]+>/g, ' ')
+            );
+
+            var badgeLabel = normalizeBadgeLabel(rawBadge);
+            var img = badgeImages[badgeLabel];
+
+            if (img) {
+                $ghost.attr('src', img);
+            }
+        });
+    });
+});
+</script>

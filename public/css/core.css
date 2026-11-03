@@ -1,0 +1,410 @@
+:root {
+  --blanc: #ffffff;
+  /* TRUCS */
+  --theme-count: 4;
+  --slot-size: 41.33px;
+
+  /* COULEURS */
+  --sor: #8A53B7;
+  --fam: #CF4568;
+  --hum: #D9604A;
+  --rel: #388F92;
+  --eve: #5477D2;
+  --color1: #382653;
+  --color2: #110327;
+  --color3: #110327;
+  --color3bis: rgba(17, 3, 39, 0.75);
+  --color4: #B8A2E9;
+  --color5: #FAF9FA;
+  --color6: rgba(184, 162, 233, 0.15);
+  --color7: #FAF9FA;
+  --color8: rgba(56, 38, 83, 0.25);
+  --color9: #B8A2E9;
+  --color10: #FAF9FA;
+  --color11: #382653;
+  --color11bis: rgba(56, 38, 83, 0.8);
+  --color12: #110327;
+  --color13: rgba(184, 162, 233, 0.15);
+  --color14: #B8A2E9;
+  --color15: rgba(250, 249, 250, 0.1);
+  --frm1: rgba(56, 38, 83, 0.25);
+  --frm2: #382653;
+  --thumb: rgba(184, 162, 233, 0.55);
+  --dropshadow: rgba(0, 0, 0, 0.25);
+  --panel-1-inset: inset -2px -2px 2px rgba(250, 249, 250, 0.05);
+
+  /* PSEUDOS */
+  --pumpkin: linear-gradient(95deg, #d8794e, #d9604a, #aa4e3f);
+  --kiki: linear-gradient(90deg, #b54478, #8953b7);
+  --cool: linear-gradient(90deg, #4c45b4, #8953b7);
+  --cosy: linear-gradient(70deg, #a2739b, #e29577);
+
+  /* GUIDEBOOK */
+  --colorgb1: rgba(17, 3, 39, 0.55);
+
+  /* EFFETS */
+  --glass: inset -2px -2px 2px rgba(184, 162, 233, 0.4);
+  /* IMAGES */
+  --body-bg-image: url(https://i.imgur.com/c19lwP8.jpeg);
+}
+
+/* DARK */
+html[data-color-scheme="dark"] {
+  color-scheme: dark;
+
+  /* COULEURS */
+  --color1: #382653;
+  --color2: #110327;
+  --color3: #110327;
+  --color3bis: rgba(17, 3, 39, 0.75);
+  --color4: #B8A2E9;
+  --color5: #FAF9FA;
+  --color6: rgba(184, 162, 233, 0.15);
+  --color7: #FAF9FA;
+  --color8: rgba(56, 38, 83, 0.25);
+  --color9: #B8A2E9;
+  --color10: #FAF9FA;
+  --color11: #382653;
+  --color11bis: rgba(56, 38, 83, 0.8);
+  --color12: #110327;
+  --color13: rgba(184, 162, 233, 0.15);
+  --color14: #B8A2E9;
+  --color15: rgba(250, 249, 250, 0.1);
+  --corapide: rgb(26 11 46);
+  --frm1: rgba(56, 38, 83, 0.25);
+  --frm2: #382653;
+  --thumb: rgba(184, 162, 233, 0.55);
+  --dropshadow: rgba(0, 0, 0, 0.25);
+  --panel-1-inset: inset -2px -2px 2px rgba(250, 249, 250, 0.05);
+  --noteBG: linear-gradient(91.6deg, rgba(17, 3, 39, 0.3025) 1.36%, rgba(17, 3, 39, 0) 93.27%);
+  --bonusBG: linear-gradient(91.6deg, rgba(184, 162, 233, 0.55) 1.36%, rgba(122, 65, 126, 0) 93.27%);
+  --event: #382653;
+  --mmblist: #4b386a;
+  --cb-fond: linear-gradient(262.85deg, #1B0E32 3.19%, #231536 98.93%);
+  --validbtn: rgba(17, 3, 39, 0.35);
+  --gradientValid: linear-gradient(128.94deg, rgba(184, 162, 233, 0.15) 51.51%, rgba(184, 162, 233, 0) 92.06%);
+
+  --cacher: linear-gradient(90deg, #140a22, #1b0e2f);
+
+  /* GUIDEBOOK */
+  --colorgb1: rgba(17, 3, 39, 0.55);
+
+  /* FICHE DE PERSONNAGE */
+  --bg-fiche: rgba(17, 3, 39, 0.35);
+  --fc-spark-h3: url(https://i.imgur.com/JNNSOM4.png);
+  --fc-his: url(https://i.imgur.com/hd4B433.png);
+  --fc-phys: url(https://i.imgur.com/0uXH1j7.png);
+  --fc-mag: url(https://i.imgur.com/tB88lbo.png);
+  --fc-men: url(https://i.imgur.com/xV9wQs1.png);
+  --fc-pvr: url(https://i.imgur.com/bb8F6DP.png);
+  --fc-chro: url(https://i.imgur.com/IvRGVN8.png);
+  --fc-noms: url(https://i.imgur.com/UVEO6ym.png);
+  --fc-res: url(https://i.imgur.com/02EWdjE.png);
+  --fc-hrp: url(https://i.imgur.com/TEGDkrY.png);
+  --fc-label: #D8CCF2;
+
+  /* EFFETS */
+  --glass: inset -2px -2px 2px rgba(184, 162, 233, 0.4);
+
+  /* IMAGES */
+  --body-bg-image: url(https://i.imgur.com/c19lwP8.jpeg);
+
+  --ppk-blob-user: url(https://i.imgur.com/koFS8hv.png);
+  --ppk-blob-dm: url(https://i.imgur.com/FgHCoZ6.png);
+  --nos-amis: url(https://i.imgur.com/oEu8Vlr.png);
+  --ctx: url(https://i.imgur.com/NKf6uRl.png);
+
+  --ppk-paperasse: url(https://i.imgur.com/oGgncgY.png);
+  --ppk-informations: url(https://i.imgur.com/SgBIt1K.png);
+  --ppk-guidebook: url(https://i.imgur.com/qBOhHzE.png);
+
+  --ppk-personnages: url(https://i.imgur.com/HYLrgwX.png);
+  --ppk-gestion: url(https://i.imgur.com/4fByjwF.png);
+
+  --ppk-amberwoods: url(https://i.imgur.com/sxaPOrP.png);
+  --chatChiant: url(https://i.imgur.com/MMl9FvZ.png);
+  --ppk-versperune: url(https://i.imgur.com/jB94hx9.png);
+
+  --ppk-hors-roleplay: url(https://i.imgur.com/ie4KwWy.png);
+
+  --ppk-stats: url(https://i.imgur.com/5z21NjU.png);
+  --bottom-fo: url(https://i.imgur.com/PcGU2x5.png);
+
+  --parto-footer: url(https://i.imgur.com/C7g9fDG.png);
+
+  --ppk-profil: url(https://i.imgur.com/kY6BVVC.png);
+  --isonline: url(https://i.imgur.com/dbRXNiq.png);
+  --tooltipchat: url(https://i.imgur.com/2QeDJpg.png);
+  --tooltipchat1: url(https://i.imgur.com/uOjRhYc.png);
+
+  --noteIcon: url(https://i.imgur.com/0o3L3Ed.png);
+}
+
+/* LIGHT */
+html[data-color-scheme="light"] {
+  color-scheme: light;
+
+  /* COULEURS */
+  --color1: #D1C6D8;
+  --color2: #7A417E;
+  --color3: #251B33;
+  --color3bis: rgba(37, 27, 51, 0.75);
+  --color4: #C5967E;
+  --color5: #251B33;
+  --color6: #FFFFFF;
+  --color7: #FFFFFF;
+  --color8: rgba(255, 255, 255, 0.35);
+  --color9: #7A417E;
+  --color10: #7A417E;
+  --color11: #7A417E;
+  --color11bis: rgba(122, 65, 126, 0.45);
+  --color12: #251B33;
+  --color13: rgba(122, 65, 126, 0.15);
+  --color14: #7A417E;
+  --color15: rgba(122, 65, 126, 0.45);
+  --corapide: rgb(234 228 237);
+  --frm1: rgba(209, 198, 216, 0.25);
+  --frm2: #251B33;
+  --thumb: rgba(209, 198, 216, 0.55);
+  --dropshadow: rgba(177, 177, 177, 0.25);
+  --panel-1-inset: inset -2px -2px 2px rgba(250, 249, 250, 0.05);
+  --noteBG: linear-gradient(91.6deg, rgba(122, 65, 126, 0.3025) 1.36%, rgba(122, 65, 126, 0) 93.27%);
+  --bonusBG: linear-gradient(91.6deg, rgba(122, 65, 126, 0.55) 1.36%, rgba(122, 65, 126, 0) 93.27%);
+  --event: #251B33;
+  --mmblist: #c4b2cb;
+  --cb-fond: linear-gradient(262.85deg, #F0EBF2 3.19%, #ffffff 98.93%);
+  --validbtn: rgba(126, 65, 126, 0.35);
+  --gradientValid: linear-gradient(128.94deg, rgba(122, 65, 126, 0.15) 51.51%, rgba(122, 65, 126, 0) 92.06%);
+
+  --cacher: #E8E1EA;
+
+  /* GUIDEBOOK */
+  --colorgb1: rgba(37, 27, 51, 0.55);
+
+  /* FICHE DE PERSONNAGE */
+  --bg-fiche: rgba(37, 37, 51, 0.35);
+  --fc-spark-h3: url(https://i.imgur.com/dRq9D2R.png);
+  --fc-his: url(https://i.imgur.com/RJNN063.png);
+  --fc-phys: url(https://i.imgur.com/Q67mRFG.png);
+  --fc-mag: url(https://i.imgur.com/Pm8IPRF.png);
+  --fc-men: url(https://i.imgur.com/biV4VJz.png);
+  --fc-pvr: url(https://i.imgur.com/Mmak34M.png);
+  --fc-chro: url(https://i.imgur.com/Z2efnCL.png);
+  --fc-noms: url(https://i.imgur.com/xRtC5LT.png);
+  --fc-res: url(https://i.imgur.com/rtbJQR2.png);
+  --fc-hrp: url(https://i.imgur.com/pbNA2DE.png);
+  --fc-label: var(--color9);
+
+
+  /* EFFETS */
+  --glass: inset -2px -2px 2px rgba(122, 65, 126, 0.4);
+
+  /* IMAGES */
+  --body-bg-image: url(https://i.imgur.com/sQBN6dZ.jpeg);
+
+  --ppk-blob-user: url(https://i.imgur.com/t8BVEdO.png);
+  --ppk-blob-dm: url(https://i.imgur.com/F8TsM4i.png);
+  --nos-amis: url(https://i.imgur.com/zVYpnPO.png);
+  --ctx: url(https://i.imgur.com/cXAux3b.png);
+
+  --ppk-paperasse: url(https://i.imgur.com/qlQcdNP.png);
+  --ppk-informations: url(https://i.imgur.com/TLmQINu.png);
+  --ppk-guidebook: url(https://i.imgur.com/vCghhPZ.png);
+
+  --ppk-personnages: url(https://i.imgur.com/kMekZhp.png);
+  --ppk-gestion: url(https://i.imgur.com/eA8iGgs.png);
+
+  --ppk-amberwoods: url(https://i.imgur.com/WkTsKbr.png);
+  --chatChiant: url(https://i.imgur.com/CPHK8Ja.png);
+  --ppk-versperune: url(https://i.imgur.com/fKmLVxM.png);
+
+  --ppk-hors-roleplay: url(https://i.imgur.com/Xx3gziH.png);
+
+  --ppk-stats: url(https://i.imgur.com/KaGy76G.png);
+  --bottom-fo: url(https://i.imgur.com/YhAJ5Y6.png);
+
+  --parto-footer: url(https://i.imgur.com/2augJ1j.png);
+  --ppk-profil: url(https://i.imgur.com/eq2jt2i.png);
+  --isonline: url(https://i.imgur.com/B1uMTuh.png);
+  --tooltipchat: url(https://i.imgur.com/WDVqk4l.png);
+  --tooltipchat1: url(https://i.imgur.com/7Z16bcl.png);
+  --noteIcon: url(https://i.imgur.com/8hQsf23.png);
+}
+
+/* AUTUMN */
+html[data-color-scheme="autumn"] {
+  color-scheme: dark;
+  /* COULEURS */
+  --color1: #EFE4DF;
+  --color2: #AA4E3F;
+  --color3: #553631;
+  --color3bis: rgba(85, 54, 49, 0.75);
+  --color4: #D8794E;
+  --color5: #553631;
+  --color6: #FEF6F0;
+  --color7: #D8794E;
+  --color8: rgba(170, 78, 63, 0.25);
+  --color9: #D8794E;
+  --color10: #D8794E;
+  --color11: #AA4E3F;
+  --color11bis: rgba(216, 121, 78, 0.45);
+  --color12: #D8794E;
+  --color13: rgba(170, 78, 63, 0.15);
+  --color14: #D8794E;
+  --color15: rgba(170, 78, 63, 0.45);
+  --corapide: rgb(223 187 172);
+  --frm1: rgba(239, 228, 223, 0.25);
+  --frm2: rgba(77, 40, 25, 1);
+  --thumb: rgba(239, 228, 223, 0.55);
+  --dropshadow: rgba(85, 54, 49, 0.3);
+  --panel-1-inset: inset -2px -2px 2px rgba(250, 249, 250, 0.05);
+  --noteBG: linear-gradient(91.6deg, rgba(216, 121, 78, 0.3025) 1.36%, rgba(216, 121, 78, 0) 93.27%);
+  --bonusBG: linear-gradient(91.6deg, rgba(216, 121, 78, 0.55) 1.36%, rgba(122, 65, 126, 0) 93.27%);
+  --event: #AA4E3F;
+  --mmblist: #e4cec7;
+  --cb-fond: linear-gradient(262.85deg, #F4DFD1 3.19%, #EFE4DF 98.93%);
+  --validbtn: rgba(216, 121, 78, 0.35);
+  --gradientValid: linear-gradient(128.94deg, rgba(216, 121, 78, 0.15) 51.51%, rgba(216, 121, 78, 0) 92.06%);
+
+  --cacher: #DFBAAB;
+
+  /* GUIDEBOOK */
+  --colorgb1: rgba(85, 54, 49, 0.55);
+
+  /* FICHE DE PERSONNAGE */
+  --bg-fiche: rgba(170, 78, 63, 0.15);
+  --fc-spark-h3: url(https://i.imgur.com/LLuJqbS.png);
+  --fc-his: url(https://i.imgur.com/T2rt79s.png);
+  --fc-phys: url(https://i.imgur.com/xueIImg.png);
+  --fc-mag: url(https://i.imgur.com/C306wuw.png);
+  --fc-men: url(https://i.imgur.com/3K5uWYL.png);
+  --fc-pvr: url(https://i.imgur.com/N0UrXT4.png);
+  --fc-chro: url(https://i.imgur.com/pkopQM0.png);
+  --fc-noms: url(https://i.imgur.com/CgYmvUs.png);
+  --fc-res: url(https://i.imgur.com/43gDtPr.png);
+  --fc-hrp: url(https://i.imgur.com/hySrZ6o.png);
+  --fc-label: var(--color9);
+
+
+  /* EFFETS */
+  --glass: inset -2px -2px 2px rgba(170, 78, 63, 0.4);
+
+  /* IMAGES */
+  --body-bg-image: url(https://i.imgur.com/6FJBMGy.jpeg);
+
+  --ppk-blob-user: url(https://i.imgur.com/U5S4i9n.png);
+  --ppk-blob-dm: url(https://i.imgur.com/rnoa1mv.png);
+  --nos-amis: url(https://i.imgur.com/3U54i7S.png);
+  --ctx: url(https://i.imgur.com/jbqo2Uc.png);
+
+  --ppk-paperasse: url(https://i.imgur.com/sN738Dh.png);
+  --ppk-informations: url(https://i.imgur.com/KaeACSd.png);
+  --ppk-guidebook: url(https://i.imgur.com/cmcI9Qt.png);
+
+  --ppk-personnages: url(https://i.imgur.com/ZQhnJ8S.png);
+  --ppk-gestion: url(https://i.imgur.com/d8w0mQA.png);
+
+  --ppk-amberwoods: url(https://i.imgur.com/KOmcWhB.png);
+  --chatChiant: url(https://i.imgur.com/CPHK8Ja.png);
+  --ppk-versperune: url(https://i.imgur.com/IQZozn1.png);
+
+  --ppk-hors-roleplay: url(https://i.imgur.com/iOtIsu8.png);
+
+  --ppk-stats: url(https://i.imgur.com/IS6FbU4.png);
+  --bottom-fo: url(https://i.imgur.com/Zl6h9lf.png);
+
+  --parto-footer: url(https://i.imgur.com/8hohOLF.png);
+  --ppk-profil: url(https://i.imgur.com/1HKeWPV.png);
+  --isonline: url(https://i.imgur.com/T0Qlcto.png);
+  --tooltipchat: url(https://i.imgur.com/ZHXEbxk.png);
+  --tooltipchat1: url(https://i.imgur.com/DM7EpGU.png);
+  --noteIcon: url(https://i.imgur.com/eY5yfWb.png);
+}
+
+/* WINTER */
+html[data-color-scheme="winter"] {
+  /* COULEURS */
+  --color1: #FFFFFF;
+  --color2: #82A9C5;
+  --color3: #1F3D56;
+  --color3bis: rgba(31, 61, 86, 0.75);
+  --color4: #236F72;
+  --color5: #1F3D56;
+  --color6: #F5F5F5;
+  --color7: #236F72;
+  --color8: rgba(248, 250, 255, 0.35);
+  --color9: #236F72;
+  --color10: #236F72;
+  --color11: #82A9C5;
+  --color11bis: rgba(35, 111, 114, 0.45);
+  --color12: #236F72;
+  --color13: rgba(130, 169, 197, 0.15);
+  --color14: #236F72;
+  --color15: rgba(130, 169, 197, 0.45);
+  --corapide: rgb(223 187 172);
+  --frm1: rgba(255, 255, 255, 0.25);
+  --frm2: #1F3D56;
+  --thumb: rgba(255, 255, 255, 0.55);
+  --dropshadow: rgba(31, 61, 86, 0.3);
+  --panel-1-inset: inset -2px -2px 2px rgba(250, 249, 250, 0.05);
+  --noteBG: linear-gradient(91.6deg, rgba(35, 111, 114, 0.3025) 1.36%, rgba(35, 111, 114, 0) 93.27%);
+  --bonusBG: linear-gradient(91.6deg, rgba(35, 111, 114, 0.55) 1.36%, rgba(122, 65, 126, 0) 93.27%);
+  --event: #82A9C5;
+  --mmblist: #82A9C5;
+  --cb-fond: linear-gradient(262.85deg, #f0feff 3.19%, #FFFFFF 98.93%);
+  --validbtn: rgba(35, 111, 114, 0.35);
+  --gradientValid: linear-gradient(128.94deg, rgba(35, 111, 114, 0.15) 51.51%, rgba(35, 111, 114, 0) 92.06%);
+
+  --cacher: #DFBAAB;
+
+  /* GUIDEBOOK */
+  --colorgb1: rgba(85, 54, 49, 0.55);
+
+  /* FICHE DE PERSONNAGE */
+  --bg-fiche: rgba(130, 169, 197, 0.15);
+  --fc-spark-h3: url(https://i.imgur.com/6agHy0x.png);
+  --fc-his: url();
+  --fc-phys: url();
+  --fc-mag: url();
+  --fc-men: url();
+  --fc-pvr: url();
+  --fc-chro: url();
+  --fc-noms: url();
+  --fc-res: url();
+  --fc-hrp: url();
+  --fc-label: var(--color9);
+
+  /* EFFETS */
+  --glass: inset -2px -2px 2px rgba(255, 255, 255, 0.6);
+
+  /* IMAGES */
+  --body-bg-image: url(https://i.imgur.com/qYIojKU.png);
+
+  --ppk-blob-user: url(https://i.imgur.com/xBr27Bu.png);
+  --ppk-blob-dm: url(https://i.imgur.com/9VraSM7.png);
+  --nos-amis: url(https://i.imgur.com/wmtGadk.png);
+  --ctx: url(https://i.imgur.com/j7vc2Q7.png);
+
+  --ppk-paperasse: url(https://i.imgur.com/hj20PFq.png);
+  --ppk-informations: url(https://i.imgur.com/W0xm4Vk.png);
+  --ppk-guidebook: url(https://i.imgur.com/Hmsy9n2.png);
+
+  --ppk-personnages: url(https://i.imgur.com/6cdvtOZ.png);
+  --ppk-gestion: url(https://i.imgur.com/xaHGitX.png);
+
+  --ppk-amberwoods: url(https://i.imgur.com/ZUahwH6.png);
+  --chatChiant: url(https://i.imgur.com/wIJsWRk.png);
+  --ppk-versperune: url(https://i.imgur.com/HraBDGG.png);
+
+  --ppk-hors-roleplay: url(https://i.imgur.com/lp6BUCP.png);
+
+  --ppk-stats: url(https://i.imgur.com/Gkrp2Z7.png);
+  --bottom-fo: url(https://i.imgur.com/bw7lbFt.png);
+
+  --parto-footer: url(https://i.imgur.com/Wze84yf.png);
+  --ppk-profil: url(https://i.imgur.com/LKyRmi0.png);
+  --isonline: url(https://i.imgur.com/840h4na.png);
+  --tooltipchat: url(https://i.imgur.com/Oeb8XqA.png);
+  --tooltipchat1: url(https://i.imgur.com/98Gbw2x.png);
+  --noteIcon: url(https://i.imgur.com/N2wJqLw.png);
+}

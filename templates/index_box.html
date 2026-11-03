@@ -1,0 +1,231 @@
+<!-- BEGIN catrow -->
+
+  <!-- BEGIN tablehead -->
+  <div class="ppk-cate" id="{catrow.tablehead.ID}">
+    <div class="ppk-cate-ttl">{catrow.tablehead.L_FORUM}</div>
+
+    <div class="ppk-forum-wrap">
+  <!-- END tablehead -->
+
+      <!-- BEGIN forumrow -->
+      <div class="ppk-forum {catrow.forumrow.FOLDER_CLASSNAME}">
+
+        <div class="head-fo">
+          <div>
+            <a href="{catrow.forumrow.U_VIEWFORUM}">
+              <h2>{catrow.forumrow.FORUM_NAME}</h2>
+            </a>
+
+            <button class="fc glass" type="button">
+              <i class="fa-solid fa-question"></i>
+            </button>
+          </div>
+
+          <p class="ppk-forum-desc">{catrow.forumrow.FORUM_DESC}</p>
+        </div>
+
+        <div class="bottom-fo">
+
+          <div class="ppk-sf">
+            {catrow.forumrow.L_LINKS}{catrow.forumrow.LINKS}
+          </div>
+
+          <div class="ppk-fo-lastmsg">
+
+            <img class="new-msg" src="{catrow.forumrow.FORUM_FOLDER_IMG}" alt="" />
+
+            <div class="forum_avatar lastpostavatar">
+              <!-- BEGIN avatar -->
+              {catrow.forumrow.avatar.LAST_POST_AVATAR}
+              <!-- END avatar -->
+            </div>
+
+            <div class="infos-lastmsg">
+              <div>
+                <!-- BEGIN switch_topic_title -->
+                <a href="{catrow.forumrow.U_LATEST_TOPIC}"
+                   title="{catrow.forumrow.LATEST_TOPIC_TITLE}"
+                   class="lastpost_link">
+                  {catrow.forumrow.LATEST_TOPIC_NAME}
+                </a>
+                <!-- END switch_topic_title -->
+              </div>
+
+              <span>{catrow.forumrow.USER_LAST_POST}</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+      <!-- END forumrow -->
+
+  <!-- BEGIN tablefoot -->
+    </div>
+  </div>
+  <!-- END tablefoot -->
+
+<!-- END catrow -->
+
+
+<script>
+$(function () {
+
+  /*
+    SUPPRIME LES VIRGULES DES SOUS-FORUMS
+  */
+  $('.ppk-sf').each(function () {
+    (this).html((this).html().replace(/,/g, ''));
+  });
+
+
+  /*
+    REPLACE L'ICÔNE DU DERNIER MESSAGE APRÈS LE TITRE DU SUJET
+    + RÉORGANISE AUTEUR / DATE
+  */
+  $('.infos-lastmsg').not('.is-done').each(function () {
+    const $box = $(this).addClass('is-done');
+    const $span = $box.find('span').first();
+    const $titleLink = $box.find('.lastpost_link').first();
+
+    /*
+      Forumactif ne sort pas toujours l'icône avec la classe .last-post-icon.
+      Donc on récupère tous les liens contenant une image avant de vider le span.
+    */
+    const $imageLinks = $span.find('a:has(img)').detach();
+
+    let $icon = $imageLinks.filter('.last-post-icon').first();
+
+    if (!$icon.length) {
+      $icon = $imageLinks.filter(function () {
+        const $a = $(this);
+        const href = $a.attr('href') || '';
+        const $img = $a.find('img').first();
+
+        const label = [
+          $img.attr('alt') || '',
+          $img.attr('title') || '',
+          href
+        ].join(' ');
+
+        return /dernier|last|newest|nouveau|#\d+/i.test(label);
+      }).first();
+    }
+
+    if (!$icon.length) {
+      $icon = $imageLinks.first();
+    }
+
+    if ($icon.length) {
+      $icon.addClass('last-post-icon');
+
+      if ($titleLink.length) {
+        titleLink.after(icon);
+      } else {
+        box.children('div').first().append(icon);
+      }
+    }
+
+    const nodes = $span.contents().filter(function () {
+      if (this.nodeType === 3) {
+        return $.trim(this.nodeValue) !== '';
+      }
+
+      if (this.nodeType !== 1) {
+        return false;
+      }
+
+      const $el = $(this);
+
+      if ($el.is('.last-post-icon') || $el.find('img').length) {
+        return false;
+      }
+
+      return true;
+    }).toArray();
+
+    if (!nodes.length) return;
+
+    let userNode = null;
+
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      const node = nodes[i];
+
+      const txt = node.nodeType === 3
+        ? $.trim(node.nodeValue)
+        : .trim((node).text());
+
+      if (txt && !/^[–—\-,:|]+$/.test(txt)) {
+        userNode = node;
+        break;
+      }
+    }
+
+    if (!userNode) return;
+
+    const userIndex = nodes.indexOf(userNode);
+
+    const date = nodes
+      .slice(0, userIndex)
+      .map(function (node) {
+        return node.nodeType === 3 ? node.nodeValue : $(node).text();
+      })
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .replace(/\s*[–—\-,:|]+\s*$/, '')
+      .trim();
+
+    let $user;
+
+    if (userNode.nodeType === 1) {
+      $user = $(userNode).detach();
+    } else {
+      $user = ('<spanclass="lastpost-user"></span>').text(.trim(userNode.nodeValue));
+    }
+
+    span.empty().append(user);
+
+    if (date) {
+      $span.append(document.createTextNode(' – ' + date));
+    }
+  });
+
+
+  /*
+    RÉCUPÈRE LES IMAGES DES DESCRIPTIONS POUR LES METTRE EN FOND
+  */
+  $('.ppk-forum')
+    .not('.bg-done')
+    .not('#c1 .ppk-forum:first')
+    .not('#c4 .ppk-forum:first')
+    .each(function () {
+      const $forum = $(this).addClass('bg-done');
+      const $img = $forum.find('.ppk-forum-desc img').first();
+
+      if (!$img.length) return;
+
+      const src = $img.attr('src');
+      const currentBg = getComputedStyle(this).backgroundImage;
+
+      const newBg = currentBg.replace(
+        /url(?:'[']*'|"["]*"|[)]*)/,
+        'url("' + src + '")'
+      );
+
+      this.style.backgroundImage = newBg;
+
+      $img.remove();
+      $forum.find('.ppk-forum-desc br').remove();
+    });
+
+
+  /*
+    AFFICHE LA DESCRIPTION AU CLIC
+  */
+  $(document).on('click', '.head-fo button', function () {
+    $(this).closest('.head-fo').find('.ppk-forum-desc').toggleClass('is-open');
+  });
+
+});
+</script>

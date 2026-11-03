@@ -1,0 +1,223 @@
+<style>
+.boutonsfinnn {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+  
+.ppk-forum-wrap {
+    border-radius: 15px;
+    padding: 28px;
+ }
+  
+.ppk-cate {
+  margin-top: 0;
+ }
+  
+.ppk-cate-ttl h2 {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  filter: none;
+  margin-left: 27px;
+  margin-bottom: -30px;
+}
+
+/* ================================
+   SOUS-FORUMS #f... : DESCRIPTION
+   ================================ */
+.ppk-cate[id^="f"] .head-fo {
+  position: relative;
+  min-height: 119px;
+  z-index: 5;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.ppk-cate[id^="f"] .head-fo button.fc {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  margin-top: -15px;
+  margin-right: -8px;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 40;
+
+  width: 34px;
+  height: 34px;
+  border-radius: 100%;
+}
+
+.ppk-cate[id^="f"] .head-fo button.fc i {
+  display: none;
+}
+
+.ppk-cate[id^="f"] .head-fo button.fc::before {
+  content: "\f128";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: var(--blanc);
+  font-size: 16px;
+}
+
+.ppk-cate[id^="f"] .head-fo button.fc.is-open::before,
+.ppk-cate[id^="f"] .head-fo.is-open button.fc::before {
+  content: "\f00d";
+}
+
+.ppk-cate[id^="f"] .head-fo > div {
+  position: static !important;
+  z-index: auto !important;
+}
+
+.ppk-cate[id^="f"] .head-fo .ppk-forum-desc {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  width: 535px;
+  margin-top: -27px !important;
+  margin-left: -20px !important;
+  height: 180px;
+  margin: 0;
+  padding: 15px 55px 15px 15px;
+  border-radius: 10px;
+  background: var(--color3);
+  opacity: 0;
+  pointer-events: none;
+  overflow: auto;
+  transition: opacity 0.3s ease;
+}
+
+.ppk-cate[id^="f"] .head-fo.is-open .ppk-forum-desc,
+.ppk-cate[id^="f"] .head-fo:has(button.fc.is-open) .ppk-forum-desc {
+  opacity: 1 !important;
+  pointer-events: auto;
+  padding-bottom: 50px;
+}
+  
+.ppk-cate[id^="f"] .head-fo > div > a {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
+}
+
+.ppk-cate[id^="f"] .head-fo.is-open > div > a,
+.ppk-cate[id^="f"] .head-fo:has(button.fc.is-open) > div > a {
+  opacity: 0;
+  pointer-events: none;
+}
+  
+.ppk-cate[id^="f"] .ppk-forum:has(.head-fo.is-open) .ppk-sf,
+.ppk-cate[id^="f"] .ppk-forum:has(button.fc.is-open) .ppk-sf {
+  opacity: 0;
+  pointer-events: none;
+}
+</style>
+
+<!-- Affichage des sous forums (template : index_box) -->
+{BOARD_INDEX}
+<br />
+
+
+
+<div class="ppk-liste-sj f1">
+  <h1>{FORUM_NAME}</h1>
+  <img data-theme-image="chatCurieux" src="https://2img.net/i.imgur.com/nKfZpku.png" class="chatcurieux" />
+  <div class="nav-wrap-sjt f2 glass">
+    <div class="nav-sjt">{NAV_CAT_DESC}</div>
+    <script>
+    function removeNbsp() {
+      $('.nav-sjt').html(function(_, oldHtml) {
+      	return oldHtml.replace(/&nbsp;/g, '');
+      });
+    }
+    
+    removeNbsp();
+    </script>
+    <!-- BEGIN switch_user_authpost -->
+    <div class="boutons-sujet">
+      <a href="{U_POST_NEW_TOPIC}" accesskey="n" rel="nofollow">Ouvrir un sujet</a>
+    </div>
+    <!-- END switch_user_authpost -->
+  </div>
+  <div class="liste-wrap-topics f2 glass">
+    {TOPICS_LIST_BOX}
+    
+
+    <!-- BEGIN switch_user_logged_in -->
+    <span class="boutonsfinnn">
+      <span data-tip="" class="button ppk-topic-footer-btn fa-tip">{S_WATCH_FORUM}<i class="fa-regular fa-eye"></i></span>
+      <a data-tip="{L_MARK_TOPICS_READ}" class="button ppk-topic-footer-btn fa-tip" href="{U_MARK_READ}"><i class="fa-solid fa-check"></i></a>
+    </span>
+    <!-- END switch_user_logged_in -->
+    
+  </div>
+</div>
+
+<!-- Pagination -->
+<span class="boutonsfinnn pagination page-topic">
+  {PAGINATION}
+</span>
+
+
+<!-- BEGIN switch_sort_options -->
+<script type="text/javascript">
+  //<![CDATA[
+  $(document).ready(function () {
+    var sort_btn = $('#sort-btn');
+    sort_btn.on('click', function () {
+      sort_btn.toggleClass('expanded');
+    });
+
+    document.onclick = function (e) {
+      if ($(e.target).parents('#sort-topics').length == 0) {
+        document.getElementById('sort-btn').classList.remove('expanded');
+      }
+    };
+  });
+  //]]>
+</script>
+<!-- END switch_sort_options -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.ppk-topic-footer-btn.fa-tip').forEach(function (el) {
+    const link = el.querySelector('a');
+    if (!link) return;
+
+    const label = link.textContent.trim();
+    el.setAttribute('data-tip', label);
+    el.setAttribute('title', label);
+  });
+});
+</script>
+
+<script>
+$(function () {
+  const selector = '.ppk-cate[id^="f"] .head-fo button.fc';
+
+  /* Nettoie les anciens handlers directs sur ces boutons */
+  $(selector).off('click');
+
+  /* Nettoie les anciens handlers délégués sur ce même sélecteur */
+  $(document).off('click', selector);
+
+  $(document).on('click', selector, function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const btn = this;
+    const head = btn.closest('.head-fo');
+
+    if (!head) return;
+
+    const isOpen = !head.classList.contains('is-open');
+
+    head.classList.toggle('is-open', isOpen);
+    btn.classList.toggle('is-open', isOpen);
+  });
+});
+</script>

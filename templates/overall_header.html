@@ -1,0 +1,1008 @@
+<!-- BLANK THEME ---->
+<!-- VERSION 3.5 - MAJ 07/07/24 ---->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="{S_CONTENT_DIRECTION}" id="min-width" lang="{L_LANG_HTML}"
+	xml:lang="{L_LANG_HTML}" {NAMESPACE_FB_LIKE} {NAMESPACE_FB} {NAMESPACE_BBCODE}>
+
+<head>
+	<!-- CSS DE PUMPKINS -->
+	<link rel="stylesheet" href="https://dl.dropboxusercontent.com/scl/fi/pg06fkxia9gju5idtu6ax/pumpkins.css?rlkey=ljbnr5e7x4bajc554bmd5nmbm&st=hlm2rlvy">
+
+	<!-- INSTALLATION DE NOUVELLE POLICE D'ECRITURE -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+	<!-- TEXTE DANS L'ONGLET DE NAVIGATEUR -->
+	<title>{SITENAME_TITLE}{PAGE_TITLE}</title>
+
+	<meta http-equiv="content-type" content="text/html; charset={S_CONTENT_ENCODING}" />
+	<meta http-equiv="content-script-type" content="text/javascript" />
+	<meta http-equiv="content-style-type" content="text/css" />
+	<!-- BEGIN switch_compat_meta -->
+	<meta http-equiv="X-UA-Compatible" content="IE={switch_compat_meta.VERSION}" />
+	<!-- END switch_compat_meta -->
+	<!-- BEGIN switch_canonical_url -->
+	<link rel="canonical" href="{switch_canonical_url.CANONICAL_URL}" />
+	<!-- END switch_canonical_url -->
+	{META_FAVICO}
+	{META}
+	{META_FB_LIKE}
+	<meta name="title" content="{SITENAME_TITLE}{PAGE_TITLE}" />
+	{T_HEAD_STYLESHEET}
+	{CSS}
+	<link rel="search" type="application/opensearchdescription+xml" href="/improvedsearch.xml" title="{SITENAME}" />
+	<link rel="search" type="application/opensearchdescription+xml"
+		href="{URL_BOARD_DIRECTORY}/search/improvedsearch.xml" title="{SEARCH_FORUMS}" />
+	<script src="{JQUERY_PATH}" type="text/javascript"></script>
+	<!-- BEGIN switch_recent_jquery -->
+	<script src="{JS_DIR}jquery1.9/jquery-migrate-1.4.1.js" type="text/javascript"></script>
+	<script src="{JQUERY_DIR}browser/v1.0/jquery.browser.min.js" type="text/javascript"></script>
+	<script src="{JQUERY_DIR}support/jquery.support.js" type="text/javascript"></script>
+	<!-- END switch_recent_jquery -->
+	<script src="{JS_DIR}{L_LANG}.js" type="text/javascript"></script>
+	{RICH_SNIPPET_GOOGLE}
+
+	<!-- BEGIN switch_ticker -->
+	<link type="text/css" rel="stylesheet" href="{JQUERY_DIR}ticker/ticker.css" />
+	<script src="{JQUERY_DIR}ticker/ticker.js" type="text/javascript"></script>
+	<!-- END switch_ticker -->
+
+	<!-- BEGIN switch_ticker_new -->
+	<script src="{JQUERY_DIR}jcarousel/jquery.jcarousel.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		//<![CDATA[
+		/* Definir le sens de direction en fonction du panneau admin */
+		var tickerDirParam = "{switch_ticker.DIRECTION}";
+		var slid_vert = false;
+		var auto_dir = 'next';
+		var h_perso = parseInt({ switch_ticker.HEIGHT });
+
+		switch (tickerDirParam) {
+			case 'top':
+				slid_vert = true;
+				break;
+
+			case 'left':
+				break;
+
+			case 'bottom':
+				slid_vert = true;
+				auto_dir = 'prev';
+				break;
+
+			case 'right':
+				auto_dir = 'prev';
+				break;
+
+			default:
+				slid_vert = true;
+		}
+
+		$(document).ready(function () {
+
+			$('#fa_ticker_content').css('display', 'block');
+
+			var width_max = $('ul#fa_ticker_content').width();
+			var width_item = Math.floor(width_max / { switch_ticker.SIZE });
+
+			if (width_max > 0) {
+				$('ul#fa_ticker_content li').css('float', 'left').css('list-style', 'none').width(width_item).find('img').each(function () {
+					if ($(this).width() > width_item) {
+						var ratio = $(this).width() / width_item;
+						var new_height = Math.round($(this).height() / ratio);
+						$(this).height(new_height).width(width_item);
+					}
+				});
+
+				if (slid_vert) {
+					var height_max = h_perso;
+
+					$('ul#fa_ticker_content li').each(function () {
+						if ($(this).height() > height_max) {
+							height_max = $(this).height();
+						}
+					});
+
+					$('ul#fa_ticker_content').width(width_item).height(height_max).css('marginLeft', 'auto').css('marginRight', 'auto');
+					$('ul#fa_ticker_content li').height(height_max);
+				}
+
+
+				$('#fa_ticker_content').jcarousel({
+					vertical: slid_vert,
+					wrap: 'circular',
+					auto: { switch_ticker.STOP_TIME },
+					auto_direction: auto_dir,
+					scroll: 1,
+					size: { switch_ticker.SIZE },
+					height_max: height_max,
+					animation: { switch_ticker.SPEED }
+				});
+			} else {
+				$('ul#fa_ticker_content li:not(:first)').css('display', 'none');
+				$('ul#fa_ticker_content li:first').css('list-style', 'none').css('text-align', 'center');
+			}
+		});
+		//]]>
+	</script>
+	<!-- END switch_ticker_new -->
+
+	<script type="text/javascript">//<![CDATA[
+		$(document).ready(function () {
+			<!-- BEGIN switch_enable_pm_popup -->
+			pm = window.open('{U_PRIVATEMSGS_POPUP}', '_faprivmsg', 'HEIGHT=225,resizable=yes,WIDTH=400');
+			if (pm != null) {
+				pm.focus();
+			}
+			<!-- END switch_enable_pm_popup -->
+			<!-- BEGIN switch_report_popup -->
+			report = window.open('{switch_report_popup.U_REPORT_POPUP}', '_phpbbreport', 'HEIGHT={switch_report_popup.S_HEIGHT},resizable=yes,scrollbars=no,WIDTH={switch_report_popup.S_WIDTH}');
+			if (report != null) {
+				report.focus();
+			}
+			<!-- END switch_report_popup -->
+			<!-- BEGIN switch_ticker -->
+			$(document).ready(function () {
+				Ticker.start({
+					height: {switch_ticker.HEIGHT},
+					spacing: {switch_ticker.SPACING},
+					speed: {switch_ticker.SPEED},
+					direction: '{switch_ticker.DIRECTION}',
+					pause: {switch_ticker.STOP_TIME}
+				});
+			});
+			<!-- END switch_ticker -->
+		});
+
+		<!-- BEGIN switch_login_popup -->
+		var logInPopUpLeft, logInPopUpTop, logInPopUpWidth = {LOGIN_POPUP_WIDTH},
+			logInPopUpHeight = {LOGIN_POPUP_HEIGHT}, logInBackgroundResize = true, logInBackgroundClass = false;
+
+		$(document).ready(function () {
+			$(window).resize(function () {
+				var windowWidth = document.documentElement.clientWidth;
+				var popupWidth = $("#login_popup").width();
+				var mypopup = $("#login_popup");
+
+				$("#login_popup").css({
+					"left": windowWidth / 2 - popupWidth / 2
+				});
+			});
+		});
+		<!-- END switch_login_popup -->
+		//]]>
+	</script>
+
+	{GREETING_POPUP}
+
+
+	<!-- CSS Forumactif -->
+	<style type="text/css">
+		/* Il y a peu de chances que vous deviez toucher cette partie du CSS */
+	/* BALISES GENERALES -*/
+	ul {list-style-type: none;padding: 0;margin: 0;}
+	fieldset {border: none;padding: 0;margin: 0;}
+	dl {display: grid;grid-template-columns: 220px auto;grid-gap: 15px}
+	dd {margin: 0;}
+	dt {margin: 0}
+	dt label {font-weight: bold}
+	button, input {border: none}
+	button, select, input{font-family: var(--font);cursor: pointer;}
+	input:is([type="text"], [type="passeword"]){cursor: text;}
+
+	/* STRUCTURE DE LA PAGE DE CONNEXION */
+	.fld_connexion dl {display: grid;rid-row-gap: 15px; grid-template-columns: 150px auto;}
+	.fld_connexion dl:nth-of-type(2) dd:last-of-type {grid-column: 1 / span 2;}
+	.fld_connexion dl:nth-of-type(3) {margin: 0;}
+	.fld_connexion dl:nth-of-type(n+3) {display: block;}
+	.invisible {display: none;visibility: hidden;} .visible {display: block;visibility: visible;}
+
+	/* Indicateur complexité du mot de passe */
+	#cont_pwd {display: flex;align-items: center;height: 100%;margin-left: 5px;}
+	.pwd_img { padding: 2px 6px;display: none;border-radius: 3px;}
+	#pwd_good {background-color: #4CAF50;color: #FFF;}
+	#pwd_middle {background-color: #FFCC00;color: #000;}
+	#pwd_bad {background-color: #F04040;color: #FFF;}
+	</style>
+
+	{HOSTING_JS}
+
+	<!-- BEGIN google_analytics_code -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id={G_ANALYTICS_ID}"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', '{G_ANALYTICS_ID}', {'anonymize_ip': true, 'store_gac': false, 'cookie_expires': 13 * 30 * 24 * 60 * 60});
+		<!-- BEGIN google_analytics_code_bis -->
+		gtag('config', '{G_ANALYTICS_ID_BIS}', {'anonymize_ip': true, 'store_gac': false, 'cookie_expires': 13 * 30 * 24 * 60 * 60});
+		<!-- END google_analytics_code_bis -->
+	</script>
+	<!-- END google_analytics_code -->
+
+	<!-- DESACTIVE EMOJIONE -->
+    <script>$(function() {$('img.emojione').each(function() { $(this).after( $(this).attr('alt') ).remove(); }); });</script>
+
+<script>
+(function () {
+  var STORAGE_KEY = "ppk-theme-preference";
+  var LEGACY_KEY = "color-scheme";
+  var VALID_THEMES = { dark: true, light: true, autumn: true, winter: true };
+
+  function getSystemTheme() {
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  function getSavedTheme() {
+    var saved = localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) {
+      var legacy = localStorage.getItem(LEGACY_KEY);
+      if (VALID_THEMES[legacy]) {
+        saved = legacy;
+        localStorage.setItem(STORAGE_KEY, legacy);
+      }
+    }
+
+    return VALID_THEMES[saved] ? saved : null;
+  }
+
+  var theme = getSavedTheme() || getSystemTheme();
+  document.documentElement.setAttribute("data-color-scheme", theme);
+})();
+</script>
+<style>
+@font-face {
+  font-family: 'Glow Night';
+  src: url('https://dl.dropboxusercontent.com/scl/fi/sclz8zc7gpxg3w46p3y0w/Glow-Night.otf?rlkey=x33h8no2mt3sdqwntc78fcfb2&st=7eyj8944') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+  
+#messagerie.has-new-mp {
+    color: var(--blanc) !important;
+    background: var(--color4);
+}
+</style>
+</head>
+
+
+
+<body id="blanktheme">
+  <div style="display: none;">{GENERATED_NAV_BAR}</div>
+  <div class="ascenseur-ppk">
+    <a href="#haut" class="fa-tip" data-tip="Aller en haut"><i class="fa-solid fa-chevron-up"></i></a>
+    <a href="#bas" class="fa-tip" data-tip="Aller en bas"><i class="fa-solid fa-chevron-down"></i></a>
+  </div>
+  <div class="main_forum">
+
+      <!-- Bannière -->
+      <a href="{U_INDEX}">
+        <div class="ppk-header">
+          <img class="ppk-madame" width="721" data-theme-image="ppkMadame" src="https://2img.net/i.imgur.com/YuDB2sy.png" />
+          <div class="caroussel-cont">
+            <img class="outer-circle circle" data-theme-image="ppkOuterCircle" src="https://2img.net/i.imgur.com/knWsiIa.png" />
+            <div class="inner-circle-cont">
+              <img class="inner-circle circle" data-theme-image="ppkInnerCircle" src="https://2img.net/i.imgur.com/BbdONP0.png" />
+            </div>
+            <img class="radial" data-theme-image="ppkRadial" src="https://2img.net/i.imgur.com/pgOuYvR.png" />
+          </div>
+          <div class="word" aria-label="PUMPKIN">
+            <span style="--i:0"><img height="107" class="user-select" data-theme-image="ppkP" src="https://2img.net/i.imgur.com/LjtixDs.png" /></span>
+            <span style="--i:1"></span>
+            <span style="--i:2">M</span>
+            <span style="--i:3"><img width="88" class="user-select" data-theme-image="ppkP2" src="https://2img.net/i.imgur.com/avlD2pq.png" /></span>
+            <span style="--i:4"></span>
+            <span style="--i:5">N</span>
+            <span style="--i:6"><img width="77" class="user-select" data-theme-image="ppkS" src="https://2img.net/i.imgur.com/40pnzEa.png" /></span>
+          </div>
+        </div>
+      </a>
+      <!-- FIN BANNIERE -->
+
+      <!-- PA PUMPKIN BY FRAMBOISE -->
+      <div id="haut" class="ppk-pa f1">
+        <div class="nav-pa glass f2">
+          <nav>
+            <ul class="ppk-navbar">
+              <!-- BEGIN switch_user_logged_in -->
+              <a href="/">
+                <li id="accueil">Accueil</li>
+              </a>
+              <a href="/memberlist">
+                <li id="membres">Membres</li>
+              </a>
+              <a href="/privmsg?folder=inbox">
+                <li id="messagerie" data-default="Messagerie">Messagerie</li>
+              </a>
+              <a href="/profile?mode=editprofile">
+                <li id="profil">Profil</li>
+              </a>
+              <a href="/login?logout=1">
+                <li id="deconnexion">Déconnexion</li>
+              </a>
+              <!-- END switch_user_logged_in -->
+              <!-- BEGIN switch_user_logged_out -->
+              <a href="/">
+                <li id="accueil">Accueil</li>
+              </a>
+              <a href="/memberlist">
+                <li id="membres">Membres</li>
+              </a>
+              <a href="/login">
+                <li id="connexion">Connexion</li>
+              </a>
+              <a href="/register">
+                <li id="inscription">Rejoindre le forum</li>
+              </a>
+              <!-- END switch_user_logged_out -->
+            </ul>
+          </nav>
+          <span id="fa-private-message-info" style="display:none;">
+            {PRIVATE_MESSAGE_INFO}
+          </span>
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const messagerie = document.querySelector("#messagerie");
+              const source = document.querySelector("#fa-private-message-info");
+            
+              if (!messagerie || !source) return;
+            
+              const text = source.textContent.trim();
+              const match = text.match(/(\d+)\s+nouveau[x]?\s+message/i);
+            
+              if (!match) return;
+            
+              const count = parseInt(match[1], 10);
+            
+              if (count > 0) {
+                messagerie.textContent = count + " message" + (count > 1 ? "s" : "");
+                messagerie.classList.add("has-new-mp");
+              }
+            });
+            </script>
+          <div class="wrap-nav">
+          <div class="theme-switch glass" id="themeSwitch">
+            <div class="theme-switch-clip">
+              <div class="theme-thumb"></div>
+            </div>
+          
+            <button type="button" data-tip="Dark" class="theme-btn fa-tip" data-theme="dark" aria-label="Thème sombre">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>
+            </button>
+          
+            <button type="button" data-tip="Light" class="theme-btn fa-tip" data-theme="light" aria-label="Thème clair">
+              <i class="fa-solid fa-sun" aria-hidden="true"></i>
+            </button>
+          
+            <button type="button" data-tip="Autumn" class="theme-btn fa-tip" data-theme="autumn" aria-label="Thème automnal">
+              <i class="fa-solid fa-leaf" aria-hidden="true"></i>
+            </button>
+          
+            <button type="button" data-tip="Winter" class="theme-btn fa-tip" data-theme="winter" aria-label="Thème hivernal">
+              <i class="fa-solid fa-snowflake" aria-hidden="true"></i>
+            </button>
+          </div>
+          
+            <!-- BEGIN switch_user_logged_in -->
+            <div data-tip="Notifications" id="notiffi_button" class="fa-tip ppk-notifs ppk-link">
+              <i class="fa-solid fa-bell"></i>
+              <template class="unread_count" type="template/potion" data-name="unread_notifs">[count]</template>
+            </div>
+          
+            <div id="notiffi_panel">
+              <template class="all_notifications" type="template/potion" data-name="all_notifs">
+                [isEmpty]
+                  <span class="no_notification">[text]</span>
+                [/isEmpty]
+          
+                [notifs]
+                <div class="notification [type] [read]" data-notif-id="[id]">
+                  <div class="notif_details">
+                    <div class="notif_avatar">[avatar]</div>
+                    <div class="notif_icon">[icon]</div>
+                  </div>
+          
+                  <div class="notif_content">
+                    <div class="notif_text">[text]</div>
+                    <div class="notif_time">[time]</div>
+                  </div>
+          
+                  <button @click="deleteNotif" class="notif_close" type="button">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                [/notifs]
+              </template>
+          
+              <div class="notiffi_manage">
+                <a class="notiffi_see_all button" href="/profile?mode=editprofile&page_profil=notifications">Voir toutes les notifications</a>
+                <div class="notiffi_actions">
+                  <button data-tip="Marquer comme lu" class="fa-tip" id="notiffi_mark_as_read" type="button"></button>
+                  <button data-tip="Tout supprimer" class="fa-tip" id="notiffi_delete_all" type="button"></button>
+                </div>
+              </div>
+            </div>
+          
+            <template type="template/potion" data-name="alert_notif">
+              <div class="notification alert [alert.type]">
+                <div class="notif_details">
+                  <div class="notif_avatar">[alert.avatar]</div>
+                </div>
+                <div class="notif_content">
+                  <div class="notif_text">[alert.text]</div>
+                </div>
+                <button id="alert_dismiss" class="alert_close" type="button">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </template>
+            <!-- END switch_user_logged_in -->
+            <div data-tip="Changer de personnage" id="open-switch2" class="fa-tip ppk-switcheroo ppk-link"></div>
+            <!-- SWITCHEROO : MODALE -->
+            <div class="switcheroo-opened" style="display:none;">
+              <div class="switcheroo-box">
+                <div class="switcheroo-head">
+                  <h2>Changer De personnage</h2>
+                  <button class="close-switch" type="button" aria-label="Fermer">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <nav id="switcheroo_panel" class="switcheroo-panel"></nav>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="wrap-pa">
+          <div class="pa-left">
+            <div class="ppk-liens-ts glass f2">
+              <div class="user-connected">
+                <img data-theme-image="coMtn" class="user-spark" width="38" src="https://2img.net/i.imgur.com/0Kilnpz.png" alt="" />
+                <span class="ava-user glass fa_avatar"></span>
+                <div class="user-infos">
+                  <!-- BEGIN switch_user_logged_in -->
+                    <span class="username" id="username">{USERNAME}</span>
+                    <span>En ligne</span>
+                  <!-- END switch_user_logged_in -->
+                
+                  <!-- BEGIN switch_user_logged_out -->
+                    <span class="username" id="username">Invité</span>
+                    <span>Hors ligne</span>
+                  <!-- END switch_user_logged_out -->
+                </div>
+              </div>
+              <div class="wrap-liens">
+                <a target="_blank" href="/h1-guidebook"><button id="guidebook" class="fc ppk-link">uidebook <i class="fa-solid fa-chevron-right"></i></button></a>
+                <a target="_blank" href="/t30-demander-un-partenariat"><button id="parto" class="fc ppk-link">Partenariat <i class="fa-solid fa-chevron-right"></i></button></a>
+                <a target="_blank" href="https://pumpkinforumrpg-netizen.github.io/ppk/registre.html"><button id="registre" class="fc ppk-link">Registre <i class="fa-solid fa-chevron-right"></i></button></a>
+              </div>
+              <div class="top-sites">
+                <span>TOP SITES</span>
+                <a class="fa-tip" data-tip="Meow" target="_blank" href="http://www.root-top.com/topsite/gilgamesh/in.php?IDmark=8734"><img src="https://2img.net/i.imgur.com/MUBOpct.png" /></a>
+                <a class="fa-tip" data-tip="Meooww" target="_blank" href="http://www.root-top.com/topsite/virtu4ldreaiviz/in.php?IDmark=5942"><img src="https://2img.net/i.imgur.com/nwagIE3.png" /></a>
+                <a class="fa-tip" data-tip="Miaou." target="_blank" href="http://www.root-top.com/topsite/justmarried/in.php?IDmark=1309"><img src="https://2img.net/i.imgur.com/ulYxjpq.png" /></a>
+                <a class="fa-tip" data-tip="*Prrr*" target="_blank" href="http://www.root-top.com/topsite/melu/in.php?IDmark=5412"><img src="https://2img.net/i.imgur.com/e4pvUF3.png" /></a>
+              </div>
+            </div>
+            <div class="pa-event glass f2 ppk-event-carousel" data-pa-carousel>
+              <img data-theme-image="hihi" class="hihi" src="https://2img.net/i.imgur.com/yvf39Bn.png">
+            
+              <div class="pa-event-head">
+                <div class="pa-event-tabs">
+                  <button data-tip="À la une" type="button" class="fa-tip pa-event-tab is-active" data-pa-slide="0" aria-label="À LA UNE"></button>
+                  <button data-tip="Staff" type="button" class="fa-tip pa-event-tab" data-pa-slide="1" aria-label="Staff"></button>
+                  <button data-tip="Évènements en financement" type="button" class="fa-tip pa-event-tab" data-pa-slide="2" aria-label="Événements"></button>
+                  <button data-tip="Préliens en attente" type="button" class="fa-tip pa-event-tab" data-pa-slide="3" aria-label="Préliens en attente"></button>
+                  <button data-tip="Playlists" type="button" class="fa-tip pa-event-tab" data-pa-slide="4" aria-label="Playlists"></button>
+                </div>
+                
+                <button data-tip="Suivant" type="button" class="fa-tip pa-event-next" aria-label="Slide suivante">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                
+                <div class="span fc" data-pa-title>À LA UNE</div>
+              </div>
+            
+              <!-- ONGLET 1 : À LA UNE -->
+              <div class="pa-event-slide pa-event-slide-new is-active" data-pa-panel="0" data-title="À LA UNE">
+                <img class="pa-event-cover" src="https://2img.net/i.imgur.com/1xd4uo7.png">
+                <a target="_blank" href="/t32-les-news-de-pumpkins" class="button pa-event-more">En savor plus</a>
+              </div>
+            
+              <!-- ONGLET 2 : STAFF -->
+              <div class="pa-event-slide pa-event-slide-staff" data-pa-panel="1" data-title="STAFF">
+                <div class="pa-staff-main">
+                  <img class="pa-staff-main-avatar" src="https://2img.net/i.imgur.com/WUiOX04.png" alt="Pumpkin">
+            
+                  <div class="pa-staff-main-text">
+                    <div class="pa-staff-main-name pumpkin-pseudo">PUMPKIN</div>
+                    <div class="pa-staff-main-role">Staff</div>
+                    <div class="pa-staff-main-note">Veuillez MP ce compte uniquement.</div>
+                  </div>
+            
+                  <a target="_blank" href="/privmsg?mode=post&u=2&tt=1" class="pa-staff-mp fa-tip" data-tip="MP" aria-label="MP">
+                    <i class="fa-solid fa-message"></i>
+                  </a>
+                </div>
+            
+                <div class="pa-staff-list">
+                  
+                  <a data-tip="Voir le profil" target="_blank" href="/u3" class="pa-staff-card fa-tip">
+                    <img src="https://zupimages.net/up/26/16/t24m.png" alt="Crumble" />
+                    <span>
+                      <strong style="color: var(--eve);">CRUMBLE</strong>
+                      <em>Admin</em>
+                    </span>
+                  </a>
+            
+                  <a data-tip="Voir le profil" href="/u1" target="_blank" class="fa-tip pa-staff-card">
+                    <img src="https://2img.net/i.imgur.com/qx5UPlV.png" alt="Framboise" />
+                    <span>
+                      <strong style="color: var(--sor);">FRAMBOISE</strong>
+                      <em>Admin</em>
+                    </span>
+                  </a>
+            
+                  <a data-tip="Voir le profil" target="_blank" href="/u5" class="pa-staff-card fa-tip">
+                    <img src="https://2img.net/i.imgur.com/GCHpjeR.png" alt="Myrtille" />
+                    <span>
+                      <strong>MYRTILLE</strong>
+                      <em>Admin</em>
+                    </span>
+                  </a>
+            
+                  <a data-tip="???" target="_blank" href="https://pumpkinsrpg.forumactif.com/u4" class="pa-staff-card fa-tip">
+                    <img src="https://2img.net/u/4916/78/51/33/avatars/gallery/invite10.png" alt="Pseudo" />
+                    <span>
+                      <strong style="color: #dddddd;">Pseudo</strong>
+                      <em>Admin</em>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            
+              <!-- ONGLET 3 : ÉVÉNEMENTS EN FINANCEMENT -->
+              <div class="pa-event-slide pa-event-slide-events" data-pa-panel="2" data-title="ÉVÈNEMENTS">
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t190-an-1-la-disparition-de-fairfax-milo-arlan-grenadine-opera-alistair#3179" target="_blank">La Disparition de Fairfax</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:100%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">EN PAUSE</span>
+                          <span style="display: none;" class="news-request-progressbar-target">850 / 850</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p><ppkb>En pause !</ppkb> Lire ici : <ppkb><a href="https://pumpkinsrpg.forumactif.com/t190-an-1-la-disparition-de-fairfax-milo-arlan-grenadine-opera-alistair#3179" target="_blank">www</a></ppkb>. <br/>Brett, le fils d’Herman Fairfax, a disparu depuis vingt-quatre heures. Ce dernier, complètement démuni, harcèle la police locale et le BPI, et annonce vouloir offrir une énorme récompense à celui qui le retrouvera. L’on dit qu’il aurait contacté tout le comté pour organiser une battue…</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#an2" target="_blank">Huis-Clos</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:100%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">BIENTÔT !</span>
+                          <span style="display: none;" class="news-request-progressbar-target">700 / 700</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Quelle idée, d’aller visiter la mine abandonnée en pleine nuit ? Lorsque l’éboulement s’est déclaré, vous vous êtes retrouvés bloqués. Maintenant, il s’agirait de trouver la sortie, et vite !</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#an3" target="_blank">Une visite à Vesperune</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:100%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">BIENTÔT !</span>
+                          <span style="display: none;" class="news-request-progressbar-target">400 / 400</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Des cris résonnent en pleine nuit, près du lac de la forêt. Mais lorsque vous arrivez sur place, vous n’entendez plus rien. Une lueur attire votre attention dans l’eau, alors… Vous vous penchez. Et vous tombez. (Humains uniquement)</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#an7" target="_blank">Invasion de chats</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:100%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">BIENTÔT !</span>
+                          <span style="display: none;" class="news-request-progressbar-target">1000 / 1000</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Des dizaines de chats sont pris de panique dans les Hauts-Bois ! C’est quoi ce bordel ?!</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#b9" target="_blank">Thème Hivernal</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:86%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">86%</span>
+                          <span class="news-request-progressbar-target">1 300 / 1 500</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Thème de l’hiver ajouté aux options de thèmes de façon permanente <ppki>(thème clair, variantes de bleu, vert sapin & blanc)</ppki></p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#an10" target="_blank">Dans les Souterrains</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:86%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">86%</span>
+                          <span class="news-request-progressbar-target">600 / 700</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Vous avez entendu parler de souterrains cachés dans la Plaine de l'Ombre. Peut-être que ce ne sont que des rumeurs, mais les rumeurs naissent toujours quelque part. Le plus grand cimetière de Vesperune cache certainement quelque chose au sujet de vos recherches sur les âmes magiques. Peut-être que si vous percez un quelconque secret, vous aurez les ressources nécessaires pour obtenir l'autorisation d'aller étudier les âmes humaines... À Amberwoods ! <ppkb>[Ouvre le financement pour l'intrigue L'Armée des Morts]</ppkb></p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><span class="special hiver">HIVER</span><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#a2" target="_blank">Le Blizzard</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:85%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">85%</span>
+                          <span class="news-request-progressbar-target">3 000 / 3 500</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Un blizzard s’abat sur Amberwoods. La mairie déconseille fortement de s'aventurer à l'extérieur en raison des températures extrêmes (-35°) et des risques de chutes d'arbres. Les routes sont bloquées, la neige recouvre tout sur une hauteur de 120cm. Vous êtes confinés chez vous le temps que la tempête passe (pendant 1 semaine inRP).</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#an5" target="_blank">Une rencontre avec Praline</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:34%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">34%</span>
+                          <span class="news-request-progressbar-target">135 / 400</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Vous trouvez une jeune femme rousse au bord d’un lac, mais elle est inconsciente. Ou… Est-elle… En train de ronfler ?</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#an9" target="_blank">Le Bois-Champignon</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:26%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">26%</span>
+                          <span class="news-request-progressbar-target">180 / 700</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Vous vous aventurez dans les souterrains du Bois-Champignon, à la recherche d’ingrédients rares pour des potions géniales. Mais vous n’aviez pas prévu de vous perdre en chemin…</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><span class="special ete">ÉTÉ</span><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#a6" target="_blank">Feu de Forêt</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:15%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">15%</span>
+                          <span class="news-request-progressbar-target">300 / 2 000</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Un feu a été signalé au sud-ouest de la forêt d’Ambre… Certains disent que les auteurs sont de jeunes touristes d’Hazelgrove venus camper là pour le weekend. Il faut l'endiguer avant qu'il ne se propage.</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#i3" target="_blank">Assassinat</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:14%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">14%</span>
+                          <span class="news-request-progressbar-target">1 455 / 10 000</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>???</p>
+                  </div>
+                </div>
+                
+                <div class="news-request-event-card pa-funding-event">
+                  <div class="news-request-event-name"><a href="https://pumpkinsrpg.forumactif.com/t41-evenements-a-debloquer#b9" target="_blank">Thème Halloween</a></div>
+                  <div class="news-request-event-meta-row">
+                    <div class="news-request-event-progress-wrap">
+                      <div class="news-request-progressbar">
+                        <div class="news-request-progressbar-fill" style="width:10%"></div>
+                        <div class="news-request-progressbar-content">
+                          <span class="news-request-progressbar-badge">10%</span>
+                          <span class="news-request-progressbar-target">300 / 3 000</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="pa-event-desc-toggle" aria-expanded="false">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <div class="news-request-event-summary">
+                    <p>Thème Halloween ajouté aux options de thèmes de façon permanente <ppki>(thème sombre, noir, violet & orange)</ppki></p>
+                  </div>
+                </div>
+            
+              </div>
+            
+              <!-- ONGLET 4 : PRÉLIENS EN ATTENTE -->
+              <div class="pa-event-slide pa-event-slide-prelinks" data-pa-panel="3" data-title="PRÉLIENS EN ATTENTE">
+                
+                <div class="pa-prelink-card">
+                  <span><bfam>Léander</bfam> recherche son cousin, héritier des Vilepierre.</span>
+                  <a target="_blank" href="https://pumpkinsrpg.forumactif.com/t38-scenarios-preliens#pre1" class="pa-prelink-button fa-tip" data-tip="Voir le prélien" aria-label="Voir le prélien">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </a>
+                </div>
+                
+                <div class="pa-prelink-card">
+                  <span><bsor>Matcha</bsor> recherche son grand frère.</span>
+                  <a target="_blank" href="https://pumpkinsrpg.forumactif.com/t38-scenarios-preliens#pre3" class="pa-prelink-button fa-tip" data-tip="Voir le prélien" aria-label="Voir le prélien">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </a>
+                </div>
+                
+                <div class="pa-prelink-card">
+                  <span><brel>Solonne</brel> recherche Badiane, sa "soeur".</span>
+                  <a target="_blank" href="https://pumpkinsrpg.forumactif.com/t38-scenarios-preliens#pre8" class="pa-prelink-button fa-tip" data-tip="Voir le prélien" aria-label="Voir le prélien">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </a>
+                </div>
+                
+              </div>
+            
+              <!-- ONGLET 5 : PLAYLISTS TROP COOLS -->
+              <div class="pa-event-slide pa-event-slide-playlist" data-pa-panel="4" data-title="PLAYLISTS">
+            
+                <a target="_blank" href="https://www.youtube.com/watch?v=8gJ716dhStg&list=RD8gJ716dhStg&start_radio=1" class="pa-playlist">
+                  <img src="https://2img.net/i.imgur.com/mnlP75V.png"/>
+                  <span>
+                    <h2>Thème clair</h2>
+                    <span>
+                      <span class="pa-playlist-adj">Chill</span>
+                      <span class="pa-playlist-adj">Nostalgie</span>
+                    </span>
+                  </span>
+                </a>
+            
+                <a target="_blank" href="https://www.youtube.com/watch?v=FEKpdb4Kkp4&t=1307s" class="pa-playlist">
+                  <img src="https://2img.net/i.imgur.com/7szFwTU.png"/>
+                  <span>
+                    <h2>Thème automne</h2>
+                    <span>
+                      <span class="pa-playlist-adj">Spooky</span>
+                      <span class="pa-playlist-adj">Rythmé</span>
+                    </span>
+                  </span>
+                </a>
+            
+                <a target="_blank" href="https://www.youtube.com/watch?v=S_MOd40zlYU" class="pa-playlist">
+                  <img src="https://2img.net/i.imgur.com/WL0l2fx.png"/>
+                  <span>
+                    <h2>Thème sombre</h2>
+                    <span>
+                      <span class="pa-playlist-adj">Dreamy</span>
+                      <span class="pa-playlist-adj">Nocturne</span>
+                    </span>
+                  </span>
+                </a>
+                
+              </div>
+                
+            </div>
+                    
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              document.querySelectorAll("[data-pa-carousel]").forEach(function (carousel) {
+                const tabs = carousel.querySelectorAll("[data-pa-slide]");
+                const panels = carousel.querySelectorAll("[data-pa-panel]");
+                const title = carousel.querySelector("[data-pa-title]");
+                const nextButton = carousel.querySelector(".pa-event-next");
+            
+                function showSlide(index) {
+                  tabs.forEach(function (tab) {
+                    tab.classList.toggle("is-active", tab.dataset.paSlide === String(index));
+                  });
+            
+                  panels.forEach(function (panel) {
+                    const isActive = panel.dataset.paPanel === String(index);
+                    panel.classList.toggle("is-active", isActive);
+            
+                    if (isActive && title) {
+                      title.textContent = panel.dataset.title || "";
+                    }
+                  });
+                }
+            
+                tabs.forEach(function (tab) {
+                  tab.addEventListener("click", function () {
+                    showSlide(tab.dataset.paSlide);
+                  });
+                });
+                
+                if (nextButton) {
+                  nextButton.addEventListener("click", function () {
+                    const activeTab = carousel.querySelector(".pa-event-tab.is-active");
+                    const currentIndex = activeTab ? Number(activeTab.dataset.paSlide) : 0;
+                    const nextIndex = (currentIndex + 1) % tabs.length;
+                
+                    showSlide(nextIndex);
+                  });
+                }
+              
+              });
+            
+              document.addEventListener("click", function (event) {
+                const button = event.target.closest(".pa-event-desc-toggle");
+            
+                if (!button) return;
+            
+                const card = button.closest(".pa-funding-event");
+                if (!card) return;
+            
+                const isOpen = card.classList.toggle("is-open");
+                button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+              });
+            });
+            </script>  
+                    
+            <div class="pa-contexte glass f2">
+              <img data-theme-image="contexte" class="ttl-contexte" src="https://2img.net/i.imgur.com/9brogu4.png" />
+              <p>Au nord-est des États-Unis, dans le Vermont, se trouve Amberwoods, une petite ville forestière où le temps semble suspendu en plein automne. Nous sommes en 2010. Ce que les habitants ne savent pas, c’est que peu à peu, des sorciers commencent à s’installer parmi eux…</p>
+              <a target="_blank" href="https://pumpkinsrpg.forumactif.com/h1-guidebook?tab=contexte"><span class="button-sm">Lire</span></a>
+            </div>
+            <div class="pa-amis glass f2">
+              <div>
+                <a class="fa-tip" data-tip="Just Married" href="https://just-married.variousforum.com/"><img src="https://i.servimg.com/u/f90/19/77/04/51/bouton16.jpg" /></a>
+                <a class="fa-tip" data-tip="Lumbrileto" href="https://lumbrileto.forumactif.com/"><img src="https://2img.net/i.imgur.com/AqDvxeg.jpeg" /></a>
+                <a class="fa-tip" data-tip="Ariesten" href="https://ariesten.forumactif.com/"><img src="https://2img.net/i.imgur.com/NPZetYQ.png" /></a>
+              </div>
+              <div>
+                <a class="fa-tip" data-tip="Beautiful Freaks" href="https://beautiful-freak.forumactif.com/"><img src="https://2img.net/i.imgur.com/8orzEqR.jpeg" /></a>
+                <a class="fa-tip" data-tip="Nom du forum" href=""><img data-theme-image="parto" src="https://2img.net/i.imgur.com/8McVOIi.png" /></a>
+                <a class="fa-tip" data-tip="Nom du forum" href=""><img data-theme-image="parto" src="https://2img.net/i.imgur.com/8McVOIi.png" /></a>
+              </div>
+            </div>
+            <img class="pa-book" src="https://2img.net/i.imgur.com/0YJ8xVA.png" />
+          </div>
+          <div class="pa-right">
+            <div class="ppk-news glass f2 no-glyph-replace">
+              <span class="ttl-news">NEWS</span>
+              <div class="new">
+                <div class="fc date"><span class="num">01</span><span>NOV</span></div>
+                <span style="font: 14px Calibri;color: var(--color5);">News de novembre et <ppkb><a href="https://pumpkinsrpg.forumactif.com/t587-recensement-novembre-2026#19079" target="_blank">recensement en cours</a></ppkb> !</span>
+              </div>
+              <div class="new">
+                <div class="fc date"><span class="num">15</span><span>SEPT</span></div>
+                <span style="font: 14px Calibri;color: var(--color5);">Le <ppkb>thème hivernal</ppkb> est disponible !</span>
+              </div>
+              <div class="new">
+                <div class="fc date"><span class="num">03</span><span>SEPT</span></div>
+                <span style="font: 14px Calibri;color: var(--color5);">Le registre a été <ppkb><a href="https://pumpkinforumrpg-netizen.github.io/ppk/registre.html" target="_blank">mis à jour</a></ppkb> !</span>
+              </div>
+              <a target="_blank" href="/t32-les-news-de-pumpkins"><button class="button">Voir les annonces</button></a>
+            </div>
+            <div class="ppk-last-messages glass f2">
+              DERNERS MESSAGES
+              <!-- BEGIN giefmod_index1 -->{giefmod_index1.MODVAR}<!-- END giefmod_index1 -->
+            </div>
+            <img data-theme-image="raven" class="raven" src="https://2img.net/i.imgur.com/YKbXkk1.png" />
+          </div>
+        </div>
+      </div>
+    <!-- FIN  PA -->
+    <!-- Fin de l'entête -->
+
+    <!----------------------------------------------->
+    <!-- CONTENU DU FORUM -------------->
+
+    <div id="page-body">
+
+      <div id="{ID_CONTENT_CONTAINER}" {CLASS_CONTENT_CONTAINER}>
+        <div id="outer-wrapper">
+          <div id="wrapper">
+            <div id="container">
+              <div id="content">
+
+                <div id="main">
+                  <div id="main-content">

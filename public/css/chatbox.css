@@ -1,0 +1,70 @@
+
+
+html[data-color-scheme="winter"] .chatcurieux {
+  margin-top: -77px;
+}
+
+html[data-color-scheme="winter"] #chatbox_footer {
+  background: var(--color2) !important;
+}
+
+html[data-color-scheme="winter"] #chatbox_header {
+  background: var(--color3) !important;
+}
+
+html[data-color-scheme="winter"] #chatboxclose {
+  background: var(--color2) !important;
+}
+
+html[data-color-scheme="dark"] .btn-cb {
+  background: var(--color1);
+}
+
+.chatcurieux {
+  position: absolute;
+  margin-top: -85px;
+  margin-left: 700px;
+}
+
+.btn-cb-open:hover::after {
+  transform: translate(9%, 0) !important;
+}
+
+.btn-cb {
+  width: 80px;
+  height: 43px;
+  background: var(--color2);
+  display: flex;
+  align-items: flex-end;
+  margin-left: -40px;
+  padding-right: 13px !important;
+  top: 0;
+  justify-content: center;
+  border-radius: 0 5px 5px 0;
+  transition: 300ms ease;
+}
+
+.btn-cb-open {
+  opacity: .5;
+}
+
+.btn-cb-open:hover {
+  transition: 300ms ease;
+  margin-left: -20px;
+  background: var(--color9);
+  opacity: 1;
+}
+
+.btn-cb-close:hover {
+  background: var(--color9);
+  transition: 300ms ease;
+}
+
+.btn-cb-close:hover::after {
+  transform: translate(18%, 0) !important;
+  transition: 300ms ease;
+}
+
+#chatbox .cb-avatar>img {
+  object-fit: cover;
+}
